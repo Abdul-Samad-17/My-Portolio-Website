@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import { Card, Button, Badge, Pill } from "@/components/ui";
+import { Card, Button, Badge, Pill, StatCounter, CyclingText } from "@/components/ui";
 
 export default function UiKitPage() {
   return (
@@ -106,6 +106,28 @@ export default function UiKitPage() {
                 Uses surface-card-muted token for secondary contrast nesting.
               </p>
             </Card>
+          </div>
+        </section>
+
+        {/* 4. StatCounter & CyclingText */}
+        <section className="space-y-6">
+          <h2 className="text-xl font-heading font-semibold text-foreground border-b border-border pb-2">
+            4. Stat Counters &amp; Cycling Text (FlipWords)
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl border border-border bg-surface-card">
+            <StatCounter value={12} suffix="+" label="Production AI Agents" />
+            <StatCounter value={99} suffix="%" label="Benchmark Accuracy" />
+            <StatCounter value={4} label="MCP Servers Deployed" />
+            <StatCounter value={500} suffix="K+" label="Tokens Processed / Day" />
+          </div>
+
+          <div className="p-6 rounded-2xl border border-border bg-surface-card">
+            <p className="text-lg font-heading font-medium text-foreground">
+              Building next-generation solutions for{" "}
+              <CyclingText
+                words={["Agentic Workflows", "Generative AI", "Knowledge Graphs", "Autonomous Systems"]}
+              />
+            </p>
           </div>
         </section>
       </div>
