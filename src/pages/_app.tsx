@@ -9,6 +9,10 @@ const FluidCursor = dynamic(() => import("@/components/fluid-cursor"), {
   ssr: false,
 });
 
+const WelcomeScreen = dynamic(() => import("@/components/welcome-screen"), {
+  ssr: false,
+});
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
@@ -26,6 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <div className={`${inter.variable} ${sora.variable} font-sans`}>
       <AnimationGateProvider>
         <FluidCursor />
+        <WelcomeScreen />
         <PageTransitionAnimation>
           <Component {...pageProps} />
         </PageTransitionAnimation>
