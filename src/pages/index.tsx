@@ -1,4 +1,5 @@
 import Navbar from "@/layout/navbar";
+import Footer from "@/layout/footer";
 
 export default function HomePage() {
   const sections = [
@@ -43,6 +44,7 @@ export default function HomePage() {
           </section>
         ))}
       </main>
+      <Footer />
     </>
   );
 }
