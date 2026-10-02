@@ -1,19 +1,11 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter, Sora } from "next/font/google";
-import dynamic from "next/dynamic";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/react";
 import { AnimationGateProvider } from "@/contexts/animation-gate";
 import PageTransitionAnimation from "@/components/page-transition-animation";
-import CommandPalette from "@/components/command-palette/command-palette";
-
-const FluidCursor = dynamic(() => import("@/components/fluid-cursor"), {
-  ssr: false,
-});
-
-const WelcomeScreen = dynamic(() => import("@/components/welcome-screen"), {
-  ssr: false,
-});
+import MainLayout from "@/layout/main-layout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,14 +22,16 @@ const sora = Sora({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className={`${inter.variable} ${sora.variable} font-sans min-h-screen bg-background text-foreground`}>
+      <div
+        className={`${inter.variable} ${sora.variable} font-sans min-h-screen bg-background text-foreground`}
+      >
         <AnimationGateProvider>
-          <FluidCursor />
-          <WelcomeScreen />
-          <CommandPalette />
-          <PageTransitionAnimation>
-            <Component {...pageProps} />
-          </PageTransitionAnimation>
+          <MainLayout>
+            <PageTransitionAnimation>
+              <Component {...pageProps} />
+            </PageTransitionAnimation>
+          </MainLayout>
+          <Analytics />
         </AnimationGateProvider>
       </div>
     </ThemeProvider>
