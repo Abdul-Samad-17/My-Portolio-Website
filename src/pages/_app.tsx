@@ -28,7 +28,7 @@ const sora = Sora({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className={`${inter.variable} ${sora.variable} font-sans min-h-screen bg-background text-foreground`}>
         <AnimationGateProvider>
           <FluidCursor />
