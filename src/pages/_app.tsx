@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { ThemeProvider } from "next-themes";
 import { AnimationGateProvider } from "@/contexts/animation-gate";
 import PageTransitionAnimation from "@/components/page-transition-animation";
+import CommandPalette from "@/components/command-palette/command-palette";
 
 const FluidCursor = dynamic(() => import("@/components/fluid-cursor"), {
   ssr: false,
@@ -33,6 +34,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <AnimationGateProvider>
           <FluidCursor />
           <WelcomeScreen />
+          <CommandPalette />
           <PageTransitionAnimation>
             <Component {...pageProps} />
           </PageTransitionAnimation>
