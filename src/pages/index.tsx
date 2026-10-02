@@ -1,5 +1,6 @@
 import Navbar from "@/layout/navbar";
 import Footer from "@/layout/footer";
+import ScrollProgressBar from "@/components/layout/scroll-progress-bar";
 
 export default function HomePage() {
   const sections = [
@@ -14,6 +15,7 @@ export default function HomePage() {
 
   return (
     <>
+      <ScrollProgressBar />
       <Navbar />
       <main className="min-h-screen bg-background text-foreground px-6 sm:px-14 md:px-20 py-10">
         <section id="home" className="min-h-[60vh] flex flex-col justify-center items-center text-center">
