@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Search, FileText, X } from "lucide-react";
 import ThemeSwitch from "@/components/utility/theme-switch";
@@ -84,12 +85,17 @@ export default function MobileMenu({
             <Link
               href="/"
               onClick={onClose}
-              className="flex items-center gap-2 font-heading text-lg font-bold"
+              className="flex items-center gap-2.5 font-heading text-lg font-bold"
             >
-              <span className="font-heading text-xl font-bold">
-                <span className="text-foreground">A</span>
-                <span className="text-accent">S</span>
-              </span>
+              <div className="h-8 w-8 rounded-lg overflow-hidden border border-accent/30 shadow-sm">
+                <Image
+                  src="/logo/logo.png"
+                  alt="Abdul Samad Logo"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <span className="text-foreground">Abdul Samad</span>
             </Link>
             <div className="flex items-center gap-2">

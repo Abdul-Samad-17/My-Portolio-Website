@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Linkedin, Github, FileText } from "lucide-react";
 import siteMetadata from "@/data/siteMetaData.mjs";
 import { navigationRoutes } from "@/data/navigationRoutes";
@@ -21,13 +22,20 @@ export default function Footer() {
             {/* Logo + Name */}
             <Link
               href="/"
-              className="flex items-center gap-2 font-heading text-lg font-bold"
+              className="flex items-center gap-2.5 font-heading text-lg font-bold group"
             >
-              <span className="font-heading text-xl font-bold">
-                <span className="text-foreground">A</span>
-                <span className="text-accent">S</span>
+              <div className="h-8 w-8 rounded-lg overflow-hidden border border-accent/30 shadow-sm transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/logo/logo.png"
+                  alt="Abdul Samad Logo"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <span className="text-foreground group-hover:text-accent transition-colors">
+                {siteMetadata.author}
               </span>
-              <span className="text-foreground">{siteMetadata.author}</span>
             </Link>
 
             {/* Nav links */}

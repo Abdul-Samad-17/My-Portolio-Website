@@ -15,7 +15,7 @@ export default function CursorTrailCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-30"
+      className="pointer-events-none fixed inset-0 z-0"
       aria-hidden="true"
     />
   );

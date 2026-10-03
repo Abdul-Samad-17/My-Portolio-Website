@@ -1,33 +1,28 @@
 /**
- * Cursor trail utility — [CLONE] mechanism + [BUILD] two-color extension.
+ * Cursor trail utility — Fluid smoke ribbon effect.
  *
- * Draws a fluid smoke/trail effect on a full-screen canvas following the mouse.
- * Colors are resolved at runtime from CSS custom properties (--accent and
- * --cursor-trail-secondary) so the trail automatically updates with the theme.
+ * Renders a continuous, smooth, glowing fluid ribbon that follows the cursor
+ * and tapers organically like luminous smoke.
+ *
+ * Dynamically resolves two CSS variables:
+ *  - Primary: --accent (Teal)
+ *  - Secondary: --cursor-trail-secondary (Violet)
  */
 
-export interface TrailPoint {
+export interface Point {
   x: number;
   y: number;
-  dx: number;
-  dy: number;
-  age: number;
-  size: number;
+  time: number;
 }
 
-/**
- * [BUILD] Resolve an HSL CSS custom property to an { r, g, b } object.
- * The CSS variable stores raw HSL triplets like "183 65% 35%" (no hsl() wrapper),
- * so we parse manually.
- */
 export function resolveHslVar(varName: string): { r: number; g: number; b: number } {
-  if (typeof window === "undefined") return { r: 0, g: 0, b: 0 };
+  if (typeof window === "undefined") return { r: 32, g: 141, b: 147 };
 
   const raw = getComputedStyle(document.documentElement)
     .getPropertyValue(varName)
     .trim();
 
-  if (!raw) return { r: 0, g: 0, b: 0 };
+  if (!raw) return { r: 32, g: 141, b: 147 };
 
   const parts = raw.split(/\s+/);
   const h = parseFloat(parts[0]) || 0;
@@ -66,18 +61,18 @@ function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: n
   };
 }
 
-const MAX_TRAIL_POINTS = 50;
-const POINT_LIFETIME = 40;
+const TRAIL_LIFETIME = 450; // ms
+const MAX_WIDTH = 12; // px at the cursor head
 
 export class CursorTrail {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private points: TrailPoint[] = [];
-  private mouseX = 0;
-  private mouseY = 0;
+  private points: Point[] = [];
   private animationId: number | null = null;
-  private color1 = { r: 31, g: 141, b: 147 }; // accent fallback
-  private color2 = { r: 138, g: 99, b: 210 }; // secondary fallback
+  private lastX = 0;
+  private lastY = 0;
+  private color1 = { r: 32, g: 141, b: 147 }; // accent (teal)
+  private color2 = { r: 138, g: 99, b: 210 }; // secondary (violet)
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -86,67 +81,60 @@ export class CursorTrail {
     this.refreshColors();
   }
 
-  /** [BUILD] Re-read both CSS-variable colors (call on theme change). */
   refreshColors(): void {
     this.color1 = resolveHslVar("--accent");
     this.color2 = resolveHslVar("--cursor-trail-secondary");
   }
 
   resize(): void {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
+    this.canvas.style.width = `${window.innerWidth}px`;
+    this.canvas.style.height = `${window.innerHeight}px`;
+    this.ctx.scale(dpr, dpr);
   }
 
   onMouseMove(x: number, y: number): void {
-    const dx = x - this.mouseX;
-    const dy = y - this.mouseY;
-    this.mouseX = x;
-    this.mouseY = y;
+    const now = performance.now();
+    const dx = x - this.lastX;
+    const dy = y - this.lastY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (this.points.length < MAX_TRAIL_POINTS) {
-      this.points.push({
-        x,
-        y,
-        dx: dx * 0.15,
-        dy: dy * 0.15,
-        age: 0,
-        size: Math.min(Math.sqrt(dx * dx + dy * dy) * 0.4, 12),
-      });
+    // If mouse moved a significant distance, interpolate intermediate points for silky smoothness
+    if (dist > 6 && this.lastX !== 0 && this.lastY !== 0) {
+      const steps = Math.min(Math.floor(dist / 4), 6);
+      for (let i = 1; i <= steps; i++) {
+        const factor = i / (steps + 1);
+        this.points.unshift({
+          x: this.lastX + dx * factor,
+          y: this.lastY + dy * factor,
+          time: now,
+        });
+      }
+    }
+
+    this.points.unshift({ x, y, time: now });
+    this.lastX = x;
+    this.lastY = y;
+
+    // Cap point buffer
+    if (this.points.length > 50) {
+      this.points.length = 50;
     }
   }
 
   start(): void {
     const draw = () => {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      const now = performance.now();
+      const dpr = window.devicePixelRatio || 1;
+      this.ctx.clearRect(0, 0, this.canvas.width / dpr, this.canvas.height / dpr);
 
-      this.points = this.points.filter((p) => p.age < POINT_LIFETIME);
+      // Prune expired points
+      this.points = this.points.filter((p) => now - p.time < TRAIL_LIFETIME);
 
-      for (const point of this.points) {
-        point.age++;
-        point.x += point.dx;
-        point.y += point.dy;
-        point.dx *= 0.96;
-        point.dy *= 0.96;
-
-        const progress = point.age / POINT_LIFETIME;
-        const alpha = 1 - progress;
-        const size = point.size * (1 - progress * 0.5);
-
-        // [BUILD] Blend between color1 (accent) and color2 (secondary) based on progress
-        const r = Math.round(
-          this.color1.r + (this.color2.r - this.color1.r) * progress
-        );
-        const g = Math.round(
-          this.color1.g + (this.color2.g - this.color1.g) * progress
-        );
-        const b = Math.round(
-          this.color1.b + (this.color2.b - this.color1.b) * progress
-        );
-
-        this.ctx.beginPath();
-        this.ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
-        this.ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.3})`;
-        this.ctx.fill();
+      if (this.points.length >= 3) {
+        this.drawFluidRibbon(now);
       }
 
       this.animationId = requestAnimationFrame(draw);
@@ -155,13 +143,122 @@ export class CursorTrail {
     this.animationId = requestAnimationFrame(draw);
   }
 
+  private drawFluidRibbon(now: number): void {
+    const pts = this.points;
+    const count = pts.length;
+    if (count < 3) return;
+
+    // Calculate normal offsets for ribbon geometry
+    const leftRail: { x: number; y: number }[] = [];
+    const rightRail: { x: number; y: number }[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const p = pts[i];
+      const age = now - p.time;
+      const progress = Math.min(1, Math.max(0, age / TRAIL_LIFETIME));
+      const width = MAX_WIDTH * Math.pow(1 - progress, 1.4);
+
+      // Calculate tangent
+      let dx = 0;
+      let dy = 0;
+      if (i === 0) {
+        dx = pts[0].x - pts[1].x;
+        dy = pts[0].y - pts[1].y;
+      } else if (i === count - 1) {
+        dx = pts[i - 1].x - pts[i].x;
+        dy = pts[i - 1].y - pts[i].y;
+      } else {
+        dx = pts[i - 1].x - pts[i + 1].x;
+        dy = pts[i - 1].y - pts[i + 1].y;
+      }
+
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      // Normal vector perpendicular to trajectory
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      leftRail.push({
+        x: p.x + nx * width,
+        y: p.y + ny * width,
+      });
+      rightRail.push({
+        x: p.x - nx * width,
+        y: p.y - ny * width,
+      });
+    }
+
+    // Create dynamic gradient from head (accent teal) to tail (secondary violet)
+    const head = pts[0];
+    const tail = pts[count - 1];
+    const grad = this.ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
+
+    const c1 = this.color1;
+    const c2 = this.color2;
+
+    grad.addColorStop(0, `rgba(${c1.r}, ${c1.g}, ${c1.b}, 0.75)`);
+    grad.addColorStop(0.4, `rgba(${c1.r}, ${c1.g}, ${c1.b}, 0.45)`);
+    grad.addColorStop(0.75, `rgba(${c2.r}, ${c2.g}, ${c2.b}, 0.25)`);
+    grad.addColorStop(1, `rgba(${c2.r}, ${c2.g}, ${c2.b}, 0)`);
+
+    // Render smooth continuous ribbon polygon
+    this.ctx.save();
+    this.ctx.beginPath();
+
+    // Start at head of left rail
+    this.ctx.moveTo(leftRail[0].x, leftRail[0].y);
+
+    // Quadratic curve down the left rail
+    for (let i = 0; i < leftRail.length - 1; i++) {
+      const xc = (leftRail[i].x + leftRail[i + 1].x) / 2;
+      const yc = (leftRail[i].y + leftRail[i + 1].y) / 2;
+      this.ctx.quadraticCurveTo(leftRail[i].x, leftRail[i].y, xc, yc);
+    }
+    this.ctx.lineTo(leftRail[leftRail.length - 1].x, leftRail[leftRail.length - 1].y);
+
+    // Rounded tip at the tail
+    const lastP = pts[count - 1];
+    this.ctx.quadraticCurveTo(lastP.x, lastP.y, rightRail[rightRail.length - 1].x, rightRail[rightRail.length - 1].y);
+
+    // Quadratic curve back up the right rail
+    for (let i = rightRail.length - 1; i > 0; i--) {
+      const xc = (rightRail[i].x + rightRail[i - 1].x) / 2;
+      const yc = (rightRail[i].y + rightRail[i - 1].y) / 2;
+      this.ctx.quadraticCurveTo(rightRail[i].x, rightRail[i].y, xc, yc);
+    }
+    this.ctx.lineTo(rightRail[0].x, rightRail[0].y);
+
+    // Rounded tip at the head
+    this.ctx.quadraticCurveTo(pts[0].x, pts[0].y, leftRail[0].x, leftRail[0].y);
+
+    this.ctx.closePath();
+    this.ctx.fillStyle = grad;
+    this.ctx.shadowColor = `rgba(${c1.r}, ${c1.g}, ${c1.b}, 0.5)`;
+    this.ctx.shadowBlur = 14;
+    this.ctx.fill();
+
+    // Draw an ultra-fine glowing core line through the spine of the ribbon
+    this.ctx.beginPath();
+    this.ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length - 1; i++) {
+      const xc = (pts[i].x + pts[i + 1].x) / 2;
+      const yc = (pts[i].y + pts[i + 1].y) / 2;
+      this.ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+    }
+    this.ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
+    this.ctx.lineWidth = 1.5;
+    this.ctx.stroke();
+
+    this.ctx.restore();
+  }
+
   stop(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
     this.points = [];
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    this.ctx.clearRect(0, 0, this.canvas.width / dpr, this.canvas.height / dpr);
   }
 
   destroy(): void {
