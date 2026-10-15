@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Note: Ignore docs/_archive; it describes an older plan.
+
 ## Commands
 
 - Install dependencies: `npm install`

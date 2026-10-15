@@ -214,8 +214,8 @@ function buildFallbackSuggestions(
 
   const fallbackByCategory: Record<string, string[]> = {
     experience: [
-      "What impact are you driving at ArmorCode?",
-      "How did Xansr shape your backend style?",
+      "What core systems have you built in production?",
+      "How do you design scalable backend architectures?",
     ],
     skills: [
       "Which tools do you use most day to day?",
@@ -516,7 +516,7 @@ function classifyUpstreamFailure(status: number): { code: ChatErrorCode; error: 
     return { code: "upstream_rate_limited", error: "The AI service is busy. Please try again shortly.", retryable: true };
   }
   if (status === 401 || status === 403) {
-    return { code: "upstream_auth_error", error: "The AI service rejected the request. Please contact Nikunj directly.", retryable: false };
+    return { code: "upstream_auth_error", error: "The AI service rejected the request. Please contact Abdul Samad directly.", retryable: false };
   }
   // A 4xx other than 429 means the request itself was wrong, so replaying it
   // verbatim fails identically. Only 5xx and unknown statuses are worth a retry.
@@ -575,7 +575,7 @@ export async function POST(request: Request) {
     return createChatErrorResponse(
       503,
       "service_unavailable",
-      "The AI service is not configured right now. Please contact Nikunj directly if you need help.",
+      "The AI service is not configured right now. Please contact Abdul Samad directly if you need help.",
       rateLimitHeaders,
       false
     );
@@ -670,8 +670,8 @@ export async function POST(request: Request) {
           const isFinalRound = round === CHAT_MAX_TOOL_ROUNDS;
           const budgetLeft = CHAT_TOTAL_RESPONSE_BUDGET_MS - elapsed - CHAT_FINAL_ANSWER_RESERVE_MS;
 
-          // Out of time for another tool round: force a text answer.
-          const mustAnswer = isFinalRound || budgetLeft <= 0;
+          // Out of time for another tool round, or tools already ran: force a text answer.
+          const mustAnswer = isFinalRound || budgetLeft <= 0 || toolCount >= 1;
 
           rounds = round + 1;
 
@@ -689,6 +689,18 @@ export async function POST(request: Request) {
            * `tool_calls` reassemble correctly from `index` on this provider —
            * confirmed live before removing the separate blocking path.
            */
+          const roundMessages: ChatCompletionMessageParam[] =
+            round === 0
+              ? messages
+              : [
+                  {
+                    role: "system",
+                    content:
+                      "You are Abdul Samad's AI portfolio assistant. Provide a concise, helpful response to the user based on the tool results above.",
+                  },
+                  ...messages.slice(1),
+                ];
+
           let chunks = "";
           let streamOutcome: { content: string; toolCalls: StreamedToolCall[] };
           try {
@@ -697,12 +709,13 @@ export async function POST(request: Request) {
               headers,
               {
                 model: AI_MODEL,
-                messages,
+                messages: roundMessages,
                 top_p: 0.95,
                 temperature: 0.6,
                 // Keeps chain-of-thought short on reasoning-capable models.
                 // Ignored by models that do not support it.
-                reasoning_effort: AI_REASONING_EFFORT,
+                // Only sent when non-empty; an empty string causes 400 on some providers.
+                ...(AI_REASONING_EFFORT ? { reasoning_effort: AI_REASONING_EFFORT } : {}),
                 ...(mustAnswer ? {} : { tools: TOOL_DEFINITIONS, tool_choice: "auto" }),
               },
               CHAT_STREAM_IDLE_TIMEOUT_MS,
@@ -818,7 +831,7 @@ export async function POST(request: Request) {
         }
 
         if (!answer) {
-          answer = "I could not put together an answer for that. Try rephrasing, or reach out to Nikunj directly.";
+          answer = "I could not put together an answer for that. Try rephrasing, or reach out to Abdul Samad directly.";
         }
 
         // appendContextualLinks still runs, but tools already resolved most

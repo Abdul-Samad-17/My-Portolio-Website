@@ -47,7 +47,7 @@ export const TOOL_DEFINITIONS = [
     function: {
       name: "search_work",
       description:
-        "Search across Nikunj's production systems (case studies), personal projects, and experience bullets. Use this first for any question about what he has built, worked on, or is capable of.",
+        "Search across Abdul Samad's production systems (case studies), personal projects, and experience bullets. Use this first for any question about what he has built, worked on, or is capable of.",
       parameters: {
         type: "object",
         properties: {
@@ -277,7 +277,7 @@ const METRICS: MetricEntry[] = [
     keys: ["mcp server", "mcp servers", "servers", "registry size", "10+"],
     value: "10+",
     context:
-      "Production MCP servers Nikunj delivered into ArmorCode's shared enterprise registry. Others in the same registry were built by teammates against the same policy, so this is his contribution rather than the registry total.",
+      "Production MCP servers Abdul Samad delivered into the shared enterprise registry. Others in the same registry were built by teammates against the same policy, so this is his contribution rather than the registry total.",
     source: "Governed MCP Tool Registry",
   },
   {
@@ -294,15 +294,15 @@ const METRICS: MetricEntry[] = [
     source: "LLM Evaluation Platform",
   },
   {
-    keys: ["kappa", "cohen", "judge", "agreement", "inter rater"],
+    keys: ["kappa", "judge", "agreement", "inter rater"],
     value: "≥ 0.7",
     context:
-      "Cohen's kappa a judge model must reach against held-out human labels before its scores are allowed to gate any release. Rechecked quarterly.",
+      "Statistical inter-rater agreement kappa a judge model must reach against held-out human labels before its scores are allowed to gate any release. Rechecked quarterly.",
     source: "LLM Evaluation Platform",
   },
   {
-    keys: ["entities", "entity", "knowledge graph size", "1m", "corpus"],
-    value: "1M+",
+    keys: ["entities", "entity", "knowledge graph size", "500k", "corpus"],
+    value: "500K+",
     context:
       "Entities in the production knowledge graph across four content sources: test cases, support documentation, RCA items, and release notes.",
     source: "Knowledge Graph RAG",
@@ -315,17 +315,17 @@ const METRICS: MetricEntry[] = [
     source: "Knowledge Graph RAG",
   },
   {
-    keys: ["business function", "functions", "teams served", "20"],
-    value: "20+",
+    keys: ["business function", "functions", "teams served", "15"],
+    value: "15+",
     context:
-      "Business functions reachable by Slack-accessible agents through Agentic Office OS, which Nikunj co-built with teammates.",
+      "Business functions reachable by Slack-accessible agents through Agentic Office OS, which Abdul Samad co-built with teammates.",
     source: "Agentic Office OS",
   },
   {
     keys: ["cost", "spend", "gateway cost", "57"],
     value: "57%",
     context:
-      "Share of LiteLLM gateway cost traced to 10+ automations across 50,000+ requests, root-caused to a bulk historical backfill rather than the model. Fixed by model migration and prompt caching. A deterministic rewrite was documented as worth a further ~95% reduction. Percentages only — absolute internal spend is not published.",
+      "Share of LiteLLM gateway cost traced to multiple automations across 50,000+ requests, root-caused to a bulk historical backfill rather than the model. Fixed by model migration and prompt caching. A deterministic rewrite was documented as worth a further ~95% reduction. Percentages only — absolute internal spend is not published.",
     source: "LiteLLM gateway",
   },
   {
@@ -339,8 +339,8 @@ const METRICS: MetricEntry[] = [
     keys: ["sub agent", "sub agents", "platform agent", "migration", "2 of 6"],
     value: "2 of 6",
     context:
-      "Platform agent sub-agents Nikunj helped migrate from LangChain4j to Spring AI during his internship, reimplementing memory and evaluation integrations.",
-    source: "ArmorCode internship",
+      "Platform agent sub-agents Abdul Samad helped migrate from LangChain4j to Spring AI during his internship, reimplementing memory and evaluation integrations.",
+    source: "Software engineering internship",
   },
   {
     keys: ["online", "drift", "live traffic", "sample"],
@@ -395,7 +395,7 @@ const METRICS: MetricEntry[] = [
     value: "6",
     context:
       "Model provider backends reachable through one compatible API surface in the open-source gateway, with health-tracked routing and automatic recovery of providers that were temporarily unhealthy.",
-    source: "CodeNex AI API Proxy",
+    source: "OmniGateway: AI Proxy",
   },
   {
     keys: ["sports queries", "fantasy gpt", "98%", "query resolution"],
@@ -405,10 +405,10 @@ const METRICS: MetricEntry[] = [
     source: "Fantasy GPT",
   },
   {
-    keys: ["languages", "20+ languages", "multilingual", "commentary languages", "aiko"],
-    value: "20+",
+    keys: ["languages", "15+ languages", "multilingual", "commentary languages", "aiko"],
+    value: "15+",
     context:
-      "Languages supported by AIKO for live commentary and voice conversation, with persona-driven highlight generation. Presented at IBC 2024 in Amsterdam.",
+      "Languages supported by AIKO for live commentary and voice conversation, with persona-driven highlight generation.",
     source: "AIKO",
   },
   {
@@ -489,7 +489,7 @@ function navigateTo(target: string) {
   }
 
   // Case studies are matched before projects on purpose. Several slugs exist as
-  // both (CodeNex, Serenify, the API proxy), and the case study is the better
+  // both (the API proxy, Serenify), and the case study is the better
   // destination: same subject, far more depth than the project card.
   const study = caseStudies.find(
     (candidate) => normalizeText(candidate.slug) === query || normalizeText(candidate.title) === query

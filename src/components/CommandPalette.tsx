@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 /** `terms` widens matching so "cv", "stack" or "hire" land somewhere sensible. */
 const SECTIONS = [
   { label: "About", href: "#about", terms: "profile bio who" },
-  { label: "Experience", href: "#experience", terms: "career history roles timeline armorcode" },
+  { label: "Experience", href: "#experience", terms: "career history roles timeline" },
   { label: "Work", href: "#work", terms: "projects case studies portfolio systems" },
   { label: "Skills", href: "#skills", terms: "stack technologies tools expertise" },
   { label: "Contact", href: "#contact", terms: "email hire reach out message" },
@@ -249,7 +249,7 @@ const CommandPalette = () => {
                   className={itemClass}
                 >
                   <Mail className="h-4 w-4 shrink-0 opacity-50" />
-                  Email Nikunj
+                  Email Abdul Samad
                 </Command.Item>
                 <Command.Item
                   value="github repositories code source open source"

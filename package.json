@@ -1,15 +1,15 @@
 {
-  "name": "my-next-js-portfolio-v2",
+  "name": "abdul-samad-portfolio",
   "version": "1.0.0",
-  "description": "A modern Next.js portfolio for Nikunj Khitha showcasing GenAI platform engineering work, projects, experience, and interactive AI-powered features.",
+  "description": "A modern Next.js portfolio for Abdul Samad showcasing Applied AI engineering work, projects, experience, and interactive AI-powered features.",
   "type": "module",
-  "homepage": "https://nikunj.codenex.dev",
+  "homepage": "https://abdul-samad-portfolio.example.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2.git"
+    "url": "git+https://github.com/Abdul-Samad-17/My-Portolio-Website.git"
   },
   "bugs": {
-    "url": "https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2/issues"
+    "url": "https://github.com/Abdul-Samad-17/My-Portolio-Website/issues"
   },
   "scripts": {
     "dev": "next dev",
@@ -31,9 +31,9 @@
     "full-stack"
   ],
   "author": {
-    "name": "Nikunj Khitha",
-    "email": "njkhitha2003@gmail.com",
-    "url": "https://nikunj.codenex.dev"
+    "name": "Abdul Samad",
+    "email": "abdulsammadsardar17@gmail.com",
+    "url": "https://github.com/Abdul-Samad-17"
   },
   "license": "ISC",
   "dependencies": {

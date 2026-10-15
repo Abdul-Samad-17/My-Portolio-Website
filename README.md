@@ -1,6 +1,6 @@
 <div align="center">
 
-# Nikunj Khitha — Applied AI Engineer Portfolio
+# Abdul Samad — Applied AI Engineer Portfolio
 
 A production Next.js portfolio built around real proof, not slideware: 13 in-depth engineering case
 studies, an AI Twin that answers questions by calling real tools over the site's own data, and a
@@ -23,7 +23,7 @@ for X" box that answers through the same AI Twin backend. Source of truth: `src/
 
 ### 2. AI Twin — a tool-calling agent, not a chat widget
 `src/components/AITwinChat.tsx` and `src/app/api/chat/route.ts` implement a real agent loop against
-an OpenAI-compatible LLM (NVIDIA NIM by default):
+an OpenAI-compatible LLM (Groq by default):
 - **Real tools** (`src/lib/ai-tools.ts`): `search_work`, `get_case_study`, `get_metric`,
   `compare_systems`, `navigate_to` — all pure, in-process lookups over the site's own data, so the
   agent cites the same facts the pages show.
@@ -76,7 +76,7 @@ modal and locks the page; its desktop layout is a non-modal corner panel and doe
 - **Radix UI / shadcn-style primitives** (`src/components/ui/`)
 - **Zod** — request validation for the chat and contact API routes
 - **Resend** — contact form delivery
-- **NVIDIA NIM (OpenAI-compatible)** — the AI Twin's LLM provider
+- **Groq (OpenAI-compatible)** — the AI Twin's LLM provider
 
 ---
 
@@ -87,13 +87,13 @@ Create a `.env.local`:
 ```bash
 # LLM / AI Twin — used in src/app/api/chat/route.ts
 LLM_API_KEY=your-api-key
-LLM_BASE_URL=https://integrate.api.nvidia.com/v1/chat/completions
-AI_MODEL=openai/gpt-oss-20b
+LLM_BASE_URL=https://api.groq.com/openai/v1/chat/completions
+AI_MODEL=llama-3.3-70b-versatile
 
 # Contact form (Resend)
 RESEND_API_KEY=re_your_resend_api_key
-CONTACT_EMAIL_FROM="Nikunj Portfolio <contact@yourdomain.com>"
-CONTACT_EMAIL_TO=you@example.com
+CONTACT_EMAIL_FROM="Abdul Samad Portfolio <onboarding@resend.dev>"
+CONTACT_EMAIL_TO=abdulsammadsardar17@gmail.com
 ```
 
 Notes:
@@ -125,27 +125,6 @@ Tests run via Node's built-in test runner against the TypeScript source directly
 `tests/alias-hook-register.mjs` for the `@/` path-alias resolver), covering the case-study data
 model, the AI Twin's tools and streaming route, contact/rate-limit logic, and UI consistency rules
 for the "Ask about this" affordance and the glass design tokens.
-
----
-
-## Codex Job Hunt Toolkit
-
-This repo also includes Codex skills and subagents for resume and job-search workflows, unrelated to
-the site itself:
-
-- `$portfolio-resume-refresh with subagents` refreshes the base one-page ATS LaTeX résumé from the
-  latest portfolio facts.
-- `$jd-tailored-resume with subagents` rewrites the résumé for a specific job description using
-  portfolio facts, JD keywords, company research, and ATS best practices.
-- `$resume-scorecard with subagents` scores the résumé against a JD without editing.
-- `$application-packet with subagents` produces cover letters, recruiter messages, LinkedIn notes,
-  referral asks, and follow-ups.
-- `$interview-story-bank with subagents` builds STAR interview stories from verified résumé and
-  portfolio facts.
-- `$portfolio-fact-gap-audit with subagents` finds missing metrics, links, dates, and evidence that
-  would strengthen an application.
-
-Detailed instructions live in `.codex/job-hunt/INSTRUCTIONS.md`.
 
 ---
 

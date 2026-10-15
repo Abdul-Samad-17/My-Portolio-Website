@@ -47,7 +47,7 @@ test("search_work can be narrowed by kind", () => {
 });
 
 test("get_metric returns a measured value with its context", () => {
-  const result = call("get_metric", { name: "cohen kappa" });
+  const result = call("get_metric", { name: "agreement kappa" });
   const output = result.output as { measured: boolean; value: string; source: string };
 
   assert.equal(output.measured, true);
@@ -79,7 +79,7 @@ test("get_case_study can fetch a single section", () => {
     problem?: string;
   };
 
-  assert.match(output.ownership, /platform DevOps/);
+  assert.match(output.ownership, /evaluation framework/i);
   assert.equal(output.problem, undefined, "section fetch should not return the whole study");
 });
 
@@ -97,8 +97,8 @@ test("navigate_to resolves sections, case studies, projects, and the resume", ()
   );
   // A slug that is only a project still resolves to its homepage anchor.
   assert.equal(
-    (call("navigate_to", { target: "resume-fit-codenex" }).output as { href: string }).href,
-    "#project-resume-fit-codenex"
+    (call("navigate_to", { target: "resume-optimizer" }).output as { href: string }).href,
+    "#project-resume-optimizer"
   );
   // A slug that is BOTH a project and a case study resolves to the case study,
   // which covers the same subject in far more depth.

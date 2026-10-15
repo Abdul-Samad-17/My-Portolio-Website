@@ -1,0 +1,24 @@
+# Abdul Samad — Applied AI Engineer
+
+> Applied AI Engineer specializing in robust AI agent architectures, high-throughput backend platforms, and reliable production systems.
+
+## Overview
+- Name: Abdul Samad
+- Role: Applied AI Engineer
+- Education: BS Artificial Intelligence student at FAST NUCES Islamabad (Batch 2024)
+- Focus: Generative AI, end-to-end AI pipelines, and agent architectures
+- Location: Islamabad, Pakistan
+- Email: abdulsammadsardar17@gmail.com
+- GitHub: https://github.com/Abdul-Samad-17
+- LinkedIn: https://www.linkedin.com/in/abdul-samad1706/
+- Website: https://abdul-samad-portfolio.example.com
+- Resume: https://abdul-samad-portfolio.example.com/resume.pdf
+
+## Selected Engineering Case Studies
+- [LLM Evaluation Platform](https://abdul-samad-portfolio.example.com/work/llm-evaluation-platform): Automated evaluation platform scoring prompt variations and model outputs with deterministic and statistical metrics.
+- [Governed MCP Registry](https://abdul-samad-portfolio.example.com/work/governed-mcp-registry): High-throughput Model Context Protocol server registry with dynamic tool resolution and fine-grained access policies.
+- [Code Intelligence Gateway](https://abdul-samad-portfolio.example.com/work/code-intelligence-gateway): Low-latency streaming proxy providing AST-aware code navigation and intelligent cache invalidation.
+- [Knowledge Graph RAG](https://abdul-samad-portfolio.example.com/work/knowledge-graph-rag): Hybrid retrieval engine linking entity-relationship subgraphs with dense vector search for accurate query synthesis.
+- [OmniGateway AI Proxy](https://abdul-samad-portfolio.example.com/work/omni-gateway): High-throughput AI API gateway featuring provider load balancing, semantic caching, and unified OpenTelemetry tracing.
+- [CodeForge Autonomous Web Builder](https://abdul-samad-portfolio.example.com/work/codeforge): Full-stack SaaS platform transforming natural language specifications into running web apps with container sandbox isolation.
+- [Serenify Mindful Assistant](https://abdul-samad-portfolio.example.com/work/serenify): Context-aware conversational wellness platform with mood journaling and privacy-first personalization.

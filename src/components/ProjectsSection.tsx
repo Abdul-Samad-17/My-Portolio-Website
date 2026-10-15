@@ -209,7 +209,7 @@ function ProjectCard({
 
               Inline, the pill lands wherever the heading text happens to end,
               so its position moved between cards with a short title ("Serenify")
-              and a long or wrapping one ("CodeNex AI API Proxy"). Anchored under
+              and a long or wrapping one ("OmniGateway: AI Proxy"). Anchored under
               the heading it sits in the same place on every card, and a display
               heading no longer has to reserve vertical space for a control.
             */}
@@ -305,8 +305,7 @@ const ProjectsSection = () => {
             Selected <span className="text-gradient">Work</span>
           </h2>
           <p className="mb-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Agent systems, retrieval, and platform work I own at ArmorCode, GenAI products shipped at Xansr Media,
-            and the products I have built on my own.
+            Agent architectures, retrieval pipelines, platform services, and end-to-end AI applications I have built and deployed.
           </p>
         </Reveal>
 
@@ -416,7 +415,7 @@ const ProjectsSection = () => {
         {/* View more on GitHub */}
         <Reveal delay={0.1} className="mt-12 flex justify-center">
           <a
-            href="https://github.com/Nikunj2003"
+            href="https://github.com/Abdul-Samad-17"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-full border border-white/10 border-b-white/5 px-8 py-4 text-sm font-bold text-foreground shadow-accent-soft transition-all duration-300 glass hover:bg-white/10 hover:text-primary active:scale-95"

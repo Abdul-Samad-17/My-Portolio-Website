@@ -239,7 +239,7 @@ test("a tool call reassembled from streamed deltas still executes", async (t) =>
     if (!hasToolResult) {
       return { toolCall: { name: "get_metric", args: { name: "MCP servers" } } };
     }
-    return { content: "He delivered 10+ production MCP servers." };
+    return { content: "He deployed 6+ governed tool servers." };
   });
   t.after(() => server.close());
 
@@ -262,5 +262,5 @@ test("a tool call reassembled from streamed deltas still executes", async (t) =>
     .filter((event): event is Extract<ChatStreamEvent, { type: "text_delta" }> => event.type === "text_delta")
     .map((event) => event.text)
     .join("");
-  assert.match(text, /10\+/, "the follow-up round's answer must reach the client");
+  assert.match(text, /6\+/, "the follow-up round's answer must reach the client");
 });

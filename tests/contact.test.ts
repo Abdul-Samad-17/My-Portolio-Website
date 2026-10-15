@@ -10,8 +10,8 @@ import {
 
 test("contactRequestSchema accepts the visible form fields plus anti-spam metadata", () => {
   const result = contactRequestSchema.safeParse({
-    name: "Nikunj",
-    email: "njkhitha2003@gmail.com",
+    name: "Abdul Samad",
+    email: "abdulsammadsardar17@gmail.com",
     reason: "Hiring",
     message: "This is a valid contact message.",
     website: "",
@@ -41,8 +41,8 @@ test("getContactSubmissionIssue flags unrealistically fast submissions", () => {
 
 test("contactRequestSchema rejects invalid contact reasons", () => {
   const result = contactRequestSchema.safeParse({
-    name: "Nikunj",
-    email: "njkhitha2003@gmail.com",
+    name: "Abdul Samad",
+    email: "abdulsammadsardar17@gmail.com",
     reason: "Sales",
     message: "This is a valid contact message.",
     website: "",

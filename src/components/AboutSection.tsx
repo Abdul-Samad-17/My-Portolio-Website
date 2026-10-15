@@ -8,10 +8,9 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import AskAboutThis from "@/components/AskAboutThis";
 import Reveal from "@/components/ui/reveal";
 
-/** Latest entry is the current role; the earliest ArmorCode entry sets tenure. */
+/** Latest entry is the current role. */
 const currentRole = experiences[experiences.length - 1];
-const armorCodeStart = experiences.find((experience) => experience.company === "ArmorCode");
-const tenureLabel = armorCodeStart ? `${armorCodeStart.period.split(/\s*[-–]\s*/)[0]} — present` : currentRole.period;
+const tenureLabel = currentRole.period;
 
 /**
  * About section.
@@ -46,7 +45,7 @@ const AboutSection = () => {
 
                   <h2 className="heading-xl mb-6">
                     About <br className="hidden lg:block" />
-                    <span className="text-gradient">Nikunj</span>
+                    <span className="text-gradient">Abdul Samad</span>
                   </h2>
 
                   <p className="max-w-md leading-relaxed text-muted-foreground">
@@ -160,7 +159,7 @@ const AboutSection = () => {
                         it overlapped the label and pushed the body text down,
                         so tiles in the same row no longer lined up. */}
                     <AskAboutThis
-                      question={`How did Nikunj achieve ${highlight.metric} ${highlight.label.toLowerCase()}?`}
+                      question={`How did Abdul Samad achieve ${highlight.metric} ${highlight.label.toLowerCase()}?`}
                       className="ml-0 mt-auto self-start"
                     />
                   </div>

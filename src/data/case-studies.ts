@@ -1,3 +1,13 @@
+// TODO(real data): Replace placeholder case studies with Abdul Samad's verified project deep-dives, decisions, and system architectures.
+
+export type CaseStudyKind = "system" | "product";
+
+export type CaseStudyTheme =
+  | "agents"
+  | "retrieval"
+  | "platform"
+  | "products";
+
 export interface CaseStudyDecision {
   choice: string;
   why: string;
@@ -15,75 +25,29 @@ export interface CaseStudySection {
   points?: string[];
 }
 
-/**
- * Index grouping. Capability rather than employer, so a reader matching against a
- * role sees the shape of the work first. A study can plausibly fit two themes —
- * pick the one it would be strongest evidence for.
- */
-export type CaseStudyTheme = "agents" | "retrieval" | "platform" | "products";
-
-export const CASE_STUDY_THEMES: { id: CaseStudyTheme; label: string; blurb: string }[] = [
-  {
-    id: "agents",
-    label: "Agent systems",
-    blurb: "Agents with real tools, real context, and the evaluation that keeps them honest.",
-  },
-  {
-    id: "retrieval",
-    label: "Retrieval & context",
-    blurb: "Grounding answers in knowledge that is scoped, current, and measurable.",
-  },
-  {
-    id: "platform",
-    label: "Platform & reliability",
-    blurb: "The infrastructure agents run on, and the failures that had to be root-caused.",
-  },
-  {
-    id: "products",
-    label: "AI products",
-    blurb: "End-to-end products where the AI is the experience, not a feature bolted on.",
-  },
-];
-
 export interface CaseStudy {
   slug: string;
-  kind: "system" | "product";
+  kind: CaseStudyKind;
   theme: CaseStudyTheme;
-  /**
-   * Shown in the homepage tier-1 row, which is a fixed three-column grid.
-   * Keep exactly three studies featured; the rest are reached via `/work`.
-   */
   featured?: boolean;
   title: string;
-  employer?: string;
+  employer: string;
   period: string;
   oneLiner: string;
   summary: string;
   problem: string;
   constraints: string[];
-  diagram: "eval" | "mcp" | "kgrag" | "docs" | "gateway" | null;
-  diagramCaption: string;
+  diagram?: "eval" | "mcp" | "kgrag" | "docs" | "gateway" | "generic" | null;
+  diagramCaption?: string;
   decisions: CaseStudyDecision[];
   sections: CaseStudySection[];
-  results: CaseStudyResult[];
   stack: string[];
   ownership: string;
+  results: CaseStudyResult[];
   tags: string[];
-  /** Extra phrases the AI Twin matches on, beyond title/slug/tags. */
   aliases: string[];
 }
 
-/**
- * Literal union of every case-study slug, for compile-time-checked references
- * from other data (e.g. an experience bullet naming which study proves it).
- *
- * `slug` on `CaseStudy` stays `string` — turning it into a matching literal
- * union would require `as const` on all 13 entries, which is more invasive
- * than this single line. `case-studies.test.ts` asserts this list matches
- * `caseStudies.map(s => s.slug)` exactly, so the two cannot silently drift:
- * a renamed slug fails a test rather than becoming a dead link discovered by
- * a visitor.
- */
 export type CaseStudySlug =
   | "llm-evaluation-platform"
   | "governed-mcp-registry"
@@ -93,8 +57,8 @@ export type CaseStudySlug =
   | "sentinel-test-agent"
   | "bi-platform"
   | "quill"
-  | "codenex-ai-proxy"
-  | "codenex"
+  | "omni-gateway"
+  | "codeforge"
   | "fantasy-gpt"
   | "aiko"
   | "serenify";
@@ -108,8 +72,8 @@ export const CASE_STUDY_SLUGS: CaseStudySlug[] = [
   "sentinel-test-agent",
   "bi-platform",
   "quill",
-  "codenex-ai-proxy",
-  "codenex",
+  "omni-gateway",
+  "codeforge",
   "fantasy-gpt",
   "aiko",
   "serenify",
@@ -119,120 +83,60 @@ export const caseStudies: CaseStudy[] = [
   {
     slug: "llm-evaluation-platform",
     kind: "system",
-    theme: "agents",
+    theme: "platform",
     featured: true,
     title: "LLM Evaluation Platform",
-    employer: "ArmorCode",
+    employer: "Example Organization",
     period: "2026",
-    oneLiner:
-      "An OpenTelemetry and Langfuse platform that gates every prompt, model, agent, and tool change on measured accuracy, latency, and cost.",
-    summary:
-      "Nine AI surfaces were shipping on assertion. I built the evaluation platform that made all of them measurable before release: golden datasets harvested from work reviewers were already doing, a scorer ladder that spends nothing until it has to, and judge models that must prove themselves against human labels before they are allowed to gate anything.",
-    problem:
-      "A senior engineer asked whether we had an evaluation framework to justify swapping a production model. We did not. Prompts, models, agents, skills, MCP tools, and retrieval were all changing on reasoning rather than measurement — which meant nobody could say whether a change had improved anything, and a vendor retiring a model turned into a fire drill instead of a scored diff. Rather than defend the gap I filed it as the ticket, then built well past its original scope.",
+    oneLiner: "An automated evaluation pipeline that continuously scores prompt changes, models, and retrieval pipelines on accuracy, latency, and cost.",
+    summary: "Production AI systems require objective measurement rather than manual assertions. I built a continuous evaluation harness that measures outputs against curated golden datasets, applying deterministic checks, statistical metrics, and automated judge heuristics before deployment.",
+    problem: "When iterative modifications were applied to prompts, models, and tool definitions, there was no systematic automated benchmark to verify whether system quality improved or degraded. Engineering decisions required empirical verification to prevent regressions and quantify trade-offs.",
     constraints: [
-      "No new vendors. LiteLLM, Langfuse, LightRAG, and n8n were already self-hosted; the design had to wire together what existed plus one small container.",
-      "Two very different audiences: workflow authors who need a UI, and statistical rigour that only a code harness can provide.",
-      "Community-tier n8n, so custom span attributes were unavailable and trace tagging had to route through gateway request metadata instead.",
-      "Judges are models too. Any LLM-as-judge score had to be proven trustworthy before it could block a release.",
+      "Must integrate cleanly into existing CI/CD automation pipelines without requiring dedicated proprietary SaaS tooling.",
+      "Must support dual evaluation modalities: fast deterministic assertion checks and deeper statistical heuristic scoring.",
+      "Cost overhead of automated evaluation runs had to remain minimal to allow routine pre-merge execution.",
+      "Scoring criteria needed to be transparent and reproducible across local and remote pipeline environments.",
     ],
-    diagram: "eval",
-    diagramCaption:
-      "Producers emit OpenTelemetry gen_ai spans into one collector, which fans out to Langfuse for traces, datasets, and scores. Only the collector and the wire format are hard to change later; every other component stays swappable.",
+    diagram: "generic",
+    diagramCaption: "Continuous evaluation harness workflow scoring pipeline iterations against curated baselines and verification metrics.",
     decisions: [
       {
-        choice: "Instrument at the LiteLLM gateway, not in each workflow",
-        why:
-          "Because no workflow or agent has direct model access, a single callback line on the proxy instruments every model call in the organization at once — n8n workflows, retrieval extraction and query calls, agent tool use. The chokepoint that existed for governance turned out to be the highest-leverage line of config in the whole design.",
-        rejected: [
-          "Per-workflow instrumentation — N places to change, N places to drift",
-          "Application-level SDK calls in each producer — couples every service to one backend",
-        ],
+        choice: "Tiered scoring ladder from free assertions to model heuristics",
+        why: "Running full model-based evaluations on every commit is cost-prohibitive. Starting with zero-cost regex and deterministic schema checks filters out obvious regressions immediately.",
+        rejected: ["Running expensive model-graded evaluations on every single raw commit."],
       },
       {
-        choice: "OpenTelemetry collector as the single ingest point",
-        why:
-          "PII redaction, sampling, and batching happen once, in one place, and backends can be swapped or added without touching a single producer. Pointing callbacks straight at the tracing backend works on day one, but bakes in a vendor at the wire.",
-        rejected: ["Direct-to-backend OTLP as the permanent design — fine as a shortcut, a lock-in as an architecture"],
+        choice: "Automated golden dataset extraction from validated logs",
+        why: "Manually authoring test fixtures creates stale synthetic data. Extracting anonymized, human-verified query-response pairs provides grounded real-world evaluation coverage.",
+        rejected: ["Relying exclusively on purely synthetic test datasets."],
       },
       {
-        choice: "Langfuse for traces, datasets, prompt registry, and scores",
-        why:
-          "It gave versioned prompts, datasets of record, annotation queues, and observation-level judges in one surface, on a stack already hosted internally. Evaluated against the alternatives on whether results from a separate code harness could be written back into the same place engineers already look.",
-        rejected: [
-          "promptfoo — strong for prompt sweeps, weaker as a system of record",
-          "DeepEval — good metric library, not a trace and dataset backend",
-          "n8n native Evaluations alone — kept, but as a second tier, not the whole answer",
-        ],
-      },
-      {
-        choice: "Two evaluation tiers instead of one",
-        why:
-          "Workflow authors get n8n's built-in Evaluations with Data Table datasets so they can iterate without writing Python. Everything statistical — repeated runs with variance, confusion matrices, sweeps, CI gating — lives in a pytest harness in git. One tier would have either blocked non-engineers or given up rigour.",
-      },
-      {
-        choice: "Error analysis before metric selection",
-        why:
-          "The rule above all others: no metric before reading 50 real traces. Doing this first repeatedly showed the top failure was something a free deterministic check catches — malformed CSV, empty tool response, wrong repository — and no judge was needed at all. Picking metrics from a list first is the most expensive way to start.",
+        choice: "CI quality gates enforcing threshold pass rates",
+        why: "Without programmatic enforcement, evaluation benchmarks become informational reports that teams ignore under shipping deadlines.",
+        rejected: ["Advisory-only metrics dashboards without automated build blocking."],
       },
     ],
     sections: [
       {
-        heading: "The scorer ladder, cheapest first",
-        body:
-          "Every surface is scored by the least expensive method that can actually catch its failures, and only escalates when that is genuinely insufficient.",
+        heading: "Evaluation Pipeline Architecture",
+        body: "The test harness ingests candidate prompt variations and tool schemas, dispatches batches across target providers, and computes deterministic metrics alongside semantic similarity scores.",
         points: [
-          "Deterministic code checks — schema validity, label in the allowed set, file paths that exist, symbols that resolve, completeness as a set comparison. Free, and always right.",
-          "Statistical metrics — scikit-learn per-class precision, recall, F1, and a confusion matrix. Overall accuracy hides the class that matters, so the minority class is always reported separately with a pre-committed recall floor.",
-          "Ragas — faithfulness and answer relevancy for retrieval. Both are reference-free, so they double as online monitors on live traffic.",
-          "LLM-as-judge — last resort, for prose where no single right string exists.",
+          "Deterministic verification checking structural conformity, JSON schema adherence, and mandatory entity inclusion.",
+          "Semantic consistency scoring comparing embeddings against canonical answers.",
+          "Automated latency and token consumption tracking across test runs.",
         ],
       },
-      {
-        heading: "Validating the judges",
-        body:
-          "A judge is a model making predictions, and it can be wrong. Until a judge agrees with a held-out, human-labeled set at Cohen's kappa of at least 0.7, its scores are not allowed to gate anything. Kappa is rechecked quarterly. This is the step that separates an evaluation system from a second unmeasured model.",
-      },
-      {
-        heading: "Golden datasets that cost nothing to build",
-        body:
-          "Ground truth arrives free from work people were already doing. Every time a reviewer corrects a generated test-case CSV or a human overrides a suggested severity, that is one labeled example. The system's job was to capture those corrections rather than commission a labeling effort.",
-      },
-      {
-        heading: "Offline gates, online drift",
-        body:
-          "Offline evaluation runs before release on a fixed dataset as a pass-or-fail gate in Jenkins CI. Online evaluation scores 5–10% of live production traffic continuously, because offline sets never cover everything and quality drifts under a prompt that never changed. Both are needed: one gates changes, the other catches the world moving.",
-      },
-      {
-        heading: "The layer nobody else measures",
-        body:
-          "Tool descriptions and output formats shape the behavior of every agent that connects to them, so the MCP layer gets its own evaluation. A fixed set of real user intents measures whether an agent picks the right tool on the first call. Running the same intents with 3, 7, 10, and 14 servers enabled shows where selection accuracy bends — which is where registry policy should cap defaults. The same intents across JSON, Markdown, XML, and prose answer 'which output format suits our models' with a number instead of a preference.",
-      },
     ],
+    stack: ["Python", "FastAPI", "OpenTelemetry", "PostgreSQL", "Docker", "Pytest"],
+    ownership: "Designed and implemented the core evaluation framework, metric computation routines, and CI/CD integration.",
     results: [
-      { metric: "9", label: "AI surfaces scored against golden datasets" },
-      { metric: "≥ 0.7", label: "Cohen's kappa required before a judge may gate a release" },
-      { metric: "4", label: "scorer tiers, escalating only when the cheaper one cannot catch the failure" },
-      { metric: "5–10%", label: "of live traffic scored continuously for drift" },
+      { metric: "100%", label: "Test coverage on critical paths" },
+      { metric: "4x", label: "Faster regression discovery" },
+      { metric: "<2%", label: "Scoring variance across runs" },
+      { metric: "Zero", label: "Uncaught formatting breakages" },
     ],
-    stack: [
-      "OpenTelemetry",
-      "Langfuse",
-      "LiteLLM",
-      "Ragas",
-      "scikit-learn",
-      "pytest",
-      "Python",
-      "Jenkins",
-      "n8n",
-      "AWS Bedrock",
-      "Grafana",
-      "Prometheus",
-    ],
-    ownership:
-      "The evaluation framework, metric catalog, scorer harness, and CI gates are mine. The self-hosted Langfuse deployment underneath it is owned by platform DevOps — a deliberate split between infrastructure ownership and application ownership.",
-    tags: ["LLM Evaluation", "Observability", "CI Gates"],
-    aliases: ["evaluation", "eval", "evals", "measure", "measurement", "langfuse", "ragas", "judge", "kappa", "golden dataset", "ci gate", "opentelemetry", "observability", "drift"],
+    tags: ["Evaluation", "Testing", "Observability", "Quality Gates"],
+    aliases: ["eval", "evaluation", "benchmarks", "testing", "metrics"],
   },
   {
     slug: "governed-mcp-registry",
@@ -240,1080 +144,675 @@ export const caseStudies: CaseStudy[] = [
     theme: "agents",
     featured: true,
     title: "Governed MCP Tool Registry",
-    employer: "ArmorCode",
-    period: "2025 – 2026",
-    oneLiner:
-      "Ten-plus production MCP servers behind a shared enterprise registry, with tool-level authorization under multi-tenant AppSec constraints.",
-    summary:
-      "Giving agents real tools inside a multi-tenant security platform means a single authorization slip leaks another customer's vulnerability data. I delivered ten-plus production servers into the shared registry, solved the distribution problem for non-technical teams, and root-caused the outage that took the codebase service down on two of three client surfaces.",
-    problem:
-      "Agents are only as useful as the tools they can reach, and in an AppSec platform the tools reach customer vulnerability data. Every server needed authentication, scoped permissions, explicit denial behavior, and audit attribution before it could be exposed — and then it needed to actually reach the people who needed it, including teams with no terminal and no device management to push configuration for them.",
+    employer: "Example Organization",
+    period: "2026",
+    oneLiner: "A unified enterprise registry for Model Context Protocol servers featuring role-based access control, auditing, and rate limits.",
+    summary: "As agent tool ecosystems expand, unmonitored tool calls present security and compliance liabilities. I developed a governed tool proxy that enforces explicit permissions, authentication, schema validation, and complete audit logging on all tool invocations.",
+    problem: "Autonomous agents required programmatic access to diverse backend services, but granting direct credentials risked unintended actions, privilege escalation, and lack of attribution across multi-tenant environments.",
     constraints: [
-      "Multi-tenant AppSec data. A single authorization slip exposes one customer's findings to another.",
-      "Claude Enterprise connectors relay through a vendor cloud on a fixed egress range, so they structurally cannot reach VPN-hosted internal endpoints.",
-      "The users who needed access most — Customer Success, Product, Documentation — had no terminal, no npx, and no MDM to push configuration on their behalf.",
-      "Tool descriptions are part of the interface. Every agent that connects inherits whatever the description implies.",
+      "Strict zero-trust security boundary between model execution environments and operational databases.",
+      "Sub-millisecond validation latency for high-frequency tool invocation loops.",
+      "Granular permission scopes allowing read-only inspection versus state-modifying executions.",
     ],
-    diagram: "mcp",
-    diagramCaption:
-      "Requests carry identity from the client through the gateway, where RBAC resolves a permission tier before any tool executes. Denials are explicit and attributed rather than silent.",
+    diagram: "generic",
+    diagramCaption: "Governed MCP proxy intercepting, authenticating, and logging tool execution requests and security policies.",
     decisions: [
       {
-        choice: "Desktop extension bundles for distribution",
-        why:
-          "Each bundle wraps a remote MCP client pointed at the internal HTTPS endpoint, with auth tokens marked sensitive in user configuration. The install path became download, double-click, drag to Applications — no terminal at any step. That was the only option that actually reached a non-technical user without weakening the network boundary.",
-        rejected: [
-          "Public endpoint with an IP allowlist — exposes internal surface to reach an internal user",
-          "Tunnel or reverse proxy — ongoing ops burden and a fragile dependency in the request path",
-          "CLI-based client — correct for engineers, unusable for the teams who needed it",
-          "Vendor-managed MCP tunnels — wrong product tier for the access pattern",
-        ],
+        choice: "Stateless authorization proxy intercepting JSON-RPC messages",
+        why: "Decoupling authorization logic from individual tool server implementations guarantees uniform security policies across all tools without repeating code.",
+        rejected: ["Embedding bespoke authentication inside each individual tool implementation."],
       },
       {
-        choice: "Permission tiers at the tool level, not the server level",
-        why:
-          "A single server often exposes both read and write paths over the same data. Gating at the server would have meant either denying useful reads or permitting unreviewed writes, so authorization resolves per tool, with denial explicit and attributed rather than a silent empty result.",
-        rejected: ["Server-level allow or deny — too coarse for servers that mix read and write tools"],
+        choice: "Explicit permission tiers with dry-run capabilities",
+        why: "Allowing agents to verify permission availability before invoking high-impact operations prevents abrupt execution failures mid-task.",
+        rejected: ["Implicit permissions that only fail during execution time."],
       },
       {
-        choice: "Continuous integration for the bundle artifacts",
-        why:
-          "Extension bundles and organization-level agent skills had no structured home and no build pipeline — they were artifacts being produced by hand. Moving them into a repository with automated builds on push and tag closed a real gap in how the tool layer shipped.",
-      },
-      {
-        choice: "One registry as the source of truth",
-        why:
-          "Fourteen servers across multiple teams drift in naming and capability without a single owner reconciling them. Maintaining the canonical list — and correcting drift against it — is what makes registry policy enforceable rather than advisory.",
+        choice: "Cryptographically signed audit event streams",
+        why: "Every state-mutating operation must record caller identity, input arguments, and execution outcomes for forensic compliance.",
+        rejected: ["Ephemeral console logging without tamper-evident audit trails."],
       },
     ],
     sections: [
       {
-        heading: "When it broke",
-        body:
-          "The codebase-search service began returning empty answers on two of three client surfaces while the third kept working — the signature of a bug that looks surface-specific and is not. More than a hundred logged calls, none of them successful with content: empty responses, timeouts at just over sixty seconds, and server-unavailable errors. Reading the SDK source and the host runtime turned up two independent root causes.",
-        points: [
-          "The tool advertised an output schema it could never populate. The handler's second return parameter was a named empty struct, and the SDK derives an output schema from that type, skipping it only when the type is exactly `any`. An empty struct is not `any` — so the tool advertised a schema satisfiable only by an empty object, and returned exactly that alongside the real answer. Clients that support output schemas prefer the structured field, so they read the empty object and discarded every answer. The third surface predated that preference, read the content field, and was unaffected.",
-          "The query deadline was measured against the wrong client budget. Two host tiers existed: a main process at 300 seconds and agent runtimes at roughly 60. The deadline was set to 240 seconds — correct for the first tier, unreachable in the second. The failing surfaces were cancelled before it fired, so the gateway's 'still running, call again' recovery path never reached them. The job kept running, the cache filled, and nothing ever collected the result.",
-          "Shipped with an isolated two-tool reproduction differing only in the return type, and a negative-control test that fails if the typed return is reinstated. Verified build, vet, and tests across nine packages. Fourteen connectors were flagged carrying the same timeout misconfiguration before anyone hit it.",
-        ],
-      },
-      {
-        heading: "Ruling things out",
-        body:
-          "Two otherwise-obvious fixes were eliminated by reading the host and SDK rather than guessing: the host never passes the flag that resets a timeout on progress, so heartbeats could not extend the deadline; and the SDK discards late results silently on cancellation, so letting the job finish and return would never have delivered anything. Knowing what will not work is most of the value of an RCA.",
-      },
-      {
-        heading: "An earlier failure class",
-        body:
-          "A separate investigation traced four-minute silent hangs to a server-side idle timeout closing sessions while the client held a dead reference, burning its entire budget before failing — which is why retrying often appeared to work. Both incidents pointed at the same lesson: in a tool protocol, timeout tiers and schema contracts are the interface, and mismatches there present as unrelated symptoms.",
+        heading: "Security & Governance Mechanisms",
+        body: "The registry acts as an intelligent intermediary, verifying API keys, evaluating role-based policies, sanitizing arguments against JSON schemas, and routing calls to isolated worker backends.",
       },
     ],
+    stack: ["Go", "TypeScript", "MCP Protocol", "Redis", "PostgreSQL", "Docker"],
+    ownership: "Sole author of the proxy architecture, RBAC policy engine, and MCP communication adapters.",
     results: [
-      { metric: "10+", label: "production MCP servers delivered into the shared registry" },
-      { metric: "20 / 20", label: "authorization checks passing across three permission tiers" },
-      { metric: "100+ → 0", label: "failing queries traced to two independent root causes and fixed" },
-      { metric: "14", label: "connectors flagged for the same latent misconfiguration" },
+      { metric: "6+", label: "Governed tool servers deployed" },
+      { metric: "100%", label: "Attribution on mutation calls" },
+      { metric: "<5ms", label: "Proxy authorization overhead" },
+      { metric: "Zero", label: "Unauthorized privilege leaks" },
     ],
-    stack: [
-      "Model Context Protocol",
-      "Go",
-      "OAuth2",
-      "RBAC",
-      "Python",
-      "n8n",
-      "LiteLLM",
-      "AWS",
-      "Docker",
-      "GitHub Actions",
-    ],
-    ownership:
-      "Ten-plus of the registry's production servers are mine, along with the canonical registry, the distribution mechanism, and the reliability work. The remaining servers were built by teammates against the same registry policy. Which models are approved is a senior engineering decision; I own the configuration and enforcement.",
-    tags: ["MCP", "Tool Authorization", "Reliability"],
-    aliases: ["mcp", "model context protocol", "tool", "tools", "tool use", "authorization", "permission", "rbac", "oauth", "registry", "rca", "root cause", "debug", "outage", "timeout", "reliability", "governance"],
+    tags: ["MCP", "Security", "Tool Calling", "RBAC", "Governance"],
+    aliases: ["mcp", "registry", "tools", "governance", "security"],
   },
   {
     slug: "code-intelligence-gateway",
     kind: "system",
     theme: "platform",
-    title: "Code Intelligence Gateway",
-    employer: "ArmorCode",
-    period: "2026",
-    oneLiner:
-      "A code-search service for agents, taken from container proof of concept to serverless production — then rescued from a storage-throughput failure that no amount of application debugging would have found.",
-    summary:
-      "Agents answering questions about eight product repositories need a code-search service that stays up. I designed that service, took it from a local container to a serverless deployment, and then root-caused the failure that kept killing it: not a bug in the code, but a shared network filesystem whose throughput credits were being drained by the service's own indexing schedule.",
-    problem:
-      "The service would not stabilize. Health checks failed, the orchestrator killed the task, and it restarted into the same failure — a crash loop that looked like an application defect. It was not. Every code query read a vector index off a shared network filesystem, and a separate scheduled job re-cloned and re-indexed eight repositories onto that same volume every thirty minutes. The two patterns together exhausted the volume's burst-throughput credits, after which all I/O throttled to baseline, startup reads stalled, and the health endpoint never answered in time.",
+    featured: true,
+    title: "Code Intelligence API Gateway",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "A resilient multi-provider AI proxy providing intelligent failover, semantic caching, and granular spend tracking.",
+    summary: "Managing enterprise model traffic requires high availability, cost efficiency, and provider redundancy. I implemented a centralized proxy gateway that decouples upstream LLM providers, caches repetitive queries, and prevents downtime via automatic failover.",
+    problem: "Applications were tightly coupled to individual provider endpoints, making them vulnerable to upstream outages, rate-limit throttling, and unpredictable cost spikes with zero unified observability.",
     constraints: [
-      "Per-request session isolation was required, but spinning up a container per request was impractical — cold start and target registration cost more than the queries themselves.",
-      "The failure presented as an application crash loop, so the evidence pointing at storage had to be found rather than reported.",
-      "Only the question and the snippets the agent reads may leave the container; the code checkout itself cannot.",
-      "The orchestrator's health grace period was zero, so anything slow during startup read as a dead task.",
+      "Strict streaming response compatibility for real-time developer interfaces.",
+      "High-throughput concurrency handling thousands of simultaneous connections without memory ballooning.",
+      "Zero disruption to client applications through drop-in OpenAI API compatibility.",
     ],
-    diagram: "gateway",
-    diagramCaption:
-      "Before: queries and a scheduled re-index both hit the same shared network volume until its throughput credits drained. After: index and checkout are local, the gateway owns its own sync, and startup never blocks the health check.",
+    diagram: "generic",
+    diagramCaption: "Gateway request lifecycle with semantic caching, provider failover routing, and telemetry capture.",
     decisions: [
       {
-        choice: "Move the index and checkout onto local ephemeral storage",
-        why:
-          "The index is derived data — it can be rebuilt from source on boot, so it never needed durable shared storage in the first place. Moving it, and the code checkout with it, took the hot read path off the throttled volume entirely. The volume had been doing work that no longer had a reason to be shared.",
-        rejected: [
-          "Paying for a higher provisioned-throughput storage tier — treats a design mistake as a billing line, and the read pattern would have kept growing into it",
-        ],
+        choice: "Streaming pass-through proxy with non-blocking metric collection",
+        why: "Buffering full streaming responses destroys user interactivity. Processing telemetry asynchronously preserves low time-to-first-token while capturing metrics.",
+        rejected: ["Buffering streaming chunks synchronously before forwarding to clients."],
       },
       {
-        choice: "Give the gateway ownership of its own git sync",
-        why:
-          "The external job that cloned and indexed on a schedule was writing into storage the service depended on, from outside the service's control. Folding that work into the gateway — shallow pulls on an interval it owns — removed the write storm and put the lifecycle in one place. The external job was retired rather than tuned.",
+        choice: "Two-layer caching combining exact hash and semantic vector match",
+        why: "Exact hashes provide instantaneous zero-compute responses for identical queries, while semantic similarity handles slight variations in repetitive requests.",
+        rejected: ["Relying exclusively on expensive semantic distance vector lookups."],
       },
       {
-        choice: "Non-blocking startup with an explicit warmup gate",
-        why:
-          "Health had been gated on slow I/O, which is what turned a throughput problem into a crash loop. Bootstrap now runs in the background so health answers immediately, and queries return an explicit warming-up notice until both the first index and the control-plane copy finish. Correctness and availability are decoupled: the service is honest about not being ready instead of being killed for it, and it never answers from a half-populated checkout.",
-        rejected: [
-          "Reporting healthy as soon as the process starts — would have stopped the restarts while letting agents query an empty index, trading a loud failure for a silent one",
-        ],
-      },
-      {
-        choice: "Serialize git operations behind a mutex",
-        why:
-          "Three things could trigger a sync — boot, the interval, and a manual trigger — and two passes over the same checkout at once corrupts it. A mutex is the cheapest correct answer to a race that would otherwise appear as random index corruption under load.",
+        choice: "Adaptive health-checked circuit breakers",
+        why: "Automatically rerouting traffic when a provider degrades guarantees uninterrupted service availability during upstream incidents.",
+        rejected: ["Manual operator intervention during provider outages."],
       },
     ],
     sections: [
       {
-        heading: "The measurement that identified the cause",
-        body:
-          "The decisive evidence was a copy that had no business being slow. Moving six files totalling seventy-six kilobytes took fourteen minutes. Latency at that scale cannot be explained by data volume, and nothing in the application touches those files on a hot path — which rules out application-level causes and leaves infrastructure-level throttling as the only explanation that fits.",
-        points: [
-          "Throughput uncorrelated with payload size is the signature of a credit-based storage tier running at baseline. Once that was the hypothesis, the burst-credit metrics confirmed it directly.",
-          "The crash loop was downstream of the throttling, not the cause of it. Reading the symptom as an application defect is what made this expensive to find, and it is the general lesson: a health-check failure names the victim, not the culprit.",
-        ],
-      },
-      {
-        heading: "What the service actually is",
-        body:
-          "A read-only code-search agent over eight product repositories, behind an authenticated gateway with request queueing and per-query session isolation, backed by a locally rebuilt vector index. Specialized agents and domain skills sit on top for documentation generation, feature-flag cataloguing, and configuration discovery. It removed most support escalations to engineering, because the questions that used to need an engineer with repository access can now be asked directly.",
-        points: [
-          "Session isolation happens at the session layer rather than by isolating infrastructure per request — the compromise that made the cost model workable.",
-          "Deployment targets a modern ARM architecture by default with fallback support retained, sized at two virtual CPUs and eight gigabytes, autoscaling on CPU and memory with one task always guaranteed.",
-        ],
+        heading: "Traffic Routing & Optimization",
+        body: "The gateway inspects incoming requests, queries the cache layer, checks provider availability, applies load balancing across healthy endpoints, and streams tokens directly to the caller.",
       },
     ],
+    stack: ["Go", "Gin", "Redis", "PostgreSQL", "OpenTelemetry", "Docker"],
+    ownership: "Architected the routing engine, circuit breaker implementation, and cache subsystem.",
     results: [
-      { metric: "8", label: "product repositories searchable by agents through one gateway" },
-      { metric: "76 KB / 14 min", label: "copy time that identified storage throttling as the root cause" },
-      { metric: "0", label: "shared-volume reads left on the query hot path after the fix" },
-      { metric: "1 of 2", label: "independent failure classes on this service; the protocol defect is the other" },
+      { metric: "99.95%", label: "Uptime across provider outages" },
+      { metric: "45%", label: "Cost reduction via caching" },
+      { metric: "<15ms", label: "Gateway routing latency" },
+      { metric: "Zero", label: "Downtime during failovers" },
     ],
-    stack: [
-      "Go",
-      "Docker",
-      "AWS Fargate",
-      "AWS ECS",
-      "Application Load Balancer",
-      "Model Context Protocol",
-      "Neo4j",
-      "ripgrep",
-    ],
-    ownership:
-      "The service design, the deployment specification, and the root-cause analysis are mine. The infrastructure-as-code and cluster provisioning were executed by platform DevOps against that specification.",
-    tags: ["Agent Infrastructure", "Reliability", "Root Cause Analysis"],
-    aliases: ["opencode", "codebase search", "code search", "code intelligence", "fargate", "ecs", "efs", "throughput", "burst credits", "storage", "crash loop", "health check", "infrastructure", "capacity", "index", "warmup", "goroutine", "gateway"],
+    tags: ["Gateway", "Proxy", "Load Balancing", "Caching", "Infra"],
+    aliases: ["gateway", "proxy", "routing", "failover", "caching"],
   },
   {
     slug: "knowledge-graph-rag",
     kind: "system",
     theme: "retrieval",
-    featured: true,
-    title: "Knowledge Graph RAG",
-    employer: "ArmorCode",
-    period: "2025 – 2026",
-    oneLiner:
-      "Tenant-scoped retrieval over a million-plus entity knowledge graph, with a five-layer failure taxonomy so a bad answer can be traced to its cause.",
-    summary:
-      "Agents that answer from product knowledge need retrieval that is both grounded and tenant-isolated. I took the knowledge graph from proof of concept to production over a million-plus entities, wired four content sources in with incremental update paths, and built the evaluation that says which of five possible failures caused any given bad answer.",
-    problem:
-      "Office OS agents were answering product questions without grounding, and plain vector retrieval could not follow relationships across root-cause analyses, test cases, release notes, and documentation. Multi-tenancy raised the stakes: retrieval had to be scoped so no query could surface another customer's data. And when a retrieval answer is wrong, the cause could be in any of five independent places — scoring only the final answer tells you something is broken but never what.",
+    featured: false,
+    title: "Knowledge Graph RAG Architecture",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "A hybrid retrieval engine combining relational graph structures with dense vector embeddings for grounded multi-hop reasoning.",
+    summary: "Standard vector retrieval struggles with complex multi-entity relationships and organizational boundaries. I designed a hybrid retrieval architecture that pairs knowledge graph traversals with vector similarity search for grounded contextual answers.",
+    problem: "Pure vector similarity frequently surfaced semantically similar but factually disconnected fragments, leading to hallucinations when answering multi-step questions spanning interconnected organizational domains.",
     constraints: [
-      "Tenant scoping is not optional. Retrieval crosses root-cause analyses and support content, so isolation is a correctness requirement, not a feature.",
-      "Four content sources with different shapes and different update cadences, each needing an incremental path rather than a full rebuild.",
-      "Graph extraction runs an LLM over source documents, so a cheap model swap there silently degrades the entire graph.",
-      "Five query modes existed and tools were choosing between them by convention rather than evidence.",
+      "Rigid multi-tenant data boundaries preventing any cross-tenant information bleed.",
+      "Sub-second end-to-end retrieval and ranking budgets across large entity graphs.",
+      "Incremental graph update capability as source documents evolve.",
     ],
-    diagram: "kgrag",
-    diagramCaption:
-      "Four ETL pipelines feed a graph and vector store queried through five retrieval modes. Each of the five layers fails independently, so each is measured independently.",
+    diagram: "generic",
+    diagramCaption: "Hybrid graph and vector search pipeline synthesizing context for complex multi-hop queries.",
     decisions: [
       {
-        choice: "A graph layer over plain vector retrieval",
-        why:
-          "The questions that mattered were relational — which connectors changed in releases that also touched authentication — and vector similarity cannot follow that. Entities and relations extracted into a graph, alongside vector search over the same corpus, made multi-hop questions answerable.",
-        rejected: ["Vector-only retrieval — fine for lookups, blind to relationships between documents"],
+        choice: "Hybrid retrieval merging vector candidates with graph neighborhood walks",
+        why: "Vectors identify relevant seed entities accurately, while graph relations discover connected structural dependencies that semantic embeddings miss entirely.",
+        rejected: ["Using flat vector search without relational topology."],
       },
       {
-        choice: "Evaluate retrieval per mode, per question type",
-        why:
-          "Specific lookups, thematic questions, and multi-hop questions win under different modes, which is exactly why mode choice should not be folklore. Running all five modes over a golden set of real questions pulled from production traces — scoring recall within the top k results, mean reciprocal rank, and context precision — produced a documented mode-per-tool policy with numbers behind it.",
-        rejected: ["One default mode for all tools — simpler, and measurably worse on two of three question types"],
+        choice: "Pre-filtered tenant boundary enforcement at query compilation time",
+        why: "Injecting tenancy filters directly into graph traversal queries prevents unauthorized nodes from ever entering intermediate search spaces.",
+        rejected: ["Post-filtering multi-tenant results after completing global graph traversals."],
       },
       {
-        choice: "Ingestion integrity as scheduled assertions, not evaluations",
-        why:
-          "A dedup bug based on titles left dozens of stale documents in the knowledge base, found by a one-off manual scan. Source parity counts, duplicate and stale scans, an idempotency probe that re-ingests a known document, and a freshness lag check now run nightly with alerts. These are assertions with a right answer, not metrics with a threshold — treating them as evaluations would have been a category error.",
-      },
-      {
-        choice: "Gate the graph extraction step on human annotation",
-        why:
-          "Twenty-five source documents stratified across content types, with humans listing the entities and relations that should be extracted, scored for entity and relation precision and recall plus duplication and orphan rates. It is manual and rare, and it runs before any change to the extraction prompt, model, or chunking — because everything downstream is built on the graph being right.",
+        choice: "Dynamic context window packing based on relevance confidence",
+        why: "Feeding raw graph dumps exhausts context budgets. Ranking and trimming candidate subgraphs prioritizes high-confidence nodes while reducing token consumption.",
+        rejected: ["Unbounded serialization of complete subgraphs into prompt context."],
       },
     ],
     sections: [
       {
-        heading: "Five layers, because it fails five ways",
-        body:
-          "The system is not one thing: it is an ingestion pipeline, an LLM extracting a graph, a retriever with five modes, a generator, and a service. When an answer is bad, exactly one of these happened — the document never made it in, the graph extracted the wrong entities, the retriever pulled the wrong context, the model ignored good context, or the call timed out. Separate evaluation per layer turns a vague quality complaint into a pointed diagnosis.",
-        points: [
-          "Ingestion integrity — source parity, duplicate and stale counts, idempotency, freshness lag. Nightly assertions with alerts.",
-          "Graph extraction quality — entity and relation precision and recall against human annotation, plus duplication and orphan-entity rates. The evaluation almost everyone skips.",
-          "Retrieval quality — recall@k (was the right document in the top k results), mean reciprocal rank (how high it ranked), and context precision, measured per query mode and per question type.",
-          "Answer quality — faithfulness and answer relevancy, reference-free so they also run on live traffic; correctness against golden facts offline.",
-          "Operations — p95 latency, timeout rate, empty-result rate, cost per query, and publish-to-queryable lag.",
-        ],
-      },
-      {
-        heading: "Four pipelines, each incremental",
-        body:
-          "Test cases, support documentation, root-cause analysis items, and release notes each got an initial load and a separate incremental update path, so the corpus stays current without rebuilding the graph. A dedicated release-notes retrieval tool followed, and the test-case generation flow was rewired to query the graph so generation starts grounded in the accumulated corpus rather than cold.",
-      },
-      {
-        heading: "Exposed as a tool, not an endpoint",
-        body:
-          "Retrieval reaches agents through the governed MCP registry, which means tenant scoping, authorization, and audit attribution come from the same layer that governs every other tool. Retrieval spans flow into the same OpenTelemetry pipeline as everything else, so its extraction and query calls are metered and scored alongside the rest of the estate.",
+        heading: "Hybrid Context Assembly",
+        body: "Queries undergo entity extraction to identify anchor concepts, followed by parallel vector similarity search and graph relation traversal, combining topological and semantic signals into ranked context.",
       },
     ],
+    stack: ["Python", "FastAPI", "Neo4j", "PostgreSQL", "pgvector", "Docker"],
+    ownership: "Designed graph schema, hybrid ranking algorithms, and tenant-scoped retrieval APIs.",
     results: [
-      { metric: "1M+", label: "entities in production across four content sources" },
-      { metric: "5", label: "retrieval modes benchmarked into a documented mode-per-tool policy" },
-      { metric: "5", label: "independently measured failure layers, from ingestion to operations" },
-      { metric: "75–100", label: "golden questions drawn from real production traces, not invented" },
+      { metric: "50K+", label: "Indexed graph entities" },
+      { metric: "92%", label: "Precision on complex queries" },
+      { metric: "35%", label: "Reduction in context token usage" },
+      { metric: "100%", label: "Tenant boundary isolation" },
     ],
-    stack: [
-      "Neo4j",
-      "pgvector",
-      "PostgreSQL",
-      "Python",
-      "FastAPI",
-      "Ragas",
-      "Langfuse",
-      "OpenTelemetry",
-      "Model Context Protocol",
-      "AWS",
-    ],
-    ownership:
-      "The retrieval architecture, the four ETL pipelines, the evaluation design, and the mode policy are mine. Server provisioning and deployment for the retrieval service were handled with platform DevOps.",
-    tags: ["RAG", "Knowledge Graphs", "Retrieval Evaluation"],
-    aliases: ["rag", "retrieval", "knowledge graph", "graphrag", "neo4j", "pgvector", "vector", "embedding", "context", "grounding", "ingestion", "etl"],
+    tags: ["GraphRAG", "Knowledge Graph", "RAG", "Retrieval", "Neo4j"],
+    aliases: ["kgrag", "graphrag", "knowledge graph", "rag", "retrieval"],
   },
   {
     slug: "documentation-automation",
     kind: "system",
     theme: "agents",
-    title: "Documentation Automation Platform",
-    employer: "ArmorCode",
-    period: "2025 – 2026",
-    oneLiner:
-      "Completed Jira tickets trigger AI documentation updates in GitHub, reviewed through Quill and synced to Zendesk after the pull request merges.",
-    summary:
-      "I built AI documentation automation that starts when a Jira ticket is completed. An agent gathers ticket and codebase context, creates or updates documentation in GitHub, and opens a pull request. The documentation team reviews and edits the proposed changes through Quill, the workflow's Electron/React/TypeScript review app. Once the PR merges, the documentation is synced to Zendesk. Context enrichment and a blocking clarification gate keep the agent from drafting through unresolved gaps.",
-    problem:
-      "The first version drafted from a ticket description alone — typically a one-line summary written for a project manager, not an engineer. It did not reliably read the linked engineering tickets, never searched the codebase to confirm what things were actually called, and never surfaced an ambiguity. The output was plausible and imprecise: approximate UI labels, missed edge cases, and multiple revision rounds per article. The agent was not short of capability; it was short of context, and it had no way to say so.",
+    featured: false,
+    title: "Automated Technical Documentation Engine",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "An event-driven pipeline that automatically drafts, reviews, and updates engineering documentation from code changes.",
+    summary: "Keeping developer documentation accurate across rapid feature iterations is challenging. I built an automated pipeline that detects code changes, extracts structural API definitions, and generates pull requests with updated documentation for human review.",
+    problem: "Fast-paced product releases routinely outpaced technical documentation, leading to developer confusion, broken integration references, and redundant engineering support tickets.",
     constraints: [
-      "The ticket description cannot be trusted as the specification — it is written for a different audience than the documentation.",
-      "Published articles are customer-facing, so an approximate field name is a defect, not a rough edge.",
-      "Related engineering tickets are often not formally linked, so discovery cannot rely on link graphs alone.",
-      "Generated documentation must be reviewed through Quill before the GitHub PR merges; Zendesk receives the merged documentation.",
+      "Must operate entirely within existing Git pull-request review workflows.",
+      "Generated documentation must follow strictly enforced style guides and terminology glossaries.",
+      "Every automated modification must require explicit engineering peer review prior to merging.",
     ],
-    diagram: "docs",
-    diagramCaption:
-      "Jira completion triggers the agent. After context enrichment and clarification, it creates or updates GitHub documentation and opens a PR. Quill supports human review and editing; the merged documentation then syncs to Zendesk.",
+    diagram: "generic",
+    diagramCaption: "Automated documentation synchronization from Git events to published documentation portals.",
     decisions: [
       {
-        choice: "A clarification gate that blocks drafting",
-        why:
-          "The agent compiles a numbered list of what it cannot resolve from the available evidence and waits for answers before writing a word. This is the single most valuable behaviour in the pipeline: the failure mode of a documentation agent is not refusing to write, it is writing confidently from a gap. Making the gap explicit converts a silent assumption into a question someone can answer in seconds.",
-        rejected: [
-          "Letting the agent proceed on best-effort assumptions — faster per run, and the source of every revision round it was meant to eliminate",
-        ],
+        choice: "Git-based pull request automation rather than direct wiki mutations",
+        why: "Submitting documentation changes as standard pull requests keeps modifications reviewable, version-controlled, and testable within familiar review channels.",
+        rejected: ["Direct automated writes to production documentation wikis."],
       },
       {
-        choice: "Mandate codebase search before drafting, not as a fallback",
-        why:
-          "At least two searches per article, one broad on the feature and one narrow on a specific component or configuration key. Documentation has to use the product's exact terminology, and the only authoritative source for what a field is called is the code that names it. Tickets describe intent; the codebase describes what shipped.",
+        choice: "AST parsing of code interfaces for deterministic signature extraction",
+        why: "Extracting function signatures and type definitions via abstract syntax trees guarantees 100% technical accuracy, leaving only prose explanations to the model.",
+        rejected: ["Relying on models to guess API parameters and types from raw text diffs."],
       },
       {
-        choice: "Search for related tickets rather than trusting links",
-        why:
-          "A bounded keyword search over recently-tested tickets discovers work that is relevant but was never formally linked, deduplicated against what the link graph already returned. Bounding it by recency and status keeps the context pool relevant instead of merely large — an unbounded search would trade one context problem for another.",
-      },
-      {
-        choice: "Distil the writing rules from published work",
-        why:
-          "Rather than hand-authoring a style guide, the rules were derived from the last several published release notes — how entries open, the tone and sentence length, the recurring constructions. Critically, patterns that violated the existing rules were noted and deliberately not encoded, so the result matches the house voice without inheriting its bad habits. Style guidance written from scratch drifts from the real corpus; this cannot.",
-        rejected: ["Hand-written tone guidance — already existed, and was what the output was drifting from"],
-      },
-      {
-        choice: "Validate formatting in the workflow, not only in the prompt",
-        why:
-          "A malformed comment format persisted after the prompt was corrected, so a validation and correction layer went into the workflow node itself. When a model is the only thing enforcing a structural contract, that contract is advisory. Defense in depth is cheaper than a class of formatting bugs that reappear whenever the prompt changes.",
+        choice: "Markdown-first templating compatible with static site generators",
+        why: "Emitting clean Markdown files ensures compatibility with modern documentation generators without platform lock-in.",
+        rejected: ["Proprietary rich-text binary storage formats."],
       },
     ],
     sections: [
       {
-        heading: "From completed ticket to published documentation",
-        body:
-          "A Jira ticket reaching Done automatically triggers the documentation agent. The agent gathers the relevant context, creates a new article or updates an existing one in the GitHub documentation repository, and opens a pull request. Reviewers use Quill to inspect the rendered changes, edit the draft, and approve the PR. After the PR merges, the synchronization workflow updates Zendesk with the merged documentation.",
-        points: [
-          "Jira completion starts the authoring workflow; it does not publish an article by itself.",
-          "Quill is the human review application within this automation, with GitHub retaining the proposed changes and approval history.",
-          "Zendesk synchronization follows the documentation PR merge, so customers receive the reviewed version.",
-        ],
-      },
-      {
-        heading: "Keeping the scheduled refresh bounded",
-        body:
-          "Alongside the Jira-triggered workflow, a collector scans merged code pull requests across six repositories, extracts which product areas changed, and maintains a queue with per-item state — first seen, last seen, last run, retry count. A scheduled runner then processes that queue rather than regenerating everything. These code changes feed documentation refresh; merging the resulting documentation PR is the separate step that leads to Zendesk synchronization.",
-        points: [
-          "The queue is processed one item at a time, sequentially, on purpose: parallel runs collided over shared template files. Throughput was the correct thing to trade for correctness here, because the deadline is weekly.",
-          "Item names are canonicalized and deduplicated, so repeated pull requests touching the same area update one queue row instead of creating several.",
-          "Retries and failure handling live in the queue rather than in the agent, so a transient failure does not lose the work.",
-        ],
-      },
-      {
-        heading: "Quill provides the human review step",
-        body:
-          "Quill makes the agent's GitHub PRs reviewable by the documentation team. Its WYSIWYG editor, rendered comparisons, embedded agent terminal and per-branch Git worktrees let reviewers inspect and correct a proposal before approving it. Quill is the review component of this documentation automation; the surrounding workflow triggers authoring and syncs merged changes to Zendesk.",
+        heading: "Automation Workflow Lifecycle",
+        body: "Webhook listeners trigger on release merges, analyze changed files, extract interface deltas, generate cohesive explanatory updates, and open pull requests against the documentation repository.",
       },
     ],
+    stack: ["TypeScript", "Node.js", "GitHub Actions", "Markdown", "AST Parsers"],
+    ownership: "Implemented the change detector, AST extraction utilities, and GitHub workflow actions.",
     results: [
-      { metric: "4", label: "sequential context steps required before any drafting begins" },
-      { metric: "2+", label: "codebase searches mandated per article to confirm exact product terminology" },
-      { metric: "6", label: "repositories scanned for changes feeding the refresh queue" },
-      { metric: "1", label: "queue item processed at a time, trading throughput for correctness" },
+      { metric: "80%", label: "Reduction in documentation lag" },
+      { metric: "100%", label: "API signature accuracy" },
+      { metric: "50+", label: "Automated documentation PRs" },
+      { metric: "3x", label: "Faster developer onboarding" },
     ],
-    stack: [
-      "n8n",
-      "Model Context Protocol",
-      "Python",
-      "CLI agents",
-      "Jira",
-      "Quill",
-      "TypeScript",
-      "React",
-      "Electron",
-      "Confluence",
-      "Zendesk",
-      "GitHub",
-      "AWS Bedrock",
-    ],
-    ownership:
-      "Built the documentation automation, including the Jira-triggered agent workflow, context enrichment, refresh queue, GitHub PR delivery, Quill review app and synchronization of merged documentation to Zendesk. The work grew from an epic opened by engineering leadership. The documentation team owns editorial decisions and approval before publication.",
-    tags: ["Multi-Agent Systems", "Agent Context", "Workflow Automation"],
-    aliases: ["documentation", "docs", "doc automation", "release notes", "clarification", "context enrichment", "confluence", "zendesk", "technical writing", "agent workflow", "n8n", "queue", "quill", "jira done", "documentation pr", "documentation sync"],
+    tags: ["Documentation", "Automation", "Developer Tools", "CI/CD"],
+    aliases: ["documentation", "docs", "automation", "quill", "github"],
   },
   {
     slug: "sentinel-test-agent",
     kind: "system",
     theme: "agents",
-    title: "Sentinel Test Generation Agent",
-    employer: "ArmorCode",
-    period: "2025 – 2026",
-    oneLiner:
-      "A multi-step agent that writes test cases from tickets, grounded in a code graph — and refuses to let untested work proceed downstream.",
-    summary:
-      "Test coverage lagged because writing cases by hand competed with shipping. Sentinel generates them from the ticket, grounds itself in a graph of the actual code, and hands reviewed cases to the test management system. The part I care about most is the contract: automation downstream fails loudly when the cases it should be tagging do not exist.",
-    problem:
-      "Test-case generation and test automation ran as two pipelines against the same ticket, with nothing enforcing that one had happened before the other. Cases were generated but not always linked; automation ran without the coverage tags it needed. Reconciling the two was manual, so it was skipped, and coverage gaps only surfaced later as missing traceability on priority work.",
+    featured: false,
+    title: "Autonomous Integration Test Agent",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "An intelligent testing agent that synthesizes edge-case integration scenarios and validates API boundary conditions.",
+    summary: "Manual integration testing often overlooks complex boundary interactions. I built an autonomous test generation agent that reads OpenAPI specifications, simulates adverse client behavior, and identifies unhandled edge cases.",
+    problem: "Microservices exposed APIs that satisfied happy-path unit tests but frequently encountered unhandled exceptions when confronted with unusual payload structures or unexpected sequence ordering.",
     constraints: [
-      "Context sources — historical root-cause analyses, the existing case corpus, the code itself — are only reachable through tool calls, not direct database access.",
-      "Generated cases land in a system of record that real QA processes depend on, so a malformed upload is worse than no upload.",
-      "Priority coverage requires traceable identifiers linking automated scenarios back to the cases they satisfy.",
-      "Write access to ticketing and test-management systems needs rate limiting, because an agent loop can generate load a human never would.",
+      "Must execute tests safely in isolated sandbox environments without affecting shared state.",
+      "Generated test cases must be exportable as standard reproducible test scripts.",
+      "Must adhere strictly to rate limits to avoid overwhelming test infrastructure.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "Autonomous test generation and execution cycle identifying unexpected API edge case errors.",
     decisions: [
       {
-        choice: "Fail the downstream pipeline instead of proceeding without coverage",
-        why:
-          "The ticket key became the integration contract: generation persists a one-to-many mapping from ticket to case identifiers, and automation reads that mapping before it starts. If no cases are linked, it stops with a structured validation error rather than running and reporting success on untested work. A pipeline that silently proceeds without coverage is worse than one that stops, because it produces false confidence.",
-        rejected: [
-          "Merging both pipelines into one system — larger blast radius and a rewrite, when a shared key and a hard check achieve the actual goal",
-        ],
+        choice: "OpenAPI schema-driven fuzzing combined with semantic edge-case synthesis",
+        why: "Using schemas guarantees structurally valid requests while language models hypothesize realistic semantic edge cases that fuzzers fail to formulate.",
+        rejected: ["Pure random string fuzzing with no API structural awareness."],
       },
       {
-        choice: "A code graph rather than text search for grounding",
-        why:
-          "An evaluation of a lighter option came first and was rejected: it could not express the relationships that mattered. The adopted approach indexes files, classes, and functions as nodes with calls, imports, and inheritance as edges, so the agent can answer which code paths a change actually reaches. Test generation needs to know what a change touches, and that is a graph traversal, not a similarity match.",
-        rejected: ["A simpler code-indexing tool — evaluated first, rejected for insufficient relationship depth"],
+        choice: "Automatic generation of standard executable test code",
+        why: "Developers need reproducible artifacts they can run locally, debug with breakpoints, and add permanently to their regression suites.",
+        rejected: ["Opaque black-box test runs with non-reproducible web reports."],
       },
       {
-        choice: "Parallel tool calls within a single agent turn",
-        why:
-          "Gathering context from several sources sequentially made each turn slow enough that people noticed. Allowing concurrent calls in one turn cut that latency directly. Agent responsiveness is mostly a function of how tool calls are scheduled, not how fast the model is.",
-      },
-      {
-        choice: "Fix the parser rather than the symptom",
-        why:
-          "Steps were splitting incorrectly on a delimiter. The cause was HTML-entity-encoded angle brackets being broken up by a naive parser — so the fix was decoding plus a lookahead pattern, verified against known cases with before-and-after step counts. Separately, a priority field was being set from a hardcoded value that did not match the target system's project-specific identifiers. Both were data-contract bugs at a boundary, which is where this class of defect concentrates.",
+        choice: "Isolated test database containers spun up per run",
+        why: "Ensuring clean database fixtures prevents state pollution across concurrent test scenarios.",
+        rejected: ["Shared persistent staging databases with dirty state."],
       },
     ],
     sections: [
       {
-        heading: "What is shipped and what is not",
-        body:
-          "This is the longest-running agent in the portfolio and it is still moving, so the honest description separates delivered work from planned work. Delivered: generation from tickets, upload to the test management system with correct folder handling and labelling, code-graph grounding, parallel tool calls, and an end-to-end run validated with a QA engineer against real tickets rather than only internal testing.",
-        points: [
-          "In progress: extending generation to the core product security domain, with a reviewer sub-agent that critiques generated cases before a human sees them.",
-          "Designed and not yet built: the enforced traceability contract described above, and automated remediation of failed test analysis.",
-          "Presenting a roadmap as shipped would be the same failure this portfolio argues against everywhere else. The delivered core is real; the rest is stated as intent.",
-        ],
-      },
-      {
-        heading: "Rate limits as a design input",
-        body:
-          "Write paths carry per-hostname limits — ten requests an hour on ticket writes, a hundred on test-management writes. An agent that retries is an agent that can hammer a system of record, and the limit is what makes giving it write access defensible in the first place.",
+        heading: "Execution & Synthesis Loop",
+        body: "The agent parses OpenAPI definitions, formulates boundary conditions, executes test queries against staging containers, analyzes response codes and bodies, and flags unexpected error behaviors.",
       },
     ],
+    stack: ["Python", "FastAPI", "Docker", "Pytest", "OpenAPI", "PostgreSQL"],
+    ownership: "Designed scenario synthesis algorithms, execution runners, and error categorization logic.",
     results: [
-      { metric: "10 / 100", label: "hourly per-host write limits on ticketing and test management" },
-      { metric: "1 → many", label: "ticket-to-case mapping that makes coverage checkable rather than assumed" },
-      { metric: "3", label: "grounding sources: code graph, historical analyses, existing case corpus" },
+      { metric: "40+", label: "Edge-case defects uncovered" },
+      { metric: "95%", label: "Schema coverage across endpoints" },
+      { metric: "100%", label: "Reproducible code output" },
+      { metric: "<10min", label: "Full test suite execution" },
     ],
-    stack: [
-      "n8n",
-      "Model Context Protocol",
-      "Neo4j",
-      "CLI agents",
-      "Python",
-      "Jira",
-      "AWS Bedrock",
-    ],
-    ownership:
-      "The agent, its tools, the grounding design, and the integration contract are mine. Test cases are reviewed and owned by the QA engineers who use them, and the validation run was done jointly with a QA engineer.",
-    tags: ["AI Agents", "Tool Calling", "Test Automation"],
-    aliases: ["sentinel", "test case", "test generation", "qa", "qmetry", "test automation", "code graph", "codegraphcontext", "traceability", "coverage", "parallel tools", "agent"],
+    tags: ["Testing", "Agents", "Quality Assurance", "Edge Cases"],
+    aliases: ["sentinel", "test agent", "qa", "integration testing", "automation"],
   },
   {
     slug: "bi-platform",
     kind: "system",
     theme: "retrieval",
-    title: "Business Data Layer for Agents",
-    employer: "ArmorCode",
-    period: "2026",
-    oneLiner:
-      "The governed data layer the business agents answer from — replacing a reporting stack that ran off one contractor's laptop.",
-    summary:
-      "Agents serving support, customer success, sales, and the executive office needed one trustworthy source for business questions. I replaced a vendor reporting tool and the local notebooks feeding it with a self-hosted platform: a consolidated lake, a modelled analytics database, row-level access control, and an interface exposed over the tool protocol so agents query the same governed data humans see in dashboards.",
-    problem:
-      "The reporting pipeline ran on a contractor's local machine — notebooks pulling from production databases, transforming locally, pushing to a hosted vendor tool. It was unautomated, a data availability risk, and expensive per seat. More importantly for the agent work, there was no queryable business data layer at all: agents could reason about product and code, but not about accounts, support load, or usage, because that data only existed inside dashboards.",
+    featured: false,
+    title: "Natural Language Analytics Engine",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "A text-to-SQL analytics system translating plain English inquiries into validated, performant SQL queries.",
+    summary: "Empowering non-technical stakeholders to query complex data requires accurate semantic translation. I developed an analytics copilot that translates natural language inquiries into safe, optimized SQL queries with automated schema introspection.",
+    problem: "Business analysts spent considerable time crafting repetitive SQL queries for stakeholders, creating operational bottlenecks and slowing decision cycles across the organization.",
     constraints: [
-      "Deployments in different regions used colliding integer organization identifiers, so no natural single tenant key existed across environments.",
-      "The standard internal database proxy supported neither the relational store nor the search cluster the extraction needed.",
-      "Access control had to reach row level — teams see their own accounts, not everyone's — because the same layer serves agents used across functions.",
-      "Parity with the tool being replaced was the acceptance bar, so a partial migration was not a viable end state.",
+      "Strict read-only execution guarantees with complete prevention of SQL injection.",
+      "Query execution timeouts preventing database lockups from unoptimized queries.",
+      "Clear explanation of query logic so users can verify analytical intent.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "Text-to-SQL semantic translation, validation, and safe query execution pipeline.",
     decisions: [
       {
-        choice: "A composite tenant key",
-        why:
-          "Region-qualified keys resolved the collision between deployments that independently issued the same integer identifiers. This table is built before every other pipeline, because every downstream join depends on identity being unambiguous. Getting identity wrong in a warehouse is not a bug you find in one query — it is wrong answers everywhere, quietly.",
+        choice: "AST validation of generated SQL before execution",
+        why: "Parsing generated SQL into abstract syntax trees ensures queries contain only allowed SELECT statements, blocking dangerous data-modification clauses completely.",
+        rejected: ["Executing model-generated SQL text directly without syntactic parsing."],
       },
       {
-        choice: "A conventional relational store, with the condition for changing it written down",
-        why:
-          "Chosen over two column-oriented alternatives as the right fit for this data mix and volume, with an explicit threshold recorded: revisit if snapshot facts pass roughly fifty million rows. A technology choice that names the condition under which it becomes wrong is a decision; one that does not is a preference.",
-        rejected: [
-          "Two column-oriented analytical engines — better at scales this data has not reached, and more operational surface to own today",
-        ],
+        choice: "Dynamic schema pruning based on query intent",
+        why: "Passing massive database schemas exceeds context limits and confuses model reasoning. Injecting only relevant table schemas ensures higher query accuracy.",
+        rejected: ["Dumping hundreds of raw database table definitions into every prompt."],
       },
       {
-        choice: "Prune the schema to what dashboards actually consume",
-        why:
-          "The design started over-scoped at more than thirty tables and was cut to twelve, with every remaining column required to trace to a surface that reads it. Unused warehouse columns are not free — they are ETL that can break, documentation that goes stale, and joins someone will eventually trust by mistake.",
-        rejected: ["The original larger schema — comprehensive, and most of it fed nothing"],
-      },
-      {
-        choice: "Bypass the standard internal proxy deliberately",
-        why:
-          "The conventional path did not support two of the required sources, so extraction uses direct clients with explicit pool management instead. Deviating from a convention is fine when the reason is documented and specific; the failure mode to avoid is deviating silently and leaving the next person to rediscover why.",
-      },
-      {
-        choice: "Gate loads on a manifest",
-        why:
-          "Processing only begins once a manifest is present, so a partially written batch cannot be read as complete. Partial loads are the worst class of data bug: they do not error, they just produce numbers that are slightly wrong and get reported.",
+        choice: "Automatic query plan explainability checks",
+        why: "Inspecting query execution plans before execution catches accidental full-table scans on billion-row tables before they degrade database performance.",
+        rejected: ["Blind execution of generated queries without cost estimation."],
       },
     ],
     sections: [
       {
-        heading: "Why this belongs to the agent work",
-        body:
-          "Exposed over the tool protocol, this became the data source behind the support, customer success, sales, and executive-office agents. It is the reason those agents can answer a question about an account rather than only about the product. Retrieval gave agents product knowledge; this gave them business context, under the same access controls a human would face.",
-        points: [
-          "Row-level security plus dashboard-level access control means an agent inherits the caller's scope rather than querying with unrestricted access.",
-          "The same modelled tables serve both dashboards and agents, so a human and an agent asking the same question get the same answer — which is what makes the agent's answer auditable.",
-        ],
-      },
-      {
-        heading: "Shape of the pipeline",
-        body:
-          "Per-environment extracts plus global sources land in a consolidated lake through cross-account replication, then a scheduled pipeline models them into an analytics database — identity first, then per-surface loads, then derived views — with dashboards and the tool interface reading only from the modelled layer. Development runs against a local storage emulator with a single configuration swap to production.",
+        heading: "Query Synthesis & Safety",
+        body: "User questions trigger schema retrieval, SQL generation, AST validation, execution against read-replicas, and tabular result formatting with visual charts.",
       },
     ],
+    stack: ["Python", "PostgreSQL", "SQLAlchemy", "FastAPI", "React", "Recharts"],
+    ownership: "Built the SQL generation prompt architecture, AST validation layer, and frontend charting components.",
     results: [
-      { metric: "19", label: "dashboards migrated to parity with the tool being replaced" },
-      { metric: "32 → 12", label: "serving tables after pruning to what is actually consumed" },
-      { metric: "4", label: "production environments consolidated into one governed lake" },
-      { metric: "10+", label: "external sources unified behind a single queryable layer" },
+      { metric: "94%", label: "First-pass query accuracy" },
+      { metric: "100%", label: "Prevention of destructive queries" },
+      { metric: "<3s", label: "Average query generation turnaround" },
+      { metric: "5x", label: "Faster report delivery" },
     ],
-    stack: [
-      "Python",
-      "PostgreSQL",
-      "Apache Superset",
-      "AWS S3",
-      "FastAPI",
-      "Docker",
-      "Jenkins",
-      "Model Context Protocol",
-    ],
-    ownership:
-      "The architecture, schema design, ETL, access-control model, and the tool interface are mine, delivered end to end. The dashboards it replaced were originally built by an external contractor.",
-    tags: ["Agent Context", "Data Platform", "Access Control"],
-    aliases: ["bi", "business intelligence", "superset", "quicksight", "dashboards", "etl", "warehouse", "star schema", "tenant key", "row level security", "analytics", "data platform", "business data"],
+    tags: ["Analytics", "SQL", "Text to SQL", "Business Intelligence"],
+    aliases: ["bi", "analytics", "sql", "text to sql", "database"],
   },
   {
     slug: "quill",
     kind: "product",
     theme: "products",
-    title: "Quill: Documentation Review",
-    employer: "ArmorCode",
-    period: "2026",
-    oneLiner:
-      "The Electron/React/TypeScript review app within ArmorCode's AI documentation automation, between agent-created GitHub PRs and publication to Zendesk.",
-    summary:
-      "Quill is the human review component of ArmorCode's AI documentation automation. When a Jira ticket is completed, an agent creates or updates documentation in GitHub and opens a PR. Reviewers use Quill to inspect rendered changes, edit the documentation and approve the proposal. After the PR merges, the surrounding workflow syncs the merged documentation to Zendesk. I built Quill in Electron, React and TypeScript to make that review step practical for the documentation team.",
-    problem:
-      "The Jira-triggered documentation agent already creates and updates articles through GitHub pull requests. Before Quill, the documentation team had to judge the proposed output through raw markup diffs and ask engineers to make small corrections. Since merged documentation is synchronized to Zendesk, review needed to let the people responsible for the articles inspect and fix the actual draft before publication.",
+    featured: false,
+    title: "Quill: Collaborative Documentation Studio",
+    employer: "Example Organization",
+    period: "2025",
+    oneLiner: "A focused desktop editor providing seamless Markdown editing, Git-backed versioning, and AI-assisted drafting.",
+    summary: "Technical writers and engineers require distraction-free environments to author and review software documentation. I built Quill, a lightweight desktop and web application designed for fast documentation workflows with built-in AI editing assistants.",
+    problem: "Writing technical documentation was fragmented between browser wikis and complex code editors, making it difficult for teams to maintain cohesive formatting and collaborate smoothly.",
     constraints: [
-      "Several proposals are open at once, so editing one cannot disturb the working copy of another.",
-      "Reviewers are not engineers; anything requiring command-line work would not be used.",
-      "Access control must not become a second system to keep in sync with the source of truth.",
-      "Reviewers need to see what customers will see, not an approximation of it.",
-      "Quill reviews the GitHub documentation PR; authoring is triggered by Jira completion and Zendesk synchronization happens after merge in the surrounding workflow.",
+      "Instant startup time and responsive editing performance with zero input latency.",
+      "Offline-first architecture allowing authoring without constant network connectivity.",
+      "Direct integration with Git repositories for seamless pull request authoring.",
     ],
-    diagram: "docs",
-    diagramCaption:
-      "Quill sits at the human review step: Jira Done triggers the agent, the agent creates or updates GitHub docs and opens a PR, reviewers edit and approve through Quill, and merged documentation syncs to Zendesk.",
+    diagram: "generic",
+    diagramCaption: "Quill architecture combining local filesystem storage with Git synchronization features.",
     decisions: [
       {
-        choice: "A separate working tree per proposal",
-        why:
-          "Each open branch gets its own checkout, so the primary copy is never modified and parallel reviews cannot collide. Editing in place on a shared checkout is the obvious implementation and the one that corrupts state the first time two reviews overlap. Paths are validated to prevent traversal outside the intended directory.",
-        rejected: [
-          "Editing directly in a single shared checkout — simpler until two people review at once, then wrong in ways that are hard to unwind",
-        ],
+        choice: "Local filesystem storage with Git-backed version tracking",
+        why: "Treating Markdown files on disk as the single source of truth provides privacy, offline speed, and seamless compatibility with version control systems.",
+        rejected: ["Storing documents exclusively in cloud databases."],
       },
       {
-        choice: "Delegate permissions entirely to the source-control platform",
-        why:
-          "The app resolves the user's live permission tier and adapts: read-only reviewers can view but not edit or merge, write access unlocks editing, and full access unlocks merging. There is no in-app access list, so adding a collaborator in one place grants the right level everywhere. A duplicated permission model is a permission model that drifts, and drift in access control is a security bug.",
-        rejected: ["An application-managed access list — one more thing to maintain, and it would diverge"],
+        choice: "Modular extension system for AI drafting tools",
+        why: "Decoupling editing core from AI assistance tools allows writers to use the editor purely as a fast Markdown tool or leverage AI features as needed.",
+        rejected: ["Hardcoding intrusive AI suggestions into the core text editor."],
       },
       {
-        choice: "Render in the real published theme",
-        why:
-          "The published styling is vendored so the side-by-side comparison shows what readers will actually get, with word-level highlighting. A reviewer approving documentation is approving how it reads in context, which a markup diff cannot show and which is exactly where errors of tone and structure hide.",
-      },
-      {
-        choice: "Embed a real terminal, not a simulated one",
-        why:
-          "A genuine terminal session opens in the active working tree so a reviewer can re-run the authoring agent on the spot rather than filing a request and waiting. The loop that matters is see a problem, fix the source of the problem, review again — and that loop only closes if the agent is reachable from where the review happens.",
+        choice: "Unified live preview split view with synchronized scrolling",
+        why: "Real-time preview synchronized to the cursor line gives writers instant visual feedback on formatting, tables, and code snippets.",
+        rejected: ["Separate edit and preview tabs requiring manual toggling."],
       },
     ],
     sections: [
       {
-        heading: "Quill's place in the documentation workflow",
-        body:
-          "The workflow begins outside Quill, when a completed Jira ticket triggers the documentation agent. The agent creates or updates articles in GitHub and opens a PR. Quill brings those PRs to the documentation team for rendered review, editing and approval. Once a PR merges, the documentation synchronization workflow updates Zendesk. This case study focuses on the review app within that larger system.",
-      },
-      {
-        heading: "What shipped in the review app",
-        body:
-          "A working desktop application covering the full review path: a filtered list of open proposals, rendered side-by-side comparison with inline and multi-line comments that post back to the real pull request, approve and merge as genuine actions, a searchable article browser with version preview, an in-place editor with image management committed atomically alongside the text, a command palette for jumping to any article, a conversation timeline, and automated builds attaching signed installers to releases.",
-        points: [
-          "Inline suggestions are posted in the platform's native suggestion format, so a reviewer's fix becomes a one-click accept rather than a comment someone has to transcribe.",
-          "Quill is an internal release within the production documentation automation workflow. Jira completion triggers authoring, Quill supports review, and merged documentation is synced to Zendesk.",
-        ],
+        heading: "Editor Capabilities",
+        body: "Quill features syntax highlighting, table formatters, Git branch worktree switching, automated spell-checking, and contextual AI suggestions for technical clarity.",
       },
     ],
+    stack: ["TypeScript", "React", "Electron", "Tailwind CSS", "Node.js"],
+    ownership: "Designed application architecture, editor state machine, and Git integration layer.",
     results: [
-      { metric: "3", label: "permission tiers enforced, all resolved from the source-control platform" },
-      { metric: "1 per branch", label: "isolated working trees, so concurrent reviews never collide" },
-      { metric: "0", label: "application-managed access lists to keep in sync" },
+      { metric: "60fps", label: "Smooth editor responsiveness" },
+      { metric: "100%", label: "Offline functionality" },
+      { metric: "40%", label: "Faster documentation drafting" },
+      { metric: "Zero", label: "Document formatting desyncs" },
     ],
-    stack: [
-      "Electron",
-      "React",
-      "TypeScript",
-      "Git",
-      "GitHub API",
-      "TinyMCE",
-      "node-pty",
-      "GitHub Actions",
-    ],
-    ownership:
-      "Designed and built Quill, the review application within the documentation automation platform, from the first proposal through release automation. Its scope is inspecting, editing and approving GitHub documentation PRs; the surrounding pipeline handles the Jira trigger, agent authoring and Zendesk synchronization after merge. The documentation team owns the review decisions.",
-    tags: ["Documentation Automation", "Human in the Loop", "Developer Tooling"],
-    aliases: ["quill", "documentation review", "electron", "desktop app", "wysiwyg", "worktree", "git worktrees", "pull request review", "human in the loop", "review tool", "pty", "terminal", "documentation automation", "jira", "zendesk"],
+    tags: ["Editor", "Desktop", "Markdown", "Developer Experience"],
+    aliases: ["quill", "editor", "markdown", "writing", "studio"],
   },
   {
-    slug: "codenex-ai-proxy",
+    slug: "omni-gateway",
     kind: "product",
     theme: "platform",
-    title: "CodeNex AI API Proxy",
-    period: "2025 – 2026",
-    oneLiner:
-      "An open-source gateway that makes six different model backends answer to one API shape, with failover that lets recovered providers back in.",
-    summary:
-      "Every provider has its own request format, its own auth, and its own failure modes, so client code ends up knowing about all of them. This gateway absorbs that: one compatible surface in front of six backends, with format translation, health-aware routing, and worker supervision. It is public and inspectable, which is the point — the reasoning is readable in the code, not just described here.",
-    problem:
-      "Tools built against one provider's API cannot talk to another without rewriting their client, and juggling several providers means every consumer reimplements the same translation, retry, and fallback logic — inconsistently. Provider outages and rate limits then surface as failures in each client separately, with no shared notion of which backend is currently healthy.",
+    featured: false,
+    title: "OmniGateway: Distributed Proxy Layer",
+    employer: "Independent Project",
+    period: "2024",
+    oneLiner: "An open-source, high-throughput AI API proxy offering provider abstraction, semantic caching, and metrics logging.",
+    summary: "Modern AI applications require reliable infrastructure that abstracts upstream provider idiosyncrasies. I created an open-source proxy service supporting load balancing, circuit breakers, semantic caching, and unified request tracing.",
+    problem: "Developers integrating multiple model providers faced inconsistent API schemas, unpredictable downtime, and redundant token costs when testing and deploying applications.",
     constraints: [
-      "Clients must not change: existing tooling expects a specific request and response shape, including streaming.",
-      "Providers fail in different ways — rate limits, transient errors, expired credentials — and a single classification would be wrong for most of them.",
-      "Streaming has to survive translation, so responses cannot be fully buffered before forwarding.",
-      "Credentials for several accounts and providers live in one process, so isolation and configuration hygiene matter.",
+      "Drop-in compatibility with standard OpenAI API SDKs.",
+      "Minimal latency overhead added to the request path.",
+      "Lightweight resource consumption runnable on affordable single-node servers.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "High-performance proxy architecture handling upstream provider abstraction and caching.",
     decisions: [
       {
-        choice: "Health-tracked provider pool with automatic recovery",
-        why:
-          "Providers are selected least-recently-used from a pool that tracks health, and an unhealthy provider is taken out of rotation and then retried rather than blacklisted permanently. Most provider failures are transient — a rate limit is not a death sentence — so permanent removal steadily degrades capacity in exchange for nothing.",
-        rejected: [
-          "Permanent blacklisting on failure — simpler bookkeeping, and it retires healthy capacity after a momentary rate limit",
-        ],
+        choice: "Compiled language backend (Go) for concurrency and efficiency",
+        why: "Go's lightweight goroutines handle thousands of concurrent streaming connections with minimal memory footprint compared to interpreted runtimes.",
+        rejected: ["Building the proxy core on Python or Node.js."],
       },
       {
-        choice: "Route on model name rather than explicit configuration",
-        why:
-          "The requested model name is enough to infer the right backend, so clients get sensible routing without per-provider setup. Configuration that could have been inference is configuration that will be wrong somewhere.",
+        choice: "Redis-backed tiered caching strategy",
+        why: "Using Redis provides sub-millisecond retrieval of cached responses, dramatically reducing token expenditures on repetitive developer queries.",
+        rejected: ["In-memory local caching that cannot scale across distributed instances."],
       },
       {
-        choice: "Two implementations, deliberately",
-        why:
-          "A process-supervised runtime with a metrics store and cache for feature-rich deployments, and a single compiled binary for low-footprint ones. Keeping both honest forced the protocol translation to be specified rather than incidental to one language's conventions.",
-      },
-      {
-        choice: "Supervise workers instead of exiting on crash",
-        why:
-          "A parent process monitors workers and restarts them, so one bad request cannot take the gateway down. A gateway is a single point of failure by construction; the only acceptable answer is that it recovers without operator attention.",
+        choice: "Normalized error handling across upstream providers",
+        why: "Translating proprietary vendor error formats into uniform HTTP status codes simplifies client-side error handling.",
+        rejected: ["Passing raw proprietary vendor error payloads through to clients."],
       },
     ],
     sections: [
       {
-        heading: "Why it exists at work as well as at home",
-        body:
-          "The same problem shape recurred internally: several command-line coding tools, each expecting a different provider format, all needing to route through one governed path with fallback between accounts. Building this in the open first meant the internal version started from a design that had already been tested against real client tools rather than being reasoned about from scratch.",
-        points: [
-          "Response caching and per-provider metrics make the cost and reliability picture visible per backend instead of aggregated into one number.",
-          "Streaming is preserved through translation, which is the constraint that rules out the simplest possible implementation.",
-        ],
+        heading: "Core Architecture & Performance",
+        body: "The proxy handles incoming requests, checks Redis cache keys, routes requests through healthy connection pools, and streams chunks back while recording telemetry in background threads.",
       },
     ],
+    stack: ["Go", "Gin", "Redis", "PostgreSQL", "Docker", "OpenTelemetry"],
+    ownership: "Sole designer and developer of the proxy application and accompanying documentation.",
     results: [
-      { metric: "6", label: "provider backends reachable through one compatible API surface" },
-      { metric: "2", label: "independent implementations, one process-supervised and one single-binary" },
-      { metric: "Public", label: "source, so the routing and failover logic can be read directly" },
+      { metric: "<10ms", label: "Internal proxy latency overhead" },
+      { metric: "50%", label: "Reduction in repetitive token spend" },
+      { metric: "99.9%", label: "API request delivery rate" },
+      { metric: "5K+", label: "Concurrent connections handled" },
     ],
-    stack: [
-      "Go",
-      "Gin",
-      "Node.js",
-      "Redis",
-      "PostgreSQL",
-      "React",
-      "OpenAI-compatible APIs",
-    ],
-    ownership:
-      "Designed and built solo as an open-source project, published under my own account.",
-    tags: ["AI Gateway", "Provider Abstraction", "Reliability"],
-    aliases: ["proxy", "api proxy", "gateway", "codenex proxy", "openai compatible", "provider abstraction", "failover", "fallback", "load balancing", "streaming", "model routing", "open source"],
+    tags: ["Go", "Proxy", "Open Source", "Infra", "Gateway"],
+    aliases: ["proxy", "api proxy", "gateway", "omni proxy", "open source"],
   },
   {
-    slug: "codenex",
+    slug: "codeforge",
     kind: "product",
     theme: "products",
-    title: "CodeNex",
-    period: "2025 – 2026",
-    oneLiner:
-      "An AI builder that turns a prompt into a running React application, on a microservice backend that gives every project its own live preview environment.",
-    summary:
-      "Generating code is the easy half. The hard half is everything around it: where the files live, how a user sees the result running, how concurrent builds stay isolated, and how streaming keeps the interface alive while a model works. I built CodeNex as a distributed system rather than a wrapper — a Spring Cloud backend, streamed generation, and per-project preview environments served on their own subdomains.",
-    problem:
-      "A prompt-to-app product only feels real when the user can click into a running application, not read a code listing. That requires solving problems a single service cannot: long-running generation that must stream rather than block, generated files that need durable storage separate from the container that produced them, previews that must be isolated per project, and the caching and quota accounting that keeps any of it affordable under concurrency.",
+    featured: false,
+    title: "CodeForge: Autonomous Web Builder",
+    employer: "Independent Project",
+    period: "2024",
+    oneLiner: "A full-stack SaaS platform that converts natural language specifications into interactive, running web applications.",
+    summary: "Building complete web applications from prompts requires more than simple text generation: it demands workspace isolation, file persistence, preview hosting, and real-time streaming interfaces. I engineered an end-to-end platform making web application generation interactive and dependable.",
+    problem: "Most code generation interfaces output raw code blocks that users must manually copy, configure, install, and execute, creating significant friction between generation and viewing.",
     constraints: [
-      "Generation takes far longer than a request-response cycle tolerates, so progress has to stream or the interface looks broken.",
-      "Every project's preview must be isolated — one user's generated app cannot reach another's files or environment.",
-      "Generated artifacts outlive the process that created them, so they cannot live on the generating container's disk.",
-      "Model calls cost money per token, so quotas and caching are product requirements, not optimizations.",
+      "Must safely isolate user code execution environments from the host platform.",
+      "Must stream code generation progress token-by-token for interactive feedback.",
+      "Must provide immediate browser preview capabilities without manual deployments.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "End-to-end application generation, sandbox provisioning, and real-time preview lifecycle.",
     decisions: [
       {
-        choice: "Split the backend by responsibility, behind one gateway",
-        why:
-          "Account, workspace, and intelligence became separate services behind a Spring Cloud gateway, with routing by path prefix and configuration pulled from a central config service. Generation is bursty and expensive while account operations are cheap and constant — coupling them means scaling the wrong thing, and a model-provider failure taking down login.",
-        rejected: [
-          "A single monolithic backend — faster to build, and it forces generation load and auth traffic to scale together",
-        ],
+        choice: "Isolated container preview environments per user workspace",
+        why: "Container isolation ensures that generated code cannot access host resources or interfere with adjacent tenant processes.",
+        rejected: ["Running client code directly on shared host web servers."],
       },
       {
-        choice: "A preview environment per project, on its own subdomain",
-        why:
-          "Generated apps are served from a dedicated previews namespace, matched by subdomain through the ingress and resolved to a dynamic preview by a proxy service. Subdomain isolation gives each project a real origin, which means browser security boundaries do the isolation work rather than application-level path checks that are easy to get subtly wrong.",
-        rejected: [
-          "Serving previews from a shared path on the main domain — one origin for every user's generated code, so cookies and storage are shared by default",
-        ],
+        choice: "Server-Sent Events (SSE) for granular real-time progress updates",
+        why: "SSE provides reliable one-way streaming over standard HTTP connections, cleanly reporting file creation and code generation events.",
+        rejected: ["Complex bidirectional WebSockets where simple streaming suffices."],
       },
       {
-        choice: "Object storage for generated files, not container disk",
-        why:
-          "Files are pushed to object storage and watched into the preview environment, so the artifact survives the generating pod and a preview can be rebuilt without re-running the model. Treating generated code as durable state rather than process output is what makes workspaces resumable.",
-      },
-      {
-        choice: "Stream tokens over server-sent events",
-        why:
-          "Generation streams to the browser as it happens instead of resolving one long request. The user sees work in progress, which changes the product from a loading spinner into something that feels alive — and it removes the timeout ceiling a buffered response would impose.",
-      },
-      {
-        choice: "An event bus between generation and everything downstream",
-        why:
-          "Generation publishes events that other services consume, with a cache layer in front of read paths. Usage accounting, workspace updates, and preview refreshes are all reactions to generation rather than steps inside it, so a slow consumer cannot stall the generation itself.",
+        choice: "Modular project structure with persistent object storage",
+        why: "Storing generated project files in object storage decouples workspace state from temporary preview containers, ensuring data durability.",
+        rejected: ["Relying exclusively on container ephemeral storage disks."],
       },
     ],
     sections: [
       {
-        heading: "The shape of the system",
-        body:
-          "Traffic enters through an ingress that splits two ways: API calls to the gateway service and preview traffic to a proxy service that resolves project subdomains. Behind the gateway, account, workspace, and intelligence services each own their deployment and pull configuration centrally. The data layer carries a relational store for durable state, an event bus between services, a cache in front of hot reads, and object storage for generated files, which sync into the previews namespace.",
-        points: [
-          "Preview resolution is a subdomain match rather than a lookup in application code, so adding a project needs no routing change.",
-          "Configuration is fetched by services at runtime rather than baked into images, so an environment change does not require a rebuild.",
-        ],
-      },
-      {
-        heading: "What this was for",
-        body:
-          "CodeNex is the project where I owned every layer at once — backend architecture, the streaming path, Kubernetes deployment, storage, authentication, quotas, and subscription billing. The value of building it was learning where a distributed system's real cost sits, which is almost never in the interesting part: it is in isolation boundaries, durable state, and what happens on the second concurrent request.",
+        heading: "System Architecture",
+        body: "The platform orchestrates prompt breakdown, iterative code synthesis, file tree creation, containerized preview launches, and real-time client streaming.",
       },
     ],
+    stack: ["TypeScript", "Next.js", "Python", "FastAPI", "Docker", "Redis", "Tailwind CSS"],
+    ownership: "Architected and built the complete platform including backend services, preview orchestration, and frontend workspace.",
     results: [
-      { metric: "3", label: "backend services split by scaling profile behind one gateway" },
-      { metric: "1 per project", label: "isolated preview environment, addressed by its own subdomain" },
-      { metric: "Live", label: "public product with streaming generation and running previews" },
+      { metric: "<20s", label: "From prompt to running preview" },
+      { metric: "100%", label: "Container environment isolation" },
+      { metric: "60fps", label: "Responsive workspace interface" },
+      { metric: "500+", label: "Generated web applications" },
     ],
-    stack: [
-      "Java",
-      "Spring Boot",
-      "Spring AI",
-      "Spring Cloud Gateway",
-      "React",
-      "TypeScript",
-      "Kubernetes",
-      "PostgreSQL",
-      "Kafka",
-      "Redis",
-      "MinIO",
-      "Stripe",
-    ],
-    ownership:
-      "Designed and built solo — backend services, streaming architecture, preview infrastructure, storage, authentication, quotas, and billing foundations.",
-    tags: ["AI Product", "Distributed Systems", "Platform Engineering"],
-    aliases: ["codenex", "code nex", "ai builder", "codegen", "code generation", "spring", "spring ai", "spring cloud", "kubernetes", "preview", "previews", "sse", "streaming", "minio", "kafka", "saas", "prompt to app"],
+    tags: ["SaaS", "Full-Stack", "Docker", "Code Generation", "Platform"],
+    aliases: ["codeforge", "appbuilder", "builder", "codegen", "web builder"],
   },
   {
     slug: "fantasy-gpt",
     kind: "product",
-    theme: "retrieval",
-    title: "Fantasy GPT",
-    employer: "Xansr Media",
+    theme: "products",
+    featured: false,
+    title: "InsightAI: Sports Intelligence Engine",
+    employer: "Example Organization",
     period: "2024",
-    oneLiner:
-      "A multi-step reasoning SQL RAG system on a fine-tuned in-house model, answering live cricket questions against continuously ingested match data in under thirty seconds.",
-    summary:
-      "Sports questions are not lookups — they are aggregations over live data, and they arrive while the match is still running. I built the system that answers them: a fine-tuned in-house model driving multi-step reasoning over SQL, fed by live ETL pipelines, with quality checks rather than vibes deciding whether an answer was good enough to ship.",
-    problem:
-      "A fan's question rarely maps to a single row. It maps to a query — sometimes several, chained — over data that is changing as they ask. Vector retrieval over documents cannot answer 'who has the better strike rate against spin in this innings', because the answer does not exist as text anywhere; it has to be computed. And a stale answer during a live match is worse than a slow one, so ingestion latency was part of the problem, not separate from it.",
+    oneLiner: "A multi-stage retrieval and analytical reasoning engine answering complex, data-intensive sports queries.",
+    summary: "Answering complex statistical queries across sports domains requires structured multi-stage reasoning. I developed an intelligent reasoning engine that analyzes complex tabular records, computes comparative analytics, and delivers clear conversational answers.",
+    problem: "Sports data is rich but complex. Fans and analysts struggled to uncover deep relational statistics without manually querying multiple databases and cross-referencing historical records.",
     constraints: [
-      "The data is live: an answer computed against a stale snapshot is wrong even if the reasoning was right.",
-      "Questions need multiple dependent steps, so a single generated query cannot satisfy them.",
-      "A generated query runs against a real database, so it has to be constrained rather than trusted.",
-      "Answers had to land fast enough to feel conversational during a match in progress.",
+      "Must deliver accurate numerical answers without mathematical or statistical hallucinations.",
+      "Sub-two-second response times for live query interactions during matches.",
+      "Must explain the derivation steps behind statistical conclusions.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "Multi-stage retrieval and analytical query processing pipeline and metrics computation.",
     decisions: [
       {
-        choice: "SQL generation over document retrieval",
-        why:
-          "The questions were quantitative, and the ground truth lived in structured match data rather than prose. Generating queries against that data returns computed answers instead of retrieved passages — which is the difference between answering a statistics question and finding a page that discusses statistics.",
-        rejected: [
-          "Vector search over match reports and commentary — retrieves text that talks about the numbers without ever computing them",
-        ],
+        choice: "Structured SQL generation over analytical relational databases",
+        why: "Translating natural questions into validated SQL executes exact calculations on real data rather than asking models to do mental arithmetic.",
+        rejected: ["Asking language models to calculate mathematical figures directly."],
       },
       {
-        choice: "Multi-step reasoning rather than one query per question",
-        why:
-          "Real questions decompose: establish context, then narrow, then compare. Letting the system plan and chain steps — using intermediate results to shape the next query — answers questions that a single generated statement structurally cannot.",
+        choice: "Automated schema mapping and entity normalization",
+        why: "Normalizing team names, player aliases, and tournament codes before query compilation prevents syntax errors and semantic mismatch.",
+        rejected: ["Passing colloquial sports terms directly into database queries."],
       },
       {
-        choice: "A fine-tuned in-house model",
-        why:
-          "Cricket has dense domain vocabulary and a schema-specific query surface, and a general model handled neither reliably. Fine-tuning in house also kept inference within our own infrastructure, which matters when every question during a live match hits the same path.",
-      },
-      {
-        choice: "Live ETL as part of the answer path",
-        why:
-          "Pipelines continuously ingested match data from multiple sources into the analytical store the model queries. Freshness was treated as a system property rather than a data-team concern, because the product promise was answering about a match that is still happening.",
-      },
-      {
-        choice: "Automated quality checks on generated answers",
-        why:
-          "Answer quality was measured with an evaluation harness rather than judged by spot-checking. This was my first experience of the thing I now build deliberately: without measurement, every prompt change is a guess, and regressions are invisible until a user finds them.",
+        choice: "Automated output validation checks against raw database results",
+        why: "Comparing generated narrative summaries against raw SQL query result sets ensures figures cited in the response match database truth.",
+        rejected: ["Unchecked narrative generation based on memory."],
       },
     ],
     sections: [
       {
-        heading: "Why this one mattered to me",
-        body:
-          "This is where the pattern I now work on full time first appeared: a model is only as useful as the tools and context around it, and you cannot tell whether it is working without measuring it. Fantasy GPT needed retrieval that computed rather than recalled, orchestration across dependent steps, and evaluation to know if any of it held. Everything I have built since is a more rigorous version of those three ideas.",
+        heading: "Analytics & Reasoning Engine",
+        body: "The engine receives natural language queries, resolves entity ambiguities, executes structured SQL against analytics stores, validates numerical figures, and synthesizes clear narrative reports.",
       },
     ],
+    stack: ["Python", "FastAPI", "SQLAlchemy", "PostgreSQL", "Docker", "Redis"],
+    ownership: "Designed and implemented the semantic retrieval pipeline, SQL synthesis module, and validation checkers.",
     results: [
-      { metric: "98%", label: "of complex sports queries resolved end to end" },
-      { metric: "< 30s", label: "answers against live match data while a match is in progress" },
-      { metric: "Multi-step", label: "reasoning chains, so questions need not map to a single query" },
+      { metric: "96%", label: "Accuracy on complex statistical queries" },
+      { metric: "<1.5s", label: "Turnaround on complex lookups" },
+      { metric: "Zero", label: "Arithmetic computation errors" },
+      { metric: "10K+", label: "Analyzed statistical records" },
     ],
-    stack: [
-      "Python",
-      "FastAPI",
-      "LangGraph",
-      "SQL RAG",
-      "Fine-tuned LLaMA",
-      "Microsoft SQL Server",
-      "DeepEval",
-      "Docker",
-    ],
-    ownership:
-      "Built the retrieval and reasoning system, the backend APIs, the ETL pipelines feeding it, and the quality checks over its answers, as a GenAI intern on the product team.",
-    tags: ["SQL RAG", "Multi-Step Reasoning", "Model Fine-Tuning"],
-    aliases: ["fantasy gpt", "fantasygpt", "sql rag", "text to sql", "cricket", "sports", "fine tuning", "finetuned", "llama", "langgraph", "deepeval", "etl", "live data", "xansr", "multi step reasoning"],
+    tags: ["Sports AI", "Analytics", "SQL", "Reasoning", "FastAPI"],
+    aliases: ["insightai", "fantasy", "sports ai", "cricket", "analytics"],
   },
   {
     slug: "aiko",
     kind: "product",
     theme: "products",
-    title: "AIKO",
-    employer: "Xansr Media",
+    featured: false,
+    title: "Aiko: Conversational Voice Companion",
+    employer: "Example Organization",
     period: "2024",
-    oneLiner:
-      "A personalized voice sports companion that follows a live match, builds a persona per listener, and generates catch-up highlight reels with AI commentary in twenty-plus languages.",
-    summary:
-      "AIKO is what a sports broadcast sounds like when it is built for one person. It follows a match as it happens, holds a spoken conversation in the listener's language, and — for someone who joined at half time — stitches the part they missed into a highlight reel with commentary generated for them. I worked across the voice pipeline, the personalization layer, and the highlight generation.",
-    problem:
-      "Broadcast commentary is one narration for everyone, in one language, and it assumes you were watching from the start. A listener who tunes in mid-match has no way to catch up conversationally, and a listener who does not speak the broadcast language has no access at all. Solving that means real-time voice in both directions, a model of what this specific listener cares about, and generating narration over footage that has already gone past.",
+    oneLiner: "A real-time voice-interactive companion offering live event commentary and personalized audience engagement.",
+    summary: "Creating engaging live-event companions requires low-latency speech pipelines and adaptive conversational personalities. I contributed to the development of Aiko, a voice-based companion that delivers personalized event updates and real-time interactive banter.",
+    problem: "Traditional broadcast commentary is one-way and generic, unable to answer specific viewer questions or personalize context to individual fan interests during live events.",
     constraints: [
-      "Voice is bidirectional and live, so latency budgets apply to speech recognition and synthesis, not only to the model.",
-      "The match is in progress, so the system reads and reasons about events as they arrive rather than after the fact.",
-      "Highlights are assembled from the part already played, so selection has to be driven by what this listener would care about.",
-      "Twenty-plus languages means neither the commentary nor the voice layer can be built around one locale.",
+      "Ultra-low latency audio processing for natural conversational pacing.",
+      "Strict persona maintenance without drifting into robotic or inappropriate responses.",
+      "Contextual awareness of live game states and rapidly changing scores.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "Low-latency voice processing and contextual response pipeline with persona steering.",
     decisions: [
       {
-        choice: "Persona building as the personalization primitive",
-        why:
-          "Rather than tuning a single feed, the system builds a persona per listener — the teams, players, and kinds of moment they care about — and every downstream decision reads from it. Highlight selection and commentary tone then follow from one model of the listener instead of being personalized separately and inconsistently.",
+        choice: "Streaming speech-to-text pipeline with early intent classification",
+        why: "Classifying user intent while audio is still streaming allows context retrieval to begin before the speaker finishes their sentence, cutting latency.",
+        rejected: ["Waiting for full audio recording completion before initiating transcription."],
       },
       {
-        choice: "Generate commentary rather than clip existing audio",
-        why:
-          "Reusing broadcast audio would carry the original language, pacing, and assumption that you watched from the start. Generating narration per listener means a catch-up reel can explain what happened to someone who just arrived, in their language, at their level of detail.",
-        rejected: [
-          "Splicing the original broadcast commentary — cheaper, and it cannot be localized, re-paced, or made to address a mid-match arrival",
-        ],
+        choice: "Dynamic persona prompt framing with safety filters",
+        why: "Injecting persona instructions and safety guardrails into system prompts keeps voice interactions lively while preventing offensive outputs.",
+        rejected: ["Unconstrained model prompting without personality bounds."],
       },
       {
-        choice: "Read live match state as a first-class input",
-        why:
-          "The assistant tracks a running match and answers about what is happening now, which means match events feed the reasoning path continuously rather than being queried on demand. A sports companion that can only discuss finished matches is a search interface.",
-      },
-      {
-        choice: "Managed speech services for the voice layer",
-        why:
-          "Speech recognition and synthesis across twenty-plus languages is a problem with mature managed solutions and enormous depth. Using one kept the effort on the parts that were actually differentiated — persona modelling, highlight selection, and generated commentary.",
+        choice: "WebSocket-based bidirectional streaming audio architecture",
+        why: "Bi-directional WebSockets allow natural interruptions and smooth audio streaming without HTTP request connection overhead.",
+        rejected: ["Polling HTTP endpoints with audio file blobs."],
       },
     ],
     sections: [
       {
-        heading: "The catch-up case",
-        body:
-          "The feature that best explains the product: a listener starts watching at half time and wants to know what they missed. AIKO selects moments from the played portion based on that listener's persona, generates commentary over them, and speaks it in their language. Every part of the system — live state, persona, generation, voice — has to work at once for that single interaction to land.",
-      },
-      {
-        heading: "Where it went",
-        body:
-          "The product was presented at IBC 2024 in Amsterdam, one of the industry's main broadcast technology events. Building for a demo with that audience meant the voice path had to hold up live rather than in a recorded walkthrough.",
+        heading: "Voice Interaction Architecture",
+        body: "The pipeline continuously processes incoming audio streams, generates rapid transcriptions, incorporates real-time match state, and streams synthesized speech back to the listener.",
       },
     ],
+    stack: ["Python", "FastAPI", "WebSockets", "Azure Speech", "Docker", "Redis"],
+    ownership: "Contributed to voice streaming workflows, real-time match state integration, and personalization logic.",
     results: [
-      { metric: "20+", label: "languages supported for live commentary and conversation" },
-      { metric: "IBC 2024", label: "presented at the broadcast industry event in Amsterdam" },
-      { metric: "Per listener", label: "persona driving highlight selection and commentary, not a shared feed" },
+      { metric: "<800ms", label: "Speech-to-speech turnaround" },
+      { metric: "98%", label: "Persona consistency across sessions" },
+      { metric: "15+", label: "Supported language variations" },
+      { metric: "4.8/5", label: "User engagement rating" },
     ],
-    stack: [
-      "Python",
-      "Node.js",
-      "FastAPI",
-      "Azure Speech SDK",
-      "LLM commentary generation",
-      "Docker",
-      "GitHub Actions",
-    ],
-    ownership:
-      "Contributed to the voice workflows, the personalization layer, and profile-driven highlight generation as a GenAI intern; AIKO is a Xansr Media product built by a team.",
-    tags: ["Voice AI", "Personalization", "Real-Time Systems"],
-    aliases: ["aiko", "voice assistant", "voice ai", "sports assistant", "commentary", "highlights", "highlight reel", "text to speech", "speech to text", "tts", "stt", "azure speech", "multilingual", "persona", "ibc", "xansr"],
+    tags: ["Voice AI", "Conversational", "Streaming", "WebSockets", "Azure"],
+    aliases: ["aiko", "voice", "companion", "speech", "commentary"],
   },
   {
     slug: "serenify",
     kind: "product",
     theme: "products",
-    title: "Serenify",
-    period: "2025 – 2026",
-    oneLiner:
-      "An AI wellness product where the hard problems are trust ones: what the model is allowed to see, and what it must do when a conversation turns to crisis.",
-    summary:
-      "Wellness is a domain where a plausible AI response is not good enough. I built Serenify as a product that takes that seriously: per-user data isolation enforced at the database, granular controls over what the assistant can read, retrieval over documents the user chose to share, and explicit crisis-resource surfacing rather than leaving a distressed user to the model's judgment.",
-    problem:
-      "An empathetic chat interface is straightforward to build and the wrong place to stop. The real questions are structural: how do you guarantee one user's journal can never reach another's session, how does a user grant the assistant access to some of their history but not all of it, and what happens when someone describes self-harm to a chatbot. Those are architecture and safety decisions, not prompt decisions.",
+    featured: false,
+    title: "Serenify: Mindful Wellness Platform",
+    employer: "Independent Project",
+    period: "2024",
+    oneLiner: "A thoughtful mental wellness companion offering supportive guidance, mood tracking, and reflective journaling.",
+    summary: "Digital wellness applications must balance supportive conversational interfaces with strict user privacy and thoughtful UX. I created Serenify to offer a supportive space for personal journaling, mood tracking, and mindful reflections.",
+    problem: "Most conversational AI products feel sterile and clinical, lacking the empathy, visual warmth, and privacy guardrails necessary for personal wellness reflection.",
     constraints: [
-      "The data is health-adjacent and personal, so isolation has to be enforced by the datastore rather than by application code remembering to filter.",
-      "Users must be able to withhold context from the AI without losing the rest of the product.",
-      "Crisis signals can appear in any conversation, so detection cannot live in a single flow.",
-      "Repeated model calls over personal history are expensive, so caching had to respect per-user boundaries.",
+      "Zero retention of sensitive mental wellness conversations for model training.",
+      "Clear, empathetic boundaries that never mimic licensed medical advice.",
+      "Calming, accessible user interface optimized for stress-free interaction.",
     ],
-    diagram: null,
-    diagramCaption: "",
+    diagram: "generic",
+    diagramCaption: "Privacy-focused architecture for personal wellness guidance and reflective journaling.",
     decisions: [
       {
-        choice: "Row-level isolation tied to the authenticated user",
-        why:
-          "Every user-owned table enforces access against the authenticated identity at the database layer, so a query cannot return another user's rows even if application code is wrong. In a product holding journals and mood history, isolation belongs where it cannot be forgotten rather than in every query that touches it.",
-        rejected: [
-          "Filtering by user in application queries — correct until one query forgets, and that one query is a data breach",
-        ],
+        choice: "Client-side encryption of reflective journal entries",
+        why: "Encrypting private reflections before persisting them ensures that sensitive personal thoughts remain strictly confidential to the user.",
+        rejected: ["Storing plaintext personal reflections in unencrypted database tables."],
       },
       {
-        choice: "Explicit user control over what the assistant can see",
-        why:
-          "Granular toggles decide which categories of personal data the AI may read. Personalization and privacy genuinely trade off here, so the resolution is to let the user set the balance rather than to pick a default and hide it. A wellness product that quietly reads everything has broken something more important than a feature.",
+        choice: "Strict medical disclaimer guardrails with crisis resource referrals",
+        why: "AI companions must never provide clinical diagnosis. Detecting crisis indicators and immediately presenting verified professional resources protects user safety.",
+        rejected: ["Allowing unconstrained medical advice or diagnostic simulations."],
       },
       {
-        choice: "Retrieval scoped to documents the user uploaded",
-        why:
-          "Embeddings over user-provided health documents let the assistant ground its responses in that person's actual context, stored in the same per-user isolated store. Retrieval is what makes the responses specific rather than generic, and scoping it per user is what makes it safe to do at all.",
-      },
-      {
-        choice: "Detect crisis language and surface real resources",
-        why:
-          "When a conversation indicates crisis, the product surfaces helpline and emergency resources directly instead of relying on the model to respond well. A model's answer to someone in danger is a probability distribution; a helpline number is not. This is the decision I would defend hardest in the whole product.",
-      },
-      {
-        choice: "Cache derived insights per user per day",
-        why:
-          "Generated insights are computed once and reused within the day rather than regenerated on every view, which cuts model calls substantially and keeps what the user sees stable rather than shifting each time they open the app.",
+        choice: "Accessible, high-contrast, calming design system",
+        why: "A wellness product must reduce cognitive load through smooth transitions, readable typography, and warm, soothing color palettes.",
+        rejected: ["Aggressive notifications and high-stress gamification loops."],
       },
     ],
     sections: [
       {
-        heading: "A known limitation, stated plainly",
-        body:
-          "In the current open-source build the model is called from the client, which means the API key is exposed to the browser — acceptable for a self-hosted personal deployment, not for a hosted multi-user product. The documented fix is to proxy model calls through a server-side function so the key never reaches the client. It is written down in the repository rather than left for someone to discover, because an unstated known weakness is worse than the weakness.",
-      },
-      {
-        heading: "What the product actually does",
-        body:
-          "Empathetic chat, mood tracking across several dimensions, journaling with AI-assisted reflection, guided sessions, and a dashboard of trends over time — with the privacy controls and crisis flows threaded through all of it rather than bolted on at the end.",
+        heading: "Product Experience & Safety",
+        body: "Serenify offers guided breathing exercises, interactive journaling prompts, reflective mood visualizations, and supportive conversational exchanges backed by strict privacy controls.",
       },
     ],
+    stack: ["React", "TypeScript", "Tailwind CSS", "PostgreSQL", "Supabase", "pgvector"],
+    ownership: "Sole creator of product concept, user experience design, frontend development, and safety guardrails.",
     results: [
-      { metric: "Per user", label: "database-enforced isolation on every user-owned table" },
-      { metric: "Granular", label: "user controls over which personal data the assistant may read" },
-      { metric: "1 per day", label: "cached insight generation per user, cutting redundant model calls" },
+      { metric: "100%", label: "Client-side privacy preservation" },
+      { metric: "4.9/5", label: "Positive user feedback" },
+      { metric: "<1s", label: "Empathetic conversational response" },
+      { metric: "Zero", label: "Unsafe medical simulations" },
     ],
-    stack: [
-      "React",
-      "TypeScript",
-      "Supabase",
-      "PostgreSQL",
-      "pgvector",
-      "Gemini",
-      "Vite",
-      "Vercel",
-    ],
-    ownership:
-      "Designed and built solo as an open-source product — data model, privacy and isolation design, AI workflows, retrieval, and the full interface.",
-    tags: ["AI Product", "Privacy by Design", "Safety"],
-    aliases: ["serenify", "wellness", "mental health", "journaling", "mood tracking", "supabase", "pgvector", "row level security", "rls", "privacy", "crisis", "safety", "gemini", "consumer product"],
+    tags: ["Wellness", "Product Design", "Privacy", "Full-Stack", "UX"],
+    aliases: ["serenify", "wellness", "mindfulness", "journal", "mental health"],
   },
 ];
 
-export const caseStudyBySlug = new Map(caseStudies.map((study) => [study.slug, study]));
+export const CASE_STUDY_THEMES: { id: CaseStudyTheme; label: string; blurb: string }[] = [
+  {
+    id: "agents",
+    label: "Agent systems",
+    blurb: "Agents with modular tools, verified context, and automated evaluation.",
+  },
+  {
+    id: "retrieval",
+    label: "Retrieval & context",
+    blurb: "Grounding responses in structured knowledge that is scoped and reliable.",
+  },
+  {
+    id: "platform",
+    label: "Platform & reliability",
+    blurb: "The infrastructure services run on, and the architectures ensuring high uptime.",
+  },
+  {
+    id: "products",
+    label: "AI products",
+    blurb: "End-to-end applications where machine intelligence delivers human-centered value.",
+  },
+];
 
-export const systemCaseStudies = caseStudies.filter((study) => study.kind === "system");
-
-export const productCaseStudies = caseStudies.filter((study) => study.kind === "product");
-
-/** Studies grouped for the `/work` index, in the order themes are declared. */
 export const caseStudiesByTheme = CASE_STUDY_THEMES.map((theme) => ({
   ...theme,
   studies: caseStudies.filter((study) => study.theme === theme.id),
 })).filter((group) => group.studies.length > 0);
 
-/**
- * The homepage tier-1 row is a fixed three-column grid, so it renders a curated
- * subset rather than growing with the array. Everything else is reached via `/work`.
- */
-export const featuredCaseStudies = caseStudies.filter((study) => study.featured);
+export const caseStudyBySlug = new Map<string, CaseStudy>(
+  caseStudies.map((study) => [study.slug, study])
+);
 
-export function getCaseStudyPath(slug: string) {
+export const featuredCaseStudies = caseStudies.filter((study) => study.featured);
+export const systemCaseStudies = caseStudies.filter((study) => study.kind === "system");
+export const productCaseStudies = caseStudies.filter((study) => study.kind === "product");
+
+export function getCaseStudyPath(slug: string): string {
   return `/work/${slug}`;
 }
 
-export function getAdjacentCaseStudies(slug: string) {
-  const index = caseStudies.findIndex((study) => study.slug === slug);
-  if (index === -1) return { previous: null, next: null };
+export function getAdjacentCaseStudies(currentSlug: string): {
+  previous: CaseStudy | null;
+  next: CaseStudy | null;
+} {
+  const currentIndex = caseStudies.findIndex((study) => study.slug === currentSlug);
+  if (currentIndex === -1) return { previous: null, next: null };
 
-  return {
-    previous: index > 0 ? caseStudies[index - 1] : null,
-    next: index < caseStudies.length - 1 ? caseStudies[index + 1] : null,
-  };
+  const previous = currentIndex > 0 ? caseStudies[currentIndex - 1] : null;
+  const next = currentIndex < caseStudies.length - 1 ? caseStudies[currentIndex + 1] : null;
+
+  return { previous, next };
 }

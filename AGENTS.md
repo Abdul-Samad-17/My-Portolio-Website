@@ -1,6 +1,8 @@
 # AGENTS.md
 Repository guide for coding agents working in this project.
 
+Note: Ignore docs/_archive; it describes an older plan.
+
 ## Stack
 - Next.js 16 App Router
 - React 19

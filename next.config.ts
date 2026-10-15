@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         // Public-facing artifact URLs stay on the portfolio's own domain with
-        // no /api prefix, e.g. https://nikunj.codenex.dev/artifacts/<slug>/<file>.
+        // no /api prefix, e.g. https://abdul-samad-portfolio.example.com/artifacts/<slug>/<file>.
         source: "/artifacts/:slug/:file",
         destination: "/api/artifacts/:slug/:file",
       },

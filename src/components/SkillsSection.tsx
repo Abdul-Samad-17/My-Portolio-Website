@@ -77,7 +77,7 @@ const SkillsSection = () => {
                       </div>
 
                       <div className="mt-4">
-                        <AskAboutThis question={`What is Nikunj's depth in ${cat.title}?`} className="ml-0" />
+                        <AskAboutThis question={`What is Abdul Samad's depth in ${cat.title}?`} className="ml-0" />
                       </div>
 
                       <p className="mb-6 mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">

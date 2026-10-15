@@ -13,7 +13,7 @@ import {
 } from "../src/data/case-studies.ts";
 
 /** Diagram keys that `src/components/diagrams/index.tsx` actually resolves. */
-const REGISTERED_DIAGRAMS = new Set(["eval", "mcp", "kgrag", "docs", "gateway"]);
+const REGISTERED_DIAGRAMS = new Set(["eval", "mcp", "kgrag", "docs", "gateway", "generic"]);
 
 test("every case study is complete enough to render", () => {
   for (const study of caseStudies) {
