@@ -21,8 +21,8 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground overflow-x-hidden">
-      {/* Ambient background glows matching reference visual depth */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      {/* Ambient background glows matching reference visual depth in dark mode */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden hidden dark:block" aria-hidden="true">
         <div className="absolute -top-[15%] -left-[10%] h-[60vw] w-[60vw] max-w-[800px] max-h-[800px] rounded-full bg-accent/15 blur-[120px]" />
         <div className="absolute top-[25%] -right-[15%] h-[55vw] w-[55vw] max-w-[750px] max-h-[750px] rounded-full bg-[#8a63d2]/10 blur-[140px]" />
         <div className="absolute top-[70%] -left-[10%] h-[50vw] w-[50vw] max-w-[700px] max-h-[700px] rounded-full bg-accent/10 blur-[130px]" />

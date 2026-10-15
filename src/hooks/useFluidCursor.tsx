@@ -18,17 +18,19 @@ export function useFluidCursor(canvasRef: React.RefObject<HTMLCanvasElement | nu
     const sim = new FluidSimulation(canvas, {
       simResolution: 128,
       dyeResolution: 1024,
-      densityDissipation: 1.6, // Slow, graceful dissipation — holds persistent shape as it fades
-      velocityDissipation: 4.5, // High velocity damping — prevents churning/shredding into separated wisps
+      densityDissipation: 2.4,   // Shorter span (~1.5s) — fluid fades at its position
+      velocityDissipation: 2.2,  // Fluid stays in its own place until disturbed
       pressure: 0.8,
       pressureIterations: 20,
-      curl: 0.3, // Low curl — prevents tearing dye into powder/wisps, keeping a cohesive wave
-      splatRadius: 0.34, // Generous width for a full, present fluid body
-      splatForce: 1100, // Soft forward impulse — doesn't shear the fluid envelope
-      bloom: true,
-      bloomIterations: 8,
-      bloomIntensity: 0.20, // Subtle neon sheen without noisy speckles
-      shading: false, // Disabled harsh 3D normal-map to eliminate powdery/granular artifacts
+      curl: 24,                  // Smooth liquid swirls, not powder
+      splatRadius: 0.35,         // Defined circular head
+      splatForce: 5500,          // Balanced impulse
+      bloom: true,               // Soft luminous sheen
+      bloomIterations: 6,
+      bloomIntensity: 0.20,      // Soft, gentle light — not shiny or blinding
+      bloomThreshold: 0.65,
+      bloomSoftKnee: 0.7,
+      shading: true,             // 3D fluid depth
     });
     simRef.current = sim;
 

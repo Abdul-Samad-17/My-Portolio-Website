@@ -5,11 +5,11 @@
  * - Navier-Stokes incompressible fluid dynamics: Advection, Vorticity Confinement, Pressure Poisson Solver, Divergence.
  * - Dynamic color transitions: Lerps seamlessly between --accent (Teal) and --cursor-trail-secondary (Violet).
  * - Full-featured interaction:
- *   - Hover / Mouse move: Leaves curling wisps of colored fluid smoke.
- *   - Stationary Click (mousedown without moving): Injects a radial vortex burst forming an expanding smoke ring.
- *   - Mouse Drag (click with moving): Injects high-velocity turbulent dye streams.
- * - Multi-pass Bloom post-processing for a luminous neon vapor glow.
- * - Window-level pointer tracking (operates smoothly behind/over UI elements).
+ *   - Hover / Mouse move: Leaves curling wisps of colored fluid smoke with a defined circular head.
+ *   - Stationary Click (mousedown without moving): Injects a gentle radial vortex burst forming an expanding smoke ring.
+ *   - Mouse Drag: Injects turbulent flowing dye streams.
+ * - Multi-pass Bloom post-processing for a subtle, soft luminous sheen (never harsh or blinding).
+ * - Shading pass adding 3D normal depth to the fluid surface.
  * - Clean lifecycle: Resizes smoothly, frees GPU memory on unmount, respects prefers-reduced-motion.
  */
 
@@ -81,7 +81,7 @@ function hslToRgb(h: number, s: number, l: number): RGB {
   return { r, g, b };
 }
 
-function resolveCssColor(varName: string, fallback: RGB): RGB {
+function resolveCssColor(varName: string, fallback: RGB, lightnessBoost = 0.0): RGB {
   if (typeof window === "undefined") return fallback;
   const raw = getComputedStyle(document.documentElement)
     .getPropertyValue(varName)
@@ -91,8 +91,8 @@ function resolveCssColor(varName: string, fallback: RGB): RGB {
   const parts = raw.split(/\s+/);
   if (parts.length >= 3) {
     const h = parseFloat(parts[0]) || 0;
-    const s = (parseFloat(parts[1]) || 0) / 100;
-    const l = (parseFloat(parts[2]) || 0) / 100;
+    const s = Math.min(1.0, (parseFloat(parts[1]) || 0) / 100);
+    const l = Math.min(0.75, (parseFloat(parts[2]) || 0) / 100 + lightnessBoost);
     return hslToRgb(h, s, l);
   }
   return fallback;
@@ -104,26 +104,27 @@ export class FluidSimulation {
   private isWebGL2 = false;
   private ext: any = {};
 
-  // Simulation parameters tuned to reference site behavior:
-  // - Small circular splat radius, moderate splat force (no pointed streaks)
-  // - Fast dissipation (clears in ~0.5-1s, no persistent pooling)
-  // - Low curl (swirl stays tightly localized near cursor tip within 100-200px)
+  // Simulation parameters tuned to reference site (Nikunj Khitha / PavelDoGreat):
+  // - Cohesive fluid blobs with silky smooth gradients (no powder/dust)
+  // - Shorter lifespan (~1.5s, half previous span) so fluid dissipates gracefully at its position
+  // - Well-defined circular head following the pointer
+  // - Subtle, soft bloom glow (not shiny or blinding)
   private SIM_RES = 128;
   private DYE_RES = 1024;
-  private DENSITY_DISSIPATION = 1.6; // Slow, graceful dissipation — holds persistent shape as it fades
-  private VELOCITY_DISSIPATION = 4.5; // High velocity damping — prevents churning/shredding into separated wisps
+  private DENSITY_DISSIPATION = 2.4;  // Fluid span is shorter (~1.5s) — fades gracefully at its position
+  private VELOCITY_DISSIPATION = 2.2; // Damps velocity quickly so fluid stays in its own place, holding its wave
   private PRESSURE = 0.8;
   private PRESSURE_ITERATIONS = 20;
-  private CURL = 0.3; // Low curl — prevents tearing dye into powder/wisps, keeping a cohesive wave
-  private SPLAT_RADIUS = 0.34; // Generous width for a full, present fluid body
-  private SPLAT_FORCE = 1100; // Soft forward impulse — doesn't shear the fluid envelope
-  private BLOOM = true;
-  private BLOOM_ITERATIONS = 8;
+  private CURL = 24;                 // Smooth vorticity — liquid waving swirls without separating into powder
+  private SPLAT_RADIUS = 0.35;        // Clear, well-defined circular head
+  private SPLAT_FORCE = 5500;         // Natural flowing impulse
+  private BLOOM = true;               // Subtle luminous sheen
+  private BLOOM_ITERATIONS = 6;
   private BLOOM_RES = 256;
-  private BLOOM_INTENSITY = 0.20; // Subtle neon sheen without noisy speckles
-  private BLOOM_THRESHOLD = 0.5;
+  private BLOOM_INTENSITY = 0.20;     // Soft, gentle glow — not shiny or blinding
+  private BLOOM_THRESHOLD = 0.65;
   private BLOOM_SOFT_KNEE = 0.7;
-  private SHADING = false; // Disabled harsh 3D normal-map to eliminate powdery/granular artifacts
+  private SHADING = true;             // 3D fluid depth and normal lighting
 
   // Framebuffers
   private density!: DoubleFBO;
@@ -131,8 +132,8 @@ export class FluidSimulation {
   private divergence!: FBO;
   private curlFbo!: FBO;
   private pressureFbo!: DoubleFBO;
+  private bloomTarget!: FBO;
   private bloomFbos: FBO[] = [];
-  private ditherTexture!: FBO;
 
   // Programs & Shaders
   private splatProgram!: any;
@@ -185,7 +186,10 @@ export class FluidSimulation {
       if (config.splatForce !== undefined) this.SPLAT_FORCE = config.splatForce;
       if (config.bloom !== undefined) this.BLOOM = config.bloom;
       if (config.bloomIterations !== undefined) this.BLOOM_ITERATIONS = config.bloomIterations;
+      if (config.bloomResolution !== undefined) this.BLOOM_RES = config.bloomResolution;
       if (config.bloomIntensity !== undefined) this.BLOOM_INTENSITY = config.bloomIntensity;
+      if (config.bloomThreshold !== undefined) this.BLOOM_THRESHOLD = config.bloomThreshold;
+      if (config.bloomSoftKnee !== undefined) this.BLOOM_SOFT_KNEE = config.bloomSoftKnee;
       if (config.shading !== undefined) this.SHADING = config.shading;
     }
 
@@ -200,9 +204,6 @@ export class FluidSimulation {
     this.initFBOs();
     this.bindEvents();
 
-    // Subtle initial pulse at center
-    this.burst(0.5, 0.4, 6, 800, 0.15);
-
     this.loop();
   }
 
@@ -214,22 +215,21 @@ export class FluidSimulation {
   }
 
   private getIntensityMultiplier(): number {
-    if (typeof document === "undefined") return 0.15;
+    if (typeof document === "undefined") return 0.40;
     const isDark = document.documentElement.classList.contains("dark");
-    // Softer, lighter per-color intensity (0.15 dark / 0.10 light)
-    // Ensures smooth gradient transitions without bright mixed patches
-    return isDark ? 0.15 : 0.10;
+    // Soft, gentle color intensity — visible and smooth, never harsh or over-saturated
+    return isDark ? 0.40 : 0.28;
   }
 
   private getCurrentColor(brightness = 1.0): RGB {
-    // Reference intensity: ~0.20 in dark mode, ~0.14 in light mode applied per-color.
-    // Prevents additive-blending blowout to solid white where teal and violet overlap.
     const intensity = this.getIntensityMultiplier() * brightness;
     const t = (Math.sin(this.colorPhase) + 1.0) * 0.5;
+    // Smoothstep transition between primary teal and secondary violet
+    const smoothT = t * t * (3.0 - 2.0 * t);
     return {
-      r: (this.primaryColor.r * (1 - t) + this.secondaryColor.r * t) * intensity,
-      g: (this.primaryColor.g * (1 - t) + this.secondaryColor.g * t) * intensity,
-      b: (this.primaryColor.b * (1 - t) + this.secondaryColor.b * t) * intensity,
+      r: (this.primaryColor.r * (1 - smoothT) + this.secondaryColor.r * smoothT) * intensity,
+      g: (this.primaryColor.g * (1 - smoothT) + this.secondaryColor.g * smoothT) * intensity,
+      b: (this.primaryColor.b * (1 - smoothT) + this.secondaryColor.b * smoothT) * intensity,
     };
   }
 
@@ -455,9 +455,9 @@ export class FluidSimulation {
     );
     this.splatProgram = this.createProgram(baseVertex, splatFrag);
 
-    const advectionFrag = this.compileShader(
-      gl.FRAGMENT_SHADER,
-      `
+    // Advection shader: Uses GPU hardware linear filtering when supported.
+    // This completely eliminates the grainy powder/dust effect and renders silky smooth fluid dye.
+    let advectionShaderSource = `
       precision highp float;
       precision highp sampler2D;
       varying vec2 vUv;
@@ -466,7 +466,10 @@ export class FluidSimulation {
       uniform vec2 texelSize;
       uniform float dt;
       uniform float dissipation;
+    `;
 
+    if (!this.ext.supportLinearFiltering) {
+      advectionShaderSource += `
       vec4 bilerp (sampler2D sam, vec2 uv, vec2 tsize) {
           vec2 st = uv / tsize - 0.5;
           vec2 iuv = floor(st);
@@ -477,15 +480,25 @@ export class FluidSimulation {
           vec4 d = texture2D(sam, (iuv + vec2(1.5, 1.5)) * tsize);
           return mix(mix(a, b, fuv.x), mix(c, d, fuv.x), fuv.y);
       }
-
       void main () {
           vec2 coord = vUv - dt * bilerp(uVelocity, vUv, texelSize).xy * texelSize;
           vec4 result = bilerp(uSource, coord, texelSize);
           float decay = 1.0 + dissipation * dt;
           gl_FragColor = result / decay;
       }
-      `
-    );
+      `;
+    } else {
+      advectionShaderSource += `
+      void main () {
+          vec2 coord = vUv - dt * texture2D(uVelocity, vUv).xy * texelSize;
+          vec4 result = texture2D(uSource, coord);
+          float decay = 1.0 + dissipation * dt;
+          gl_FragColor = result / decay;
+      }
+      `;
+    }
+
+    const advectionFrag = this.compileShader(gl.FRAGMENT_SHADER, advectionShaderSource);
     this.advectionProgram = this.createProgram(baseVertex, advectionFrag);
 
     const divergenceFrag = this.compileShader(
@@ -685,11 +698,13 @@ export class FluidSimulation {
     this.bloomFinalProgram = this.createProgram(baseVertex, bloomFinalFrag);
 
     // Display output shader with Shading and Bloom
+    let displayShaderPrefix = `precision highp float;\nprecision highp sampler2D;\n`;
+    if (this.SHADING) displayShaderPrefix += `#define SHADING\n`;
+    if (this.BLOOM) displayShaderPrefix += `#define BLOOM\n`;
+
     const displayFrag = this.compileShader(
       gl.FRAGMENT_SHADER,
-      `
-      precision highp float;
-      precision highp sampler2D;
+      displayShaderPrefix + `
       varying vec2 vUv;
       varying vec2 vL;
       varying vec2 vR;
@@ -699,46 +714,34 @@ export class FluidSimulation {
       uniform sampler2D uBloom;
       uniform vec2 texelSize;
 
-      vec3 linearToGamma (vec3 color) {
-          color = max(color, vec3(0.0));
-          return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0.0));
-      }
-
       void main () {
           vec3 c = texture2D(uTexture, vUv).rgb;
           
-          #ifdef BLOOM
-          vec3 bloom = texture2D(uBloom, vUv).rgb;
-          c += bloom * 0.35;
+          #ifdef SHADING
+          vec3 lc = texture2D(uTexture, vL).rgb;
+          vec3 rc = texture2D(uTexture, vR).rgb;
+          vec3 tc = texture2D(uTexture, vT).rgb;
+          vec3 bc = texture2D(uTexture, vB).rgb;
+          float dx = length(rc) - length(lc);
+          float dy = length(tc) - length(bc);
+          vec3 n = normalize(vec3(dx, dy, length(texelSize)));
+          vec3 l = vec3(0.0, 0.0, 1.0);
+          float diffuse = clamp(dot(n, l) + 0.7, 0.7, 1.0);
+          c *= diffuse;
           #endif
 
-          // Luminous organic fluid transparency without grain
-          float a = max(c.r, max(c.g, c.b));
+          #ifdef BLOOM
+          vec3 bloom = texture2D(uBloom, vUv).rgb;
+          c += bloom;
+          #endif
+
+          // Smooth transparency based on fluid luminance
+          float a = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
           gl_FragColor = vec4(c, a);
       }
       `
     );
     this.displayProgram = this.createProgram(baseVertex, displayFrag);
-
-    // 1x1 white dither placeholder texture
-    const ditherTex = gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, ditherTex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
-    this.ditherTexture = {
-      texture: ditherTex,
-      fbo: null as any,
-      width: 1,
-      height: 1,
-      texelSizeX: 1,
-      texelSizeY: 1,
-      attach: (id: number) => {
-        gl.activeTexture(gl.TEXTURE0 + id);
-        gl.bindTexture(gl.TEXTURE_2D, ditherTex);
-        return id;
-      },
-    };
   }
 
   private createFBO(w: number, h: number, internalFormat: number, format: number, type: number, filtering: number): FBO {
@@ -776,6 +779,7 @@ export class FluidSimulation {
   private createDoubleFBO(w: number, h: number, internalFormat: number, format: number, type: number, filtering: number): DoubleFBO {
     let fbo1 = this.createFBO(w, h, internalFormat, format, type, filtering);
     let fbo2 = this.createFBO(w, h, internalFormat, format, type, filtering);
+
     return {
       width: w,
       height: h,
@@ -840,6 +844,10 @@ export class FluidSimulation {
     const rgba = this.ext.formatRGBA;
     const filtering = this.ext.supportLinearFiltering ? this.gl.LINEAR : this.gl.NEAREST;
 
+    // Dedicated destination target for final bloom pass
+    this.bloomTarget = this.createFBO(res.width, res.height, rgba.internalFormat, rgba.format, type, filtering);
+
+    // Downsampling mip chain
     this.bloomFbos = [];
     for (let i = 0; i < this.BLOOM_ITERATIONS; i++) {
       const w = res.width >> (i + 1);
@@ -887,7 +895,7 @@ export class FluidSimulation {
    * Radial vortex burst — produces the signature soft expanding smoke puff
    * when clicking stationary, without washing out or blowing up.
    */
-  public burst(x: number, y: number, splatCount = 8, force = 1200, radius = 0.32, customColor?: RGB): void {
+  public burst(x: number, y: number, splatCount = 8, force = 900, radius = 0.38, customColor?: RGB): void {
     const color = customColor || this.getCurrentColor(1.0);
     const aspect = this.canvas.height / this.canvas.width;
 
@@ -941,7 +949,7 @@ export class FluidSimulation {
     this.blit(this.pressureFbo.write.fbo);
     this.pressureFbo.swap();
 
-    // 5. Pressure Poisson Solver (Jacobi iterations)
+    // 5. Pressure Poisson Solver (Jacobi Iterations)
     this.pressureProgram.bind();
     gl.uniform2f(this.pressureProgram.uniforms.texelSize, this.velocity.texelSizeX, this.velocity.texelSizeY);
     gl.uniform1i(this.pressureProgram.uniforms.uDivergence, this.divergence.attach(0));
@@ -961,6 +969,7 @@ export class FluidSimulation {
 
     // 7. Advect Velocity
     this.advectionProgram.bind();
+    gl.viewport(0, 0, this.velocity.width, this.velocity.height);
     gl.uniform2f(this.advectionProgram.uniforms.texelSize, this.velocity.texelSizeX, this.velocity.texelSizeY);
     gl.uniform1i(this.advectionProgram.uniforms.uVelocity, this.velocity.read.attach(0));
     gl.uniform1i(this.advectionProgram.uniforms.uSource, this.velocity.read.attach(0));
@@ -974,6 +983,7 @@ export class FluidSimulation {
     gl.uniform2f(this.advectionProgram.uniforms.texelSize, this.velocity.texelSizeX, this.velocity.texelSizeY);
     gl.uniform1i(this.advectionProgram.uniforms.uVelocity, this.velocity.read.attach(0));
     gl.uniform1i(this.advectionProgram.uniforms.uSource, this.density.read.attach(1));
+    gl.uniform1f(this.advectionProgram.uniforms.dt, dt);
     gl.uniform1f(this.advectionProgram.uniforms.dissipation, this.DENSITY_DISSIPATION);
     this.blit(this.density.write.fbo);
     this.density.swap();
@@ -983,10 +993,9 @@ export class FluidSimulation {
     if (this.bloomFbos.length < 2) return;
     const gl = this.gl;
 
-    let last = destination;
     gl.disable(gl.BLEND);
 
-    // Prefilter
+    // 1. Prefilter: Extract bright regions from source into bloomFbos[0]
     this.bloomPrefilterProgram.bind();
     const knee = this.BLOOM_THRESHOLD * this.BLOOM_SOFT_KNEE + 0.0001;
     const curve0 = this.BLOOM_THRESHOLD - knee;
@@ -995,36 +1004,37 @@ export class FluidSimulation {
     gl.uniform3f(this.bloomPrefilterProgram.uniforms.curve, curve0, curve1, curve2);
     gl.uniform1f(this.bloomPrefilterProgram.uniforms.threshold, this.BLOOM_THRESHOLD);
     gl.uniform1i(this.bloomPrefilterProgram.uniforms.uTexture, source.attach(0));
-    gl.viewport(0, 0, last.width, last.height);
-    this.blit(last.fbo);
+    gl.viewport(0, 0, this.bloomFbos[0].width, this.bloomFbos[0].height);
+    this.blit(this.bloomFbos[0].fbo);
 
-    // Downsample blur chain
+    // 2. Downsample blur down the chain
     this.bloomBlurProgram.bind();
-    for (let i = 0; i < this.bloomFbos.length; i++) {
-      const dest = this.bloomFbos[i];
-      gl.uniform2f(this.bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-      gl.uniform1i(this.bloomBlurProgram.uniforms.uTexture, last.attach(0));
+    for (let i = 0; i < this.bloomFbos.length - 1; i++) {
+      const src = this.bloomFbos[i];
+      const dest = this.bloomFbos[i + 1];
+      gl.uniform2f(this.bloomBlurProgram.uniforms.texelSize, src.texelSizeX, src.texelSizeY);
+      gl.uniform1i(this.bloomBlurProgram.uniforms.uTexture, src.attach(0));
       gl.viewport(0, 0, dest.width, dest.height);
       this.blit(dest.fbo);
-      last = dest;
     }
 
-    // Upsample and accumulate
+    // 3. Upsample and accumulate back up the chain
     gl.blendFunc(gl.ONE, gl.ONE);
     gl.enable(gl.BLEND);
-    for (let i = this.bloomFbos.length - 2; i >= 0; i--) {
-      const baseTarget = this.bloomFbos[i];
-      gl.uniform2f(this.bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-      gl.uniform1i(this.bloomBlurProgram.uniforms.uTexture, last.attach(0));
-      gl.viewport(0, 0, baseTarget.width, baseTarget.height);
-      this.blit(baseTarget.fbo);
-      last = baseTarget;
+    for (let i = this.bloomFbos.length - 1; i > 0; i--) {
+      const src = this.bloomFbos[i];
+      const dest = this.bloomFbos[i - 1];
+      gl.uniform2f(this.bloomBlurProgram.uniforms.texelSize, src.texelSizeX, src.texelSizeY);
+      gl.uniform1i(this.bloomBlurProgram.uniforms.uTexture, src.attach(0));
+      gl.viewport(0, 0, dest.width, dest.height);
+      this.blit(dest.fbo);
     }
 
+    // 4. Final blur into destination target with bloom intensity
     gl.disable(gl.BLEND);
     this.bloomFinalProgram.bind();
-    gl.uniform2f(this.bloomFinalProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-    gl.uniform1i(this.bloomFinalProgram.uniforms.uTexture, last.attach(0));
+    gl.uniform2f(this.bloomFinalProgram.uniforms.texelSize, this.bloomFbos[0].texelSizeX, this.bloomFbos[0].texelSizeY);
+    gl.uniform1i(this.bloomFinalProgram.uniforms.uTexture, this.bloomFbos[0].attach(0));
     gl.uniform1f(this.bloomFinalProgram.uniforms.intensity, this.BLOOM_INTENSITY);
     gl.viewport(0, 0, destination.width, destination.height);
     this.blit(destination.fbo);
@@ -1035,19 +1045,21 @@ export class FluidSimulation {
     const w = this.canvas.width;
     const h = this.canvas.height;
 
-    if (this.BLOOM && this.bloomFbos.length > 0) {
-      this.applyBloom(this.density.read, this.bloomFbos[0]);
+    if (this.BLOOM && this.bloomTarget && this.bloomFbos.length > 1) {
+      this.applyBloom(this.density.read, this.bloomTarget);
     }
 
+    // Clear and render directly to default canvas framebuffer
     gl.viewport(0, 0, w, h);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.enable(gl.BLEND);
+    gl.disable(gl.BLEND);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     this.displayProgram.bind();
     gl.uniform2f(this.displayProgram.uniforms.texelSize, 1 / w, 1 / h);
     gl.uniform1i(this.displayProgram.uniforms.uTexture, this.density.read.attach(0));
-    if (this.BLOOM && this.bloomFbos.length > 0) {
-      gl.uniform1i(this.displayProgram.uniforms.uBloom, this.bloomFbos[0].attach(1));
+    if (this.BLOOM && this.bloomTarget) {
+      gl.uniform1i(this.displayProgram.uniforms.uBloom, this.bloomTarget.attach(1));
     }
 
     this.blit(null);
@@ -1081,17 +1093,12 @@ export class FluidSimulation {
       this.lastY = clientY;
 
       if (dist > 0 || forceSplat) {
-        // Shift color phase subtly with movement
-        this.colorPhase += dist * 0.005 + 0.015;
+        // Smooth color transition as mouse moves
+        this.colorPhase += dist * 0.0015 + 0.004;
 
-        // Clamp step displacement to prevent hyper-accelerated comet/cone streaks on fast flicks
-        const maxStep = 35;
-        const clampedDx = Math.max(-maxStep, Math.min(maxStep, dx));
-        const clampedDy = Math.max(-maxStep, Math.min(maxStep, dy));
-
-        const forceMultiplier = this.isMouseDown ? 1.15 : 0.85;
-        const velX = (clampedDx / window.innerWidth) * this.SPLAT_FORCE * forceMultiplier;
-        const velY = (-clampedDy / window.innerHeight) * this.SPLAT_FORCE * forceMultiplier;
+        const forceMultiplier = this.isMouseDown ? 1.1 : 0.85;
+        const velX = dx * this.SPLAT_FORCE * forceMultiplier;
+        const velY = -dy * this.SPLAT_FORCE * forceMultiplier;
 
         this.splat(x, y, velX, velY, undefined, this.SPLAT_RADIUS);
       }
@@ -1107,8 +1114,8 @@ export class FluidSimulation {
       const x = (e.clientX * dpr) / this.canvas.width;
       const y = 1.0 - (e.clientY * dpr) / this.canvas.height;
 
-      // Soft burst on stationary click (and start of drag)
-      this.burst(x, y, 8, 800, 0.32);
+      // Soft burst on stationary click
+      this.burst(x, y, 8, 900, 0.38);
       this.lastX = e.clientX;
       this.lastY = e.clientY;
     };
@@ -1124,7 +1131,7 @@ export class FluidSimulation {
         const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
         const x = (touch.clientX * dpr) / this.canvas.width;
         const y = 1.0 - (touch.clientY * dpr) / this.canvas.height;
-        this.burst(x, y, 6, 700, 0.28);
+        this.burst(x, y, 6, 800, 0.35);
         this.lastX = touch.clientX;
         this.lastY = touch.clientY;
       }
