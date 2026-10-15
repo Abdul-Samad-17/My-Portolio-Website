@@ -1,32 +1,20 @@
-# Third-Party Notices & Attribution
+# Third-Party Notices
 
-This project incorporates structure, logic, and architectural patterns adapted from the open-source repository:
-- **Repository:** [Nikunj2003/My-Next-Js-Portfolio](https://github.com/Nikunj2003/My-Next-Js-Portfolio)
-- **Author:** Nikunj (Nikunj2003)
-- **License:** MIT License
+## My-Next-Js-Portfolio-v2
 
-In addition to the MIT License, direct permission was granted by the author to adapt and build upon this structure for Abdul Samad's personal portfolio.
+This project is a fork of
+[Nikunj2003/My-Next-Js-Portfolio-v2](https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2)
+by **Nikunj Khitha**, used under the [MIT License](./LICENSE).
 
----
+The original codebase provided the foundation for this portfolio, including:
 
-## MIT License
+- Next.js 16 App Router architecture
+- React 19 component structure
+- Tailwind CSS v4 design system and shadcn/radix UI primitives
+- AI Twin chat integration
+- Contact form with Resend delivery
+- Fluid cursor animation (FluidCursor.tsx / useFluidCursor.tsx)
+- Smooth scroll (Lenis) integration
+- SEO metadata and JSON-LD structured data
 
-Copyright (c) 2024 Nikunj
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+All original copyright notices are preserved in the LICENSE file.

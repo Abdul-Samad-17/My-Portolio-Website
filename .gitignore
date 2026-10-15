@@ -9,6 +9,7 @@
 # next.js
 /.next/
 /out/
+/dist
 
 # production
 /build
@@ -24,6 +25,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -31,16 +33,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Added by code-review-graph
+.code-review-graph/
 
-# ide / agents
-.agent/
-.agents/
-.gemini/
-.gsd/
-GSD-STYLE.md
-PROJECT_RULES.md
-VERSION
-adapters/
-model_capabilities.yaml
-/scripts/
-refrence/frames/
+# private career-research evidence (never publish)
+/work/
+/Yash.md
+/image.png
+/plane.md
+/2026-08-15-*-applied-ai-*.txt
