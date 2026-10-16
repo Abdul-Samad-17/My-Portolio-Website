@@ -18,7 +18,27 @@ import {
 } from "@/lib/chat-contract";
 import { TOOL_DEFINITIONS, executeTool, formatToolCall } from "@/lib/ai-tools";
 import { CHAT_MEMORY_WINDOW, appendContextualLinks, findMatchingProjects, normalizeText, trimConversationHistory } from "@/lib/ai-twin";
+import { getCachedChipAnswer } from "@/lib/cached-answers";
 import { checkRateLimit, getClientKey, getRateLimitHeaders } from "@/lib/rate-limit";
+
+const DAILY_TOKEN_BUDGET = 180_000;
+let dailyTokensUsed = 0;
+let dailyResetAt = Date.now() + 24 * 60 * 60 * 1000;
+
+function checkDailyBudget(): boolean {
+  if (Date.now() > dailyResetAt) {
+    dailyTokensUsed = 0;
+    dailyResetAt = Date.now() + 24 * 60 * 60 * 1000;
+  }
+  return dailyTokensUsed < DAILY_TOKEN_BUDGET;
+}
+
+function recordTokensUsed(tokens: number) {
+  dailyTokensUsed += tokens;
+}
+
+const FRIENDLY_CAPACITY_FALLBACK =
+  "The AI assistant is taking a short breather after a busy day of questions! You can explore all of Abdul Samad's projects and case studies directly in the sections above, or reach out via the [contact form](#contact) or [LinkedIn](https://www.linkedin.com/in/abdul-samad1706/).";
 
 interface Message {
   content: string;
@@ -301,6 +321,12 @@ async function postChatCompletion(
 /** One tool call as it is progressively assembled from streamed deltas. */
 type StreamedToolCall = { id?: string; name: string; args: string };
 
+type StreamCompletionResult = {
+  content: string;
+  toolCalls: StreamedToolCall[];
+  usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+};
+
 /**
  * Streams ONE completion call and reports connection + text as they arrive.
  *
@@ -331,7 +357,7 @@ async function streamCompletion(
    */
   firstByteTimeoutMs: number,
   onText: (text: string) => void
-): Promise<{ content: string; toolCalls: StreamedToolCall[] }> {
+): Promise<StreamCompletionResult> {
   const controller = new AbortController();
 
   /*
@@ -366,6 +392,8 @@ async function streamCompletion(
     let content = "";
     const toolCallsByIndex = new Map<number, StreamedToolCall>();
 
+    let capturedUsage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined;
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -391,6 +419,17 @@ async function streamCompletion(
           continue;
         }
 
+        const rawPayload = parsed as Record<string, unknown>;
+        const usageData = (rawPayload.usage ?? (rawPayload.x_groq as Record<string, unknown> | undefined)?.usage) as
+          | { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }
+          | undefined;
+        if (usageData && typeof usageData.total_tokens === "number") {
+          capturedUsage = usageData;
+          console.log(
+            `[AI Token Usage] Prompt: ${usageData.prompt_tokens}, Completion: ${usageData.completion_tokens}, Total: ${usageData.total_tokens}`
+          );
+        }
+
         const delta = (parsed as { choices?: Array<{ delta?: Record<string, unknown> }> })?.choices?.[0]?.delta;
         if (!delta) continue;
 
@@ -414,7 +453,7 @@ async function streamCompletion(
       }
     }
 
-    return { content, toolCalls: Array.from(toolCallsByIndex.values()) };
+    return { content, toolCalls: Array.from(toolCallsByIndex.values()), usage: capturedUsage };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -459,7 +498,7 @@ async function streamCompletionWithRetry(
    */
   onAttempt?: (attempt: number) => void,
   attempts = CHAT_TOOL_ROUND_ATTEMPTS
-) {
+): Promise<StreamCompletionResult> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -579,6 +618,89 @@ export async function POST(request: Request) {
       rateLimitHeaders,
       false
     );
+  }
+
+  // Serve pre-written answers for suggestion chips without calling the LLM
+  const cachedChip = getCachedChipAnswer(message);
+  if (cachedChip) {
+    console.log(`[AI Token Usage] Cached chip hit: "${message}" -> 0 prompt tokens, 0 completion tokens`);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        const send = (event: ChatStreamEvent) => {
+          try {
+            controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+          } catch {}
+        };
+        send({ type: "status", label: "Writing answer" });
+        send({ type: "text_delta", text: cachedChip.answer });
+        send({
+          type: "trace",
+          trace: {
+            rounds: 0,
+            toolCount: 0,
+            elapsedMs: 2,
+            sources: ["Verified Knowledge Base"],
+            refusals: [],
+            model: "cached-chip",
+          },
+        });
+        send({ type: "suggestions", suggestions: cachedChip.suggestions });
+        send({ type: "done" });
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        ...rateLimitHeaders,
+        "Content-Type": CHAT_STREAM_CONTENT_TYPE,
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+        "X-Accel-Buffering": "no",
+      },
+    });
+  }
+
+  // Daily account token budget guard (Groq 200,000/day limit)
+  if (!checkDailyBudget()) {
+    console.warn("[AI Token Usage] Daily budget exceeded; serving friendly capacity message");
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        const send = (event: ChatStreamEvent) => {
+          try {
+            controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+          } catch {}
+        };
+        send({ type: "status", label: "Writing answer" });
+        send({ type: "text_delta", text: FRIENDLY_CAPACITY_FALLBACK });
+        send({
+          type: "trace",
+          trace: {
+            rounds: 0,
+            toolCount: 0,
+            elapsedMs: 2,
+            sources: ["Portfolio Summary"],
+            refusals: [],
+            model: "daily-budget-guard",
+          },
+        });
+        send({ type: "suggestions", suggestions: getDefaultSuggestions() });
+        send({ type: "done" });
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        ...rateLimitHeaders,
+        "Content-Type": CHAT_STREAM_CONTENT_TYPE,
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+        "X-Accel-Buffering": "no",
+      },
+    });
   }
 
   const invokeUrl = process.env.LLM_BASE_URL?.trim() || "https://integrate.api.nvidia.com/v1/chat/completions";
@@ -702,7 +824,7 @@ export async function POST(request: Request) {
                 ];
 
           let chunks = "";
-          let streamOutcome: { content: string; toolCalls: StreamedToolCall[] };
+          let streamOutcome: StreamCompletionResult;
           try {
             streamOutcome = await streamCompletionWithRetry(
               invokeUrl,
@@ -733,9 +855,31 @@ export async function POST(request: Request) {
                */
               () => send({ type: "status", label: mustAnswer ? "Writing answer" : "Thinking" })
             );
+
+            if (streamOutcome.usage?.total_tokens) {
+              recordTokensUsed(streamOutcome.usage.total_tokens);
+            }
           } catch (error) {
             if (error instanceof UpstreamStatusError) {
               console.error("LLM API error", error.status);
+              if (error.status === 429 || error.status === 413) {
+                // Return friendly fallback message, never a raw error
+                send({ type: "status", label: "Writing answer" });
+                send({ type: "text_delta", text: FRIENDLY_CAPACITY_FALLBACK });
+                emitTrace();
+                send({
+                  type: "suggestions",
+                  suggestions: buildFallbackSuggestions(
+                    message,
+                    FRIENDLY_CAPACITY_FALLBACK,
+                    recentMessages,
+                    getPriorUserTexts(recentMessages, message)
+                  ),
+                });
+                send({ type: "done" });
+                finish();
+                return;
+              }
               const failure = classifyUpstreamFailure(error.status);
               send({ type: "error", ...failure });
             } else if (isAbortError(error)) {

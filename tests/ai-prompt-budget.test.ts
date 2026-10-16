@@ -79,3 +79,14 @@ test("the prompt still carries what must never be paraphrased", () => {
   assert.match(SYSTEM_PROMPT, /get_case_study/, "the prompt must tell the model how to fetch depth");
   assert.match(SYSTEM_PROMPT, /Abdul Samad/i, "the prompt must name Abdul Samad");
 });
+
+test("the system prompt meets the Phase 1c token budget of under 1,500 tokens", () => {
+  assert.ok(
+    SYSTEM_PROMPT.length < 6_000,
+    `SYSTEM_PROMPT is ${SYSTEM_PROMPT.length} chars, expected under 6,000 chars (~1,500 tokens).`
+  );
+  assert.match(SYSTEM_PROMPT, /get_skills/, "prompt must list get_skills tool");
+  assert.match(SYSTEM_PROMPT, /get_experience/, "prompt must list get_experience tool");
+  assert.match(SYSTEM_PROMPT, /get_project/, "prompt must list get_project tool");
+});
+

@@ -14,7 +14,16 @@ test("every tool definition is a well-formed OpenAI function schema", () => {
     assert.equal(tool.function.parameters.type, "object");
     assert.ok(Array.isArray(tool.function.parameters.required));
   }
-  assert.deepEqual(TOOL_NAMES, ["search_work", "get_case_study", "get_metric", "compare_systems", "navigate_to"]);
+  assert.deepEqual(TOOL_NAMES, [
+    "search_work",
+    "get_case_study",
+    "get_metric",
+    "compare_systems",
+    "get_experience",
+    "get_project",
+    "get_skills",
+    "navigate_to",
+  ]);
 });
 
 test("search_work ranks production systems above side projects", () => {
@@ -277,3 +286,35 @@ test("a refused comparison explains how to recover", () => {
   assert.equal(refused.refused, true);
   assert.match(reason, /get_case_study|two or more/i, "the refusal must name a recovery path");
 });
+
+test("get_experience returns educational background and work history", () => {
+  const result = call("get_experience", {});
+  const output = result.output as { education: { institution: string; batch: string }; experiences: unknown[] };
+
+  assert.equal(result.refused, false);
+  assert.match(output.education.institution, /FAST NUCES/i);
+  assert.equal(output.education.batch, "2024");
+  assert.ok(output.experiences.length > 0);
+});
+
+test("get_project returns all projects when slug is omitted and specific project when slug is provided", () => {
+  const allResult = call("get_project", {});
+  const allOutput = allResult.output as { projects: { slug: string }[] };
+  assert.equal(allResult.refused, false);
+  assert.ok(allOutput.projects.length >= 6);
+
+  const singleResult = call("get_project", { slug: "codeforge" });
+  const singleOutput = singleResult.output as { title: string; slug: string };
+  assert.equal(singleResult.refused, false);
+  assert.equal(singleOutput.slug, "codeforge");
+});
+
+test("get_skills returns categorized technical competencies", () => {
+  const result = call("get_skills", {});
+  const output = result.output as { skillCategories: { title: string; skills: string[] }[] };
+
+  assert.equal(result.refused, false);
+  assert.ok(output.skillCategories.length > 0);
+  assert.ok(output.skillCategories.some((c) => c.skills.length > 0));
+});
+

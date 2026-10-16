@@ -39,3 +39,8 @@ next-env.d.ts
 # Reference screenshots
 reference/screenshots/reference-site-*
 reference/screenshots/command-palette-*
+
+# Agent and AI artifacts
+.gsd/
+.gemini/
+.agent/

@@ -1,5 +1,5 @@
 import { caseStudies, caseStudyBySlug, getCaseStudyPath } from "@/data/case-studies";
-import { bulletText, experiences, personalInfo, projects, stats } from "@/data/portfolio";
+import { bulletText, experiences, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
 import { getProjectAnchor, normalizeText } from "@/lib/ai-twin";
 
 /**
@@ -13,6 +13,9 @@ import { getProjectAnchor, normalizeText } from "@/lib/ai-twin";
 export type ToolName =
   | "search_work"
   | "get_case_study"
+  | "get_experience"
+  | "get_project"
+  | "get_skills"
   | "get_metric"
   | "compare_systems"
   | "navigate_to";
@@ -123,6 +126,50 @@ export const TOOL_DEFINITIONS = [
           },
         },
         required: ["slugs"],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "get_experience",
+      description:
+        "Retrieve Abdul Samad's work history, educational background at FAST NUCES Islamabad, roles, and accomplishments.",
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "get_project",
+      description:
+        "Retrieve details of Abdul Samad's projects. Pass a slug to get a specific project, or omit to list all projects.",
+      parameters: {
+        type: "object",
+        properties: {
+          slug: {
+            type: "string",
+            description: "Optional project slug (e.g. 'codeforge', 'serenify', 'omni-gateway', 'resumefit', 'neural-canvas', 'llama-mcp-streamlit').",
+          },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "get_skills",
+      description:
+        "Retrieve Abdul Samad's technical skills grouped by category (Generative AI, Systems Architecture, Full-Stack, Infrastructure).",
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
       },
     },
   },
@@ -617,6 +664,92 @@ export function executeTool(request: ToolCallRequest): ToolCallResult {
         section !== "all" && pick[section] ? pick[section] : { ...base, ...study },
         section === "all" ? "full case study" : section,
         [study.title]
+      );
+    }
+
+    case "get_experience": {
+      return finish(
+        {
+          education: {
+            institution: "FAST NUCES, Islamabad",
+            degree: "BS in Artificial Intelligence",
+            period: "2024 - Present",
+            batch: "2024",
+          },
+          experiences: experiences.map((e) => ({
+            company: e.company,
+            role: e.role,
+            period: e.period,
+            summary: e.summary,
+            bullets: e.bullets,
+          })),
+        },
+        "experience and education history",
+        ["Experience"]
+      );
+    }
+
+    case "get_project": {
+      const slug = typeof args.slug === "string" ? args.slug.trim().toLowerCase() : "";
+      if (slug) {
+        const found = projects.find(
+          (p) => p.slug.toLowerCase() === slug || normalizeText(p.title) === normalizeText(slug)
+        );
+        if (found) {
+          return finish(
+            {
+              title: found.title,
+              slug: found.slug,
+              category: found.category,
+              description: found.description,
+              tech: found.tech,
+              github: found.github,
+              live: found.live,
+              anchor: getProjectAnchor(found.slug),
+            },
+            found.title,
+            [found.title]
+          );
+        }
+        return finish(
+          {
+            found: false,
+            message: `Project "${slug}" not found. Available projects: ${projects.map((p) => p.slug).join(", ")}`,
+          },
+          "project not found",
+          [],
+          true
+        );
+      }
+      return finish(
+        {
+          projects: projects.map((p) => ({
+            title: p.title,
+            slug: p.slug,
+            category: p.category,
+            tech: p.tech,
+            summary: p.summary,
+            github: p.github,
+            live: p.live,
+            anchor: getProjectAnchor(p.slug),
+          })),
+        },
+        `${projects.length} projects`,
+        ["Projects"]
+      );
+    }
+
+    case "get_skills": {
+      return finish(
+        {
+          skillCategories: skillCategories.map((cat) => ({
+            title: cat.title,
+            skills: cat.skills,
+            description: cat.description,
+          })),
+        },
+        `${skillCategories.length} skill categories`,
+        ["Skills"]
       );
     }
 
