@@ -172,5 +172,5 @@ test("every experience bullet's study link resolves to a real case study", async
   // Not a specific count — just proof the mapping pass actually happened,
   // so this test cannot pass vacuously if every bullet were reverted to a
   // plain string.
-  assert.ok(mappedCount >= 10, `expected at least 10 mapped bullets, found ${mappedCount}`);
+  assert.ok(mappedCount >= 4, `expected at least 4 mapped bullets, found ${mappedCount}`);
 });

@@ -21,7 +21,7 @@ test("common visitor inquiries resolve to grounded cached answers", () => {
   const commonQueries = [
     "What is Abdul's background in Applied AI?",
     "How does Abdul approach system evaluation?",
-    "Tell me about the MCP registry and agent tools",
+    "Tell me about Example System B and agent tools",
     "Walk me through a complex architectural problem Abdul solved",
     "What technologies does Abdul work with most?",
     "What is Abdul Samad's educational background?",

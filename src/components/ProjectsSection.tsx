@@ -208,8 +208,7 @@ function ProjectCard({
               A sibling below the title, not inline inside it.
 
               Inline, the pill lands wherever the heading text happens to end,
-              so its position moved between cards with a short title ("Serenify")
-              and a long or wrapping one ("OmniGateway: AI Proxy"). Anchored under
+              so its position moved between cards with short and long titles. Anchored under
               the heading it sits in the same place on every card, and a display
               heading no longer has to reserve vertical space for a control.
             */}

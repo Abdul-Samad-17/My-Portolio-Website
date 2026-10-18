@@ -45,7 +45,7 @@ export const siteConfig = {
     "Node.js",
     "Python",
     "Machine Learning",
-    "LLM Evaluation",
+    "Model Evaluation",
     "RAG",
     "Full-Stack Development",
   ],

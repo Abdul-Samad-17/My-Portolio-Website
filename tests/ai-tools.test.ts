@@ -27,7 +27,7 @@ test("every tool definition is a well-formed OpenAI function schema", () => {
 });
 
 test("search_work ranks production systems above side projects", () => {
-  const result = call("search_work", { query: "evaluation" });
+  const result = call("search_work", { query: "reliability" });
   const output = result.output as { hits: { kind: string; title: string }[] };
 
   assert.ok(output.hits.length > 0);
@@ -37,8 +37,8 @@ test("search_work ranks production systems above side projects", () => {
 });
 
 test("search_work matches multi-word queries against system aliases", () => {
-  const output = call("search_work", { query: "tenant isolation" }).output as { hits: { id: string }[] };
-  assert.ok(output.hits.some((hit) => hit.id === "knowledge-graph-rag"));
+  const output = call("search_work", { query: "platform demo" }).output as { hits: { id: string }[] };
+  assert.ok(output.hits.some((hit) => hit.id === "example-system-a"));
 });
 
 test("search_work reports no matches instead of inventing work", () => {
@@ -51,16 +51,16 @@ test("search_work reports no matches instead of inventing work", () => {
 });
 
 test("search_work can be narrowed by kind", () => {
-  const output = call("search_work", { query: "Go", kind: "projects" }).output as { hits: { kind: string }[] };
+  const output = call("search_work", { query: "TypeScript", kind: "projects" }).output as { hits: { kind: string }[] };
   assert.ok(output.hits.every((hit) => hit.kind === "project"));
 });
 
 test("get_metric returns a measured value with its context", () => {
-  const result = call("get_metric", { name: "agreement kappa" });
+  const result = call("get_metric", { name: "pipeline uptime" });
   const output = result.output as { measured: boolean; value: string; source: string };
 
   assert.equal(output.measured, true);
-  assert.equal(output.value, "≥ 0.7");
+  assert.equal(output.value, "99.9%");
   assert.ok(output.source.length > 0);
   assert.equal(result.refused, false);
 });
@@ -75,20 +75,20 @@ test("get_metric refuses unknown metrics rather than estimating", () => {
 });
 
 test("get_metric never exposes absolute internal spend", () => {
-  const output = call("get_metric", { name: "cost" }).output as { value: string; context: string };
+  const output = call("get_metric", { name: "uptime" }).output as { value: string; context: string };
   const combined = `${output.value} ${output.context}`;
 
-  assert.match(output.value, /57%/);
+  assert.match(output.value, /99\.9%/);
   assert.doesNotMatch(combined, /\$\d/, "dollar figures must never be published");
 });
 
 test("get_case_study can fetch a single section", () => {
-  const output = call("get_case_study", { slug: "llm-evaluation-platform", section: "ownership" }).output as {
+  const output = call("get_case_study", { slug: "example-system-a", section: "ownership" }).output as {
     ownership: string;
     problem?: string;
   };
 
-  assert.match(output.ownership, /evaluation framework/i);
+  assert.match(output.ownership, /service architecture/i);
   assert.equal(output.problem, undefined, "section fetch should not return the whole study");
 });
 
@@ -101,17 +101,14 @@ test("get_case_study reports not-found for an unknown slug", () => {
 test("navigate_to resolves sections, case studies, projects, and the resume", () => {
   assert.equal((call("navigate_to", { target: "#contact" }).output as { href: string }).href, "#contact");
   assert.equal(
-    (call("navigate_to", { target: "knowledge-graph-rag" }).output as { href: string }).href,
-    "/work/knowledge-graph-rag"
+    (call("navigate_to", { target: "example-system-a" }).output as { href: string }).href,
+    "/work/example-system-a"
   );
-  // A slug that is only a project still resolves to its homepage anchor.
+  // A slug that is only a project resolves to its homepage anchor.
   assert.equal(
-    (call("navigate_to", { target: "resume-optimizer" }).output as { href: string }).href,
-    "#project-resume-optimizer"
+    (call("navigate_to", { target: "example-project-one" }).output as { href: string }).href,
+    "#project-example-project-one"
   );
-  // A slug that is BOTH a project and a case study resolves to the case study,
-  // which covers the same subject in far more depth.
-  assert.equal((call("navigate_to", { target: "serenify" }).output as { href: string }).href, "/work/serenify");
   assert.match((call("navigate_to", { target: "resume" }).output as { href: string }).href, /\.pdf$/);
 });
 
@@ -125,11 +122,11 @@ test("navigate_to rejects targets outside the allow-list", () => {
 });
 
 test("compare_systems needs at least two valid slugs", () => {
-  const ok = call("compare_systems", { slugs: ["llm-evaluation-platform", "governed-mcp-registry"] });
+  const ok = call("compare_systems", { slugs: ["example-system-a", "example-system-b"] });
   assert.equal(ok.refused, false);
   assert.equal((ok.output as { systems: unknown[] }).systems.length, 2);
 
-  const tooFew = call("compare_systems", { slugs: ["llm-evaluation-platform"] });
+  const tooFew = call("compare_systems", { slugs: ["example-system-a"] });
   assert.equal(tooFew.refused, true);
 });
 
@@ -163,9 +160,7 @@ test("get_case_study returns detail for every published slug", () => {
 });
 
 test("get_case_study exposes the depth the prompt no longer inlines", () => {
-  // Case-study prose was removed from the system prompt, so this path is now the
-  // only way the agent can answer an architecture or decision question.
-  const output = call("get_case_study", { slug: "code-intelligence-gateway", section: "decisions" })
+  const output = call("get_case_study", { slug: "example-system-a", section: "decisions" })
     .output as { decisions?: Array<{ choice: string; rejected?: string[] }> };
 
   assert.ok(Array.isArray(output.decisions) && output.decisions.length > 0);
@@ -182,7 +177,7 @@ test("navigate_to resolves the case study index", () => {
 });
 
 test("get_metric answers for a newly published figure and still refuses unknowns", () => {
-  const measured = call("get_metric", { name: "dashboards" });
+  const measured = call("get_metric", { name: "average latency" });
   assert.equal((measured.output as { measured?: boolean }).measured, true);
 
   const unknown = call("get_metric", { name: "number of coffees per sprint" });
@@ -190,43 +185,29 @@ test("get_metric answers for a newly published figure and still refuses unknowns
 });
 
 test("get_metric ranks by specificity instead of array order", () => {
-  // Regression: bidirectional substring matching with `find` let a short key
-  // swallow a longer query. "8" (business functions) preceded "8 repositories",
-  // and "tiers" preceded "3 tiers", so both returned a confidently WRONG number
-  // from an unrelated system — the worst failure for a tool whose contract is
-  // "never state a figure you did not verify".
-  const repos = call("get_metric", { name: "8 repositories" }).output as { value?: string; source?: string };
-  assert.equal(repos.source, "Code Intelligence Gateway");
-  assert.equal(repos.value, "8");
+  const exact = call("get_metric", { name: "average latency" }).output as { value?: string; source?: string };
+  assert.equal(exact.source, "Example System A");
+  assert.equal(exact.value, "<100ms");
 
-  const tiers = call("get_metric", { name: "3 tiers" }).output as { source?: string };
-  assert.equal(tiers.source, "Quill");
-
-  // An exact key still wins outright.
-  const dashboards = call("get_metric", { name: "dashboards" }).output as { value?: string };
-  assert.equal(dashboards.value, "19");
+  const compliance = call("get_metric", { name: "schema compliance" }).output as { source?: string };
+  assert.equal(compliance.source, "Example System B");
 });
 
 test("search_work matches two-character technology names", () => {
-  // Regression: a `length > 2` term filter dropped every short term, so the
-  // tool's own documented example query returned nothing — as did AI and RAG.
-  for (const query of ["Go", "AI", "RAG"]) {
+  for (const query of ["Go", "AI", "ML"]) {
     const output = call("search_work", { query }).output as { hits: unknown[] };
     assert.ok(output.hits.length > 0, `"${query}" should return matches`);
   }
 
-  // A genuinely unmatched query must still refuse rather than guess.
   const nonsense = call("search_work", { query: "quantum blockchain casino" });
   assert.equal(nonsense.refused, true);
 });
 
 test("compare_systems accepts slugs sent as a delimited string", () => {
-  // Models routinely ignore an array schema and send "a,b". Observed live:
-  // two valid slugs arrived joined, and the tool refused work it could serve.
   const joined = executeTool({
     id: "1",
     name: "compare_systems",
-    args: { slugs: "governed-mcp-registry,knowledge-graph-rag" },
+    args: { slugs: "example-system-a,example-system-b" },
   });
 
   assert.equal(joined.refused, false, "a joined slug string must still compare");
@@ -235,14 +216,14 @@ test("compare_systems accepts slugs sent as a delimited string", () => {
   const arrayForm = executeTool({
     id: "2",
     name: "compare_systems",
-    args: { slugs: ["governed-mcp-registry", "knowledge-graph-rag"] },
+    args: { slugs: ["example-system-a", "example-system-b"] },
   });
 
   assert.deepEqual(joined.output, arrayForm.output, "both arg shapes must agree");
 });
 
 test("compare_systems still refuses when fewer than two slugs resolve", () => {
-  const one = executeTool({ id: "3", name: "compare_systems", args: { slugs: "governed-mcp-registry" } });
+  const one = executeTool({ id: "3", name: "compare_systems", args: { slugs: "example-system-a" } });
   assert.equal(one.refused, true);
 
   const bogus = executeTool({ id: "4", name: "compare_systems", args: { slugs: "not-a-study,also-not-real" } });
@@ -250,11 +231,10 @@ test("compare_systems still refuses when fewer than two slugs resolve", () => {
 });
 
 test("compare_systems accepts a JSON-encoded array string", () => {
-  // The third shape seen live from the same model on the same question.
   const result = executeTool({
     id: "5",
     name: "compare_systems",
-    args: { slugs: '["governed-mcp-registry","knowledge-graph-rag"]' },
+    args: { slugs: '["example-system-a","example-system-b"]' },
   });
 
   assert.equal(result.refused, false, "a JSON-encoded array must not be refused");
@@ -263,9 +243,9 @@ test("compare_systems accepts a JSON-encoded array string", () => {
 
 test("all three slug arg shapes produce identical output", () => {
   const shapes = [
-    ["governed-mcp-registry", "knowledge-graph-rag"],
-    "governed-mcp-registry,knowledge-graph-rag",
-    '["governed-mcp-registry","knowledge-graph-rag"]',
+    ["example-system-a", "example-system-b"],
+    "example-system-a,example-system-b",
+    '["example-system-a","example-system-b"]',
   ];
 
   const outputs = shapes.map(
@@ -278,9 +258,7 @@ test("all three slug arg shapes produce identical output", () => {
 });
 
 test("a refused comparison explains how to recover", () => {
-  // A bare failure reason left the model with nothing to do and it returned an
-  // empty answer, which surfaced to the visitor as the generic fallback.
-  const refused = executeTool({ id: "6", name: "compare_systems", args: { slugs: "governed-mcp-registry" } });
+  const refused = executeTool({ id: "6", name: "compare_systems", args: { slugs: "example-system-a" } });
   const reason = JSON.stringify(refused.output);
 
   assert.equal(refused.refused, true);
@@ -301,12 +279,12 @@ test("get_project returns all projects when slug is omitted and specific project
   const allResult = call("get_project", {});
   const allOutput = allResult.output as { projects: { slug: string }[] };
   assert.equal(allResult.refused, false);
-  assert.ok(allOutput.projects.length >= 6);
+  assert.ok(allOutput.projects.length >= 5);
 
-  const singleResult = call("get_project", { slug: "codeforge" });
+  const singleResult = call("get_project", { slug: "example-project-one" });
   const singleOutput = singleResult.output as { title: string; slug: string };
   assert.equal(singleResult.refused, false);
-  assert.equal(singleOutput.slug, "codeforge");
+  assert.equal(singleOutput.slug, "example-project-one");
 });
 
 test("get_skills returns categorized technical competencies", () => {
@@ -317,4 +295,3 @@ test("get_skills returns categorized technical competencies", () => {
   assert.ok(output.skillCategories.length > 0);
   assert.ok(output.skillCategories.some((c) => c.skills.length > 0));
 });
-

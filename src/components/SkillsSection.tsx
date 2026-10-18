@@ -35,7 +35,7 @@ const SkillsSection = () => {
                   <span className="text-gradient">Stack</span>
                 </h2>
                 <p className="max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  The technologies I reach for most often when building agent systems, governed MCP tools, evaluation pipelines, and full-stack AI products.
+                  The technologies I reach for most often when building agent architectures, tool integrations, data pipelines, and full-stack AI products.
                 </p>
 
                 <p className="mt-10 text-left text-base font-semibold text-foreground sm:text-xl md:text-2xl">

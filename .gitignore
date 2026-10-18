@@ -44,3 +44,9 @@ reference/screenshots/command-palette-*
 .gsd/
 .gemini/
 .agent/
+
+# Reference recordings and extracted frames
+reference/frames/
+reference/screenrecordings/
+reference/screenshots/card (1).png
+

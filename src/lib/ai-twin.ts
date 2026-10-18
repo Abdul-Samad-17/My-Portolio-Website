@@ -4,7 +4,7 @@ import { about, experiences, highlightSentences, personalInfo, projects, recogni
 export const CHAT_MEMORY_WINDOW = 10;
 export const CHAT_STORAGE_KEY = "abdul-samad-ai-twin-chat";
 export const PROJECT_ANCHOR_PREFIX = "project-";
-export const WELCOME_MESSAGE = "Hi — I’m Abdul’s AI twin. I can give you a quick summary of his background, walk through an architecture, or explain how he approaches AI agent systems, evaluation harnesses, and full-stack platforms. You can also read the [LLM evaluation platform case study](/work/llm-evaluation-platform), [browse the work](#work), or [download the resume](/resume.pdf).";
+export const WELCOME_MESSAGE = "Hi — I’m Abdul’s AI twin. I can give you a quick summary of his background, walk through an architecture, or explain how he approaches AI agent systems, data pipelines, and full-stack platforms. You can also [view the case studies](/work), [browse the work](#work), or [download the resume](/resume.pdf).";
 
 type ConversationWindowMessage = {
   content: string;

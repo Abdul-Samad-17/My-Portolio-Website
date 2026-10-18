@@ -103,7 +103,7 @@ export const TOOL_DEFINITIONS = [
         properties: {
           name: {
             type: "string",
-            description: "The metric being asked about, e.g. 'MCP servers', 'kappa', 'entities', 'cost'.",
+            description: "The metric being asked about, e.g. 'pipeline uptime', 'schema compliance', 'latency'.",
           },
         },
         required: ["name"],
@@ -153,7 +153,7 @@ export const TOOL_DEFINITIONS = [
         properties: {
           slug: {
             type: "string",
-            description: "Optional project slug (e.g. 'codeforge', 'serenify', 'omni-gateway', 'resumefit', 'neural-canvas', 'llama-mcp-streamlit').",
+            description: "Optional project slug (e.g. 'example-project-one', 'example-project-two').",
           },
         },
         required: [],
@@ -321,148 +321,87 @@ interface MetricEntry {
 
 const METRICS: MetricEntry[] = [
   {
-    keys: ["mcp server", "mcp servers", "servers", "registry size", "10+"],
+    keys: ["pipeline uptime", "uptime", "availability"],
+    value: "99.9%",
+    context: "Automated data processing pipeline uptime under structured reliability monitoring.",
+    source: "Example System A",
+  },
+  {
+    keys: ["average latency", "latency", "pipeline latency", "100ms"],
+    value: "<100ms",
+    context: "Average request latency across asynchronous queues and processing nodes.",
+    source: "Example System A",
+  },
+  {
+    keys: ["schema compliance", "parameter validation", "compliance"],
+    value: "100%",
+    context: "Schema validation pass rate for agent tool parameters before execution.",
+    source: "Example System B",
+  },
+  {
+    keys: ["unvalidated executions", "invalid executions", "zero"],
+    value: "Zero",
+    context: "Unvalidated or arbitrary tool executions permitted by the agent runtime.",
+    source: "Example System B",
+  },
+  {
+    keys: ["retrieval latency", "p95 retrieval", "query latency", "50ms"],
+    value: "<50ms",
+    context: "P95 query retrieval latency across indexed documents and semantic vectors.",
+    source: "Example System C",
+  },
+  {
+    keys: ["context relevance", "relevance"],
+    value: "High",
+    context: "Context relevance benchmarked across hybrid retrieval scoring modes.",
+    source: "Example System C",
+  },
+  {
+    keys: ["accessibility", "accessibility compliance", "a11y"],
+    value: "100%",
+    context: "Accessibility compliance score across all primary application routes and controls.",
+    source: "Example System D",
+  },
+  {
+    keys: ["initial page load", "page load", "load time"],
+    value: "<1.2s",
+    context: "Initial page load time achieved through server rendering and asset optimization.",
+    source: "Example System D",
+  },
+  {
+    keys: ["example metric a", "deployments", "production deployments"],
     value: "10+",
-    context:
-      "Production MCP servers Abdul Samad delivered into the shared enterprise registry. Others in the same registry were built by teammates against the same policy, so this is his contribution rather than the registry total.",
-    source: "Governed MCP Tool Registry",
+    context: "Placeholder production deployments count.",
+    source: "Experience",
   },
   {
-    keys: ["authorization", "authorization checks", "permission tier", "tiers", "20 of 20"],
-    value: "20 of 20",
-    context: "Authorization checks passing across three permission tiers on a 23-tool integration.",
-    source: "Governed MCP Tool Registry",
+    keys: ["example metric b", "workflows", "agent workflows"],
+    value: "5+",
+    context: "Placeholder agent workflows count.",
+    source: "Example System B",
   },
   {
-    keys: ["ai surface", "ai surfaces", "surfaces", "evaluated", "scored"],
-    value: "9",
-    context:
-      "AI surfaces scored against golden datasets: prompts, models, agents, skills, MCP tool calls, and retrieval.",
-    source: "LLM Evaluation Platform",
+    keys: ["example metric c", "requests", "queries handled"],
+    value: "20K+",
+    context: "Placeholder requests handled count.",
+    source: "Example System C",
   },
   {
-    keys: ["kappa", "judge", "agreement", "inter rater"],
-    value: "≥ 0.7",
-    context:
-      "Statistical inter-rater agreement kappa a judge model must reach against held-out human labels before its scores are allowed to gate any release. Rechecked quarterly.",
-    source: "LLM Evaluation Platform",
-  },
-  {
-    keys: ["entities", "entity", "knowledge graph size", "500k", "corpus"],
-    value: "500K+",
-    context:
-      "Entities in the production knowledge graph across four content sources: test cases, support documentation, RCA items, and release notes.",
-    source: "Knowledge Graph RAG",
-  },
-  {
-    keys: ["query mode", "modes", "retrieval mode", "five modes"],
-    value: "5",
-    context:
-      "Retrieval modes benchmarked (naive, local, global, hybrid, mix) into a documented mode-per-tool policy, scored on recall within the top k results, mean reciprocal rank, and context precision.",
-    source: "Knowledge Graph RAG",
-  },
-  {
-    keys: ["business function", "functions", "teams served", "15"],
-    value: "15+",
-    context:
-      "Business functions reachable by Slack-accessible agents through Agentic Office OS, which Abdul Samad co-built with teammates.",
-    source: "Agentic Office OS",
-  },
-  {
-    keys: ["cost", "spend", "gateway cost", "57"],
-    value: "57%",
-    context:
-      "Share of LiteLLM gateway cost traced to multiple automations across 50,000+ requests, root-caused to a bulk historical backfill rather than the model. Fixed by model migration and prompt caching. A deterministic rewrite was documented as worth a further ~95% reduction. Percentages only — absolute internal spend is not published.",
-    source: "LiteLLM gateway",
-  },
-  {
-    keys: ["empty queries", "100", "outage", "zero content", "failing queries"],
-    value: "100+ → 0",
-    context:
-      "Codebase-search queries returning zero content before the fix; two independent root causes were isolated by reading SDK source and host internals.",
-    source: "Governed MCP Tool Registry",
-  },
-  {
-    keys: ["sub agent", "sub agents", "platform agent", "migration", "2 of 6"],
-    value: "2 of 6",
-    context:
-      "Platform agent sub-agents Abdul Samad helped migrate from LangChain4j to Spring AI during his internship, reimplementing memory and evaluation integrations.",
-    source: "Software engineering internship",
-  },
-  {
-    keys: ["online", "drift", "live traffic", "sample"],
-    value: "5–10%",
-    context: "Share of live production traffic scored continuously to catch quality drift.",
-    source: "LLM Evaluation Platform",
-  },
-  {
-    keys: ["efs", "storage throughput", "throttling", "76 kb", "14 minutes", "copy time", "burst credit"],
-    value: "76 KB in 14 minutes",
-    context:
-      "The copy time that identified the cause of a service crash loop as storage-throughput throttling rather than an application defect: latency uncorrelated with data volume is the signature of a credit-based volume running at baseline.",
-    source: "Code Intelligence Gateway",
-  },
-  {
-    keys: ["repositories", "repos", "product repositories", "8 repositories", "codebase search scope"],
-    value: "8",
-    context:
-      "Product repositories searchable by agents through the code intelligence gateway, indexed locally and refreshed on an interval the gateway owns.",
-    source: "Code Intelligence Gateway",
-  },
-  {
-    keys: ["context enrichment", "enrichment steps", "clarification", "clarification gate", "4 steps"],
-    value: "4",
-    context:
-      "Sequential context-enrichment steps that must complete before the documentation agent drafts anything: deep ticket pull, codebase search, clarification questions, then the existing flow. The clarification gate blocks drafting until open questions are answered.",
-    source: "Documentation Automation Platform",
-  },
-  {
-    keys: ["dashboards", "19 dashboards", "parity", "superset", "bi parity"],
-    value: "19",
-    context:
-      "Dashboards migrated to full parity with the vendor reporting tool being replaced, served from a self-hosted platform with row-level access control.",
-    source: "Business Data Layer for Agents",
-  },
-  {
-    keys: ["serving tables", "schema size", "32 to 12", "tables pruned"],
-    value: "32 → 12",
-    context:
-      "Serving tables after pruning an over-scoped schema down to only those whose every column traces to a surface that reads it.",
-    source: "Business Data Layer for Agents",
-  },
-  {
-    keys: ["permission tiers quill", "quill rbac", "github tiers", "3 tiers"],
-    value: "3",
-    context:
-      "Permission tiers enforced in Quill, the review app within the AI documentation automation workflow — read-only, write, and full access — resolved live from GitHub. Quill supports review of agent-created documentation PRs before merged changes sync to Zendesk.",
-    source: "Quill",
-  },
-  {
-    keys: ["backends", "providers", "6 backends", "provider count"],
-    value: "6",
-    context:
-      "Model provider backends reachable through one compatible API surface in the open-source gateway, with health-tracked routing and automatic recovery of providers that were temporarily unhealthy.",
-    source: "OmniGateway: AI Proxy",
-  },
-  {
-    keys: ["sports queries", "fantasy gpt", "98%", "query resolution"],
-    value: "98%",
-    context:
-      "Complex sports queries resolved end to end by Fantasy GPT, a multi-step SQL RAG system on a fine-tuned in-house model answering against live match data in under thirty seconds.",
-    source: "Fantasy GPT",
-  },
-  {
-    keys: ["languages", "15+ languages", "multilingual", "commentary languages", "aiko"],
-    value: "15+",
-    context:
-      "Languages supported by AIKO for live commentary and voice conversation, with persona-driven highlight generation.",
-    source: "AIKO",
+    keys: ["example metric d", "pipeline benchmark"],
+    value: "99%",
+    context: "Placeholder benchmark score.",
+    source: "Example System A",
   },
   {
     keys: ["case studies", "case study count", "how many case studies", "write ups"],
-    value: "13",
-    context:
-      "Deep-dive case studies published on the site, grouped by theme at /work: agent systems, retrieval and context, platform and reliability, and AI products.",
+    value: "4",
+    context: "Deep-dive generic case studies published on the site, grouped by theme at /work.",
+    source: "Portfolio",
+  },
+  {
+    keys: ["projects", "project count", "how many projects"],
+    value: "5",
+    context: "Personal engineering projects published in the portfolio.",
     source: "Portfolio",
   },
 ];
@@ -535,8 +474,8 @@ function navigateTo(target: string) {
     return { ok: true as const, href: section, label: `${query} section` };
   }
 
-  // Case studies are matched before projects on purpose. Several slugs exist as
-  // both (the API proxy, Serenify), and the case study is the better
+  // Case studies are matched before projects on purpose. When a query matches
+  // both a case study and a project, the case study is the better
   // destination: same subject, far more depth than the project card.
   const study = caseStudies.find(
     (candidate) => normalizeText(candidate.slug) === query || normalizeText(candidate.title) === query

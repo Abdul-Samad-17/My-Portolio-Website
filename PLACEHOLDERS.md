@@ -51,12 +51,8 @@ This document tracks all placeholder assets, data files, configuration values, a
 - **Resume**:
   - `public/resume.pdf`: Replace 1-page placeholder PDF with your real resume.
 - **Project Screenshots**:
-  - `public/images/projects/codeforge/`: Application screenshots (light & dark).
-  - `public/images/projects/omni-gateway/`: Dashboard, API docs, providers views.
-  - `public/images/projects/serenify/`: App workflows, wellness dashboard, chat.
-  - `public/images/projects/resume-optimizer/`: Interface, analysis outputs.
-  - `public/images/projects/neural-canvas/`: Workspace and gallery captures.
-  - `public/images/projects/llama-mcp-streamlit/`: Streamlit dashboard views.
+  - `public/images/projects/example-project-one/`: Application screenshots (light & dark).
+  - `public/images/projects/example-project-two/`: Dashboard, API docs, providers views.
 - **Branding & Social Previews**:
   - `src/assets/logo.png`: Primary personal monogram or mark.
   - `src/assets/card.png`: Hero portrait or abstract visual card.

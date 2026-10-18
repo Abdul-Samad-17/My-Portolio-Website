@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, AudioLines, Blocks, Boxes, Database, BookOpen, FlaskConical, Gauge, HeartPulse, Layers, Network, PenLine, ServerCog, ShieldCheck, Trophy } from "lucide-react";
+import { ArrowRight, Boxes, Gauge, Layers, Network, ShieldCheck } from "lucide-react";
 import { getCaseStudyPath, type CaseStudy } from "@/data/case-studies";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import AskAboutThis from "@/components/AskAboutThis";
@@ -9,19 +9,10 @@ import AskAboutThis from "@/components/AskAboutThis";
  * than breaking, but every shipped study should be listed here.
  */
 export const SYSTEM_GLYPHS: Record<string, React.ElementType> = {
-  "llm-evaluation-platform": Gauge,
-  "governed-mcp-registry": ShieldCheck,
-  "code-intelligence-gateway": ServerCog,
-  "knowledge-graph-rag": Network,
-  "documentation-automation": BookOpen,
-  "sentinel-test-agent": FlaskConical,
-  "bi-platform": Database,
-  quill: PenLine,
-  "omni-gateway": Boxes,
-  codeforge: Blocks,
-  "fantasy-gpt": Trophy,
-  aiko: AudioLines,
-  serenify: HeartPulse,
+  "example-system-a": Gauge,
+  "example-system-b": ShieldCheck,
+  "example-system-c": Network,
+  "example-system-d": Boxes,
 };
 
 /**

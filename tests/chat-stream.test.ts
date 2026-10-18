@@ -93,11 +93,11 @@ test("carries tool call and trace events through intact", () => {
   const events = parser.push(
     line({
       type: "tool_result",
-      call: { id: "a", name: "get_metric", label: 'get_metric("kappa")', status: "done", summary: "≥ 0.7", durationMs: 1 },
+      call: { id: "a", name: "get_metric", label: 'get_metric("pipeline uptime")', status: "done", summary: "99.9%", durationMs: 1 },
     }) +
       line({
         type: "trace",
-        trace: { rounds: 2, toolCount: 1, elapsedMs: 1400, sources: ["LLM Evaluation Platform"], refusals: [], model: "test" },
+        trace: { rounds: 2, toolCount: 1, elapsedMs: 1400, sources: ["Example System A"], refusals: [], model: "test" },
       })
   );
 
@@ -107,11 +107,11 @@ test("carries tool call and trace events through intact", () => {
   assert.equal(toolResult.type, "tool_result");
   if (toolResult.type !== "tool_result") return;
   assert.equal(toolResult.call.name, "get_metric");
-  assert.equal(toolResult.call.summary, "≥ 0.7");
+  assert.equal(toolResult.call.summary, "99.9%");
 
   const trace = events[1];
   assert.equal(trace.type, "trace");
   if (trace.type !== "trace") return;
   assert.equal(trace.trace.rounds, 2);
-  assert.deepEqual(trace.trace.sources, ["LLM Evaluation Platform"]);
+  assert.deepEqual(trace.trace.sources, ["Example System A"]);
 });
