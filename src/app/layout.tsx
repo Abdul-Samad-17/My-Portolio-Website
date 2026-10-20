@@ -54,6 +54,7 @@ export const metadata: Metadata = {
     },
   },
   other: {
+    'darkreader-lock': 'true',
     'geo.region': siteConfig.geo.region,
     'geo.placename': siteConfig.geo.placename,
     'geo.position': siteConfig.geo.position,

@@ -84,7 +84,7 @@ const HeroSection = () => {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[100svh] items-start overflow-hidden pt-[calc(5rem+env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:pt-[calc(5.5rem+env(safe-area-inset-top))] sm:pb-[max(2.5rem,env(safe-area-inset-bottom))] lg:min-h-screen lg:items-center lg:pt-20 lg:pb-12"
+      className="relative flex min-h-[100svh] items-start overflow-hidden pt-[calc(5rem+env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:pt-[calc(5.5rem+env(safe-area-inset-top))] sm:pb-[max(2.5rem,env(safe-area-inset-bottom))] lg:min-h-screen lg:items-center lg:pt-16 lg:pb-8"
     >
       {/* Subtle background grid & Animated Glow Orb */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
@@ -104,7 +104,7 @@ const HeroSection = () => {
           
           {/* Left - Content */}
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-6 sm:gap-8 lg:col-span-7">
-            <motion.div variants={item}>
+            <motion.div variants={item} className="mt-5 -mb-5">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold glass-subtle border border-primary/20 text-primary tracking-wide glow-accent-xs">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse motion-reduce:animate-none" />
                 Available for New Opportunities
@@ -131,7 +131,7 @@ const HeroSection = () => {
               ref={statsTriggerRef}
               variants={item}
               onAnimationStart={() => setStatsRevealStarted(true)}
-              className="grid grid-cols-2 gap-4 sm:grid-cols-4"
+              className="grid grid-cols-2 gap-4 sm:grid-cols-4 max-w-xl"
             >
               {/* Deliberately no ask affordance here. Each stat already links to
                   the surface that proves it, and the hero's job in the first

@@ -393,7 +393,7 @@ textarea,
   @media (min-width: 1536px) {
     .container-narrow,
     .container-width {
-      max-width: 88rem;
+      max-width: 111rem;
     }
   }
 }
