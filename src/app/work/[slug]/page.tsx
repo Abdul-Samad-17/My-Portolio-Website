@@ -177,7 +177,7 @@ const CaseStudyPage = async ({ params }: PageProps) => {
                     />
                   </div>
                   <ul className="mt-4 flex flex-col divide-y divide-white/10 overflow-hidden rounded-2xl glass-subtle">
-                    {study.constraints.map((constraint) => (
+                    {(study.constraints ?? []).map((constraint) => (
                       <li key={constraint} className="flex gap-3 p-5 text-base leading-relaxed text-muted-foreground">
                         <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
                         <span style={{ textWrap: "pretty" }}>{constraint}</span>
@@ -211,7 +211,7 @@ const CaseStudyPage = async ({ params }: PageProps) => {
                 What I chose, why, and what I turned down to get there.
               </p>
               <div className="mt-6 flex flex-col gap-4">
-                {study.decisions.map((decision, index) => (
+                {(study.decisions ?? []).map((decision, index) => (
                   <SpotlightCard key={decision.choice} delay={index * 0.06}>
                     <div className="p-6 sm:p-7">
                       {/* Sibling below the heading: decision titles vary a lot

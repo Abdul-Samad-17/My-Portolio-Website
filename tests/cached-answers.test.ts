@@ -19,10 +19,10 @@ test("every predefined suggestion chip in chatSuggestions resolves to a cached a
 
 test("common visitor inquiries resolve to grounded cached answers", () => {
   const commonQueries = [
-    "What is Abdul's background in Applied AI?",
-    "How does Abdul approach system evaluation?",
-    "Tell me about Example System B and agent tools",
-    "Walk me through a complex architectural problem Abdul solved",
+    "What is Abdul's background in AI/ML?",
+    "What has he built?",
+    "Tell me about the FlyRank content-refresh pipeline",
+    "How does the AI Assistive Navigation System work?",
     "What technologies does Abdul work with most?",
     "What is Abdul Samad's educational background?",
     "Which project should I open first?",

@@ -16,6 +16,7 @@ const AnimatedCounter = ({ value, suffix, start }: { value: number; suffix: stri
   const frameRef = useRef<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const displayCount = shouldReduceMotion && start ? value : count;
+  const isFloat = value % 1 !== 0;
 
   useEffect(() => {
     if (!start || started.current || shouldReduceMotion) return;
@@ -24,10 +25,11 @@ const AnimatedCounter = ({ value, suffix, start }: { value: number; suffix: stri
 
     const duration = 2600;
     const startTime = performance.now();
+    const isDecimal = value % 1 !== 0;
     const step = (now: number) => {
       const progress = Math.min((now - startTime) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * value));
+      setCount(isDecimal ? Number((eased * value).toFixed(2)) : Math.round(eased * value));
       if (progress < 1) {
         frameRef.current = window.requestAnimationFrame(step);
       }
@@ -42,7 +44,9 @@ const AnimatedCounter = ({ value, suffix, start }: { value: number; suffix: stri
     };
   }, [shouldReduceMotion, start, value]);
 
-  return <span className="tabular-nums">{displayCount}{suffix}</span>;
+  const formattedCount = isFloat ? displayCount.toFixed(2) : displayCount;
+
+  return <span className="tabular-nums">{formattedCount}{suffix}</span>;
 };
 
 const HeroSection = () => {

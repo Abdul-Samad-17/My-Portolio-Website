@@ -1,11 +1,12 @@
-// Generic placeholder case studies for Abdul Samad's portfolio.
+// Real case studies for Abdul Samad's portfolio.
+// Sourced from reference/content-brief.md (Abdul's CV, public GitHub, and project READMEs).
 
 export type CaseStudyKind = "system" | "product";
 
 export type CaseStudyTheme =
+  | "pipelines"
+  | "robotics"
   | "agents"
-  | "retrieval"
-  | "platform"
   | "products";
 
 export interface CaseStudyDecision {
@@ -36,10 +37,10 @@ export interface CaseStudy {
   oneLiner: string;
   summary: string;
   problem: string;
-  constraints: string[];
+  constraints?: string[];
   diagram?: "eval" | "mcp" | "kgrag" | "docs" | "gateway" | "generic" | null;
   diagramCaption?: string;
-  decisions: CaseStudyDecision[];
+  decisions?: CaseStudyDecision[];
   sections: CaseStudySection[];
   stack: string[];
   ownership: string;
@@ -49,249 +50,266 @@ export interface CaseStudy {
 }
 
 export type CaseStudySlug =
-  | "example-system-a"
-  | "example-system-b"
-  | "example-system-c"
-  | "example-system-d";
+  | "content-refresh-pipeline"
+  | "assistive-navigation"
+  | "daftar"
+  | "capital-play";
 
 export const CASE_STUDY_SLUGS: CaseStudySlug[] = [
-  "example-system-a",
-  "example-system-b",
-  "example-system-c",
-  "example-system-d",
+  "content-refresh-pipeline",
+  "assistive-navigation",
+  "daftar",
+  "capital-play",
 ];
 
 export const caseStudies: CaseStudy[] = [
   {
-    slug: "example-system-a",
+    slug: "content-refresh-pipeline",
     kind: "system",
-    theme: "platform",
+    theme: "pipelines",
     featured: true,
-    title: "Example System A",
-    employer: "Example Organization",
-    period: "2026",
-    oneLiner: "A generic placeholder case study illustrating automated platform reliability and data processing workflows.",
-    summary: "This is a generic placeholder case study demonstrating platform architecture patterns, data processing workflows, and reliability engineering across distributed pipelines.",
-    problem: "Demonstrating how platform reliability is architected, monitored, and evaluated under structured engineering constraints with measurable quality benchmarks.",
+    title: "Content-Refresh Scoring Pipeline",
+    employer: "FlyRank",
+    period: "Jul 2026 – Aug 2026",
+    oneLiner: "Machine learning pipeline ranking content decay risk across warehouse-scale datasets using DuckDB and Random Forest.",
+    summary: "Built and validated an end-to-end ML scoring pipeline at FlyRank to rank content pages by decline risk. Designed analytical DuckDB queries across warehouse-scale data, engineered decay features, conducted leakage audits, and trained Random Forest models validated with client-holdout splits.",
+    problem: "Rank content pages by decline risk across a data warehouse containing tens of millions of rows, identifying pages that require content refreshes before organic traffic decay occurs.",
     constraints: [
-      "Must operate within defined memory and compute budgets across continuous execution runs.",
-      "Must provide clear logging and deterministic telemetry for all incoming pipeline payloads.",
-      "Architecture must follow modular engineering practices with decoupled services and queues.",
+      "Must execute efficiently over warehouse tables containing tens of millions of rows without memory exhaustion.",
+      "Must guarantee zero target leakage between historical content features and future performance labels.",
+      "Pipeline outputs must be validated on client-holdout splits to ensure generalization across unobserved domains.",
     ],
-    diagram: "generic",
-    diagramCaption: "Architecture diagram showing ingestion, pipeline processing, and storage components.",
+    diagram: null,
     decisions: [
       {
-        choice: "Modular service architecture",
-        why: "Separates ingestion workflows from background computation tasks to prevent processing bottlenecks.",
-        rejected: ["Monolithic tightly coupled service designs without clear boundaries."],
+        choice: "DuckDB for analytical querying and feature calculation",
+        why: "Allowed vectorized SQL processing directly over columnar warehouse data with minimal memory footprint and fast aggregations.",
+        rejected: ["Pure Python in-memory pandas loops that failed to scale over tens of millions of records."],
       },
       {
-        choice: "Automated verification checks",
-        why: "Prevents invalid payload ingestion before persisting to storage through deterministic validation rules.",
-        rejected: ["Ad-hoc manual verification loops after data persistence."],
+        choice: "Independent leakage-audit process with holdout validation",
+        why: "Identified and removed a label-derived feature that was artificially inflating cross-validation metrics, ensuring true generalization.",
+        rejected: ["Standard random train/test splits that allowed temporal and domain information leakage."],
       },
       {
-        choice: "Asynchronous processing queues",
-        why: "Buffers burst traffic spikes while guaranteeing ordered execution and resilient recovery.",
-        rejected: ["Direct synchronous pipeline execution under unbuffered concurrency."],
+        choice: "Random Forest ranking model over heuristic baselines",
+        why: "Captured non-linear feature interactions between content age, velocity, and decay metrics to achieve 3x precision improvement.",
+        rejected: ["Linear regression and static threshold heuristics that failed to rank high-risk pages effectively."],
       },
     ],
     sections: [
       {
-        heading: "Architecture Overview",
-        body: "The service ingests structured data payloads, processes requests through asynchronous queues, and updates persistent stores with verified telemetry.",
-        points: ["Stateless processing nodes", "Structured logging", "Standardized error handling"],
+        heading: "Approach",
+        body: "Designed DuckDB analytical pipelines to ingest and process tens of millions of warehouse records. Executed feature engineering focused on content decline velocity, conducted a rigorous data leakage audit, corrected label-derived artifacts, and validated performance through client-holdout testing against historical baselines.",
+        points: [
+          "Vectorized feature computation using DuckDB over warehouse datasets",
+          "Feature engineering and leakage audit isolating label contamination",
+          "Client-holdout validation testing against historical production baselines",
+          "Random Forest modeling delivering 0.74 precision@50",
+        ],
       },
     ],
-    stack: ["TypeScript", "Python", "Go", "PostgreSQL", "Docker"],
-    ownership: "Responsible for core service architecture, pipeline integration, and automated test suite design.",
+    stack: ["Python", "scikit-learn", "pandas", "DuckDB", "Random Forest"],
+    ownership: "Independently designed the feature engineering and leakage-audit process, and found and corrected a label-derived feature.",
     results: [
-      { metric: "99.9%", label: "Pipeline uptime under continuous load" },
-      { metric: "<100ms", label: "Average latency across processing stages" },
-      { metric: "Zero", label: "Data loss during simulated failovers" },
+      { metric: "0.74", label: "Precision@50 on client-holdout validation" },
+      { metric: "3x", label: "Improvement over historical baseline heuristic" },
+      { metric: "10M+", label: "Warehouse records processed efficiently with DuckDB" },
     ],
-    tags: ["Platform", "Architecture", "Engineering", "Go", "AI", "ML", "RAG"],
-    aliases: ["example-system-a", "system-a", "platform-demo", "system a", "platform architecture"],
+    tags: ["Machine Learning", "DuckDB", "Feature Engineering", "Python", "Pipelines"],
+    aliases: ["content-refresh-pipeline", "flyrank", "flyrank-scoring-pipeline", "scoring-pipeline", "decay-pipeline"],
   },
   {
-    slug: "example-system-b",
+    slug: "assistive-navigation",
+    kind: "system",
+    theme: "robotics",
+    featured: true,
+    title: "AI Assistive Navigation System",
+    employer: "FAST NUCES",
+    period: "Oct 2025 – Present",
+    oneLiner: "Assistive robotics system combining 360-degree LiDAR-camera sensor fusion, YOLOv8, and ROS2 for visually impaired users.",
+    summary: "Engineered an edge-deployed assistive navigation system for visually impaired users. Fuses 360-degree RPLIDAR spatial distance data with real-time YOLOv8 object detection and DeepSORT tracking on an ESP32 and Raspberry Pi 4 running ROS2, outputting low-latency directional spatial audio.",
+    problem: "Safe, independent mobility and obstacle avoidance for visually impaired users in complex, dynamic indoor and outdoor environments without relying on cellular cloud connectivity.",
+    constraints: [
+      "Must run on low-power edge hardware (Raspberry Pi 4 and ESP32) within a wearable power budget.",
+      "End-to-end audio feedback latency must remain strictly under 200 ms for immediate collision avoidance.",
+      "Must operate reliably across dynamic lighting conditions and varied indoor/outdoor environments.",
+    ],
+    diagram: null,
+    decisions: [
+      {
+        choice: "360-degree LiDAR and camera sensor fusion",
+        why: "Combined millimeter-accurate RPLIDAR distance mapping with camera object classification to cut collision risk by 70%.",
+        rejected: ["Camera-only depth estimation which degraded severely in low-light environments and lacked full 360° awareness."],
+      },
+      {
+        choice: "ROS2 middleware on edge hardware",
+        why: "Provided real-time publish-subscribe node architecture for sensor streams with deterministic scheduling between Pi 4 and ESP32.",
+        rejected: ["Monolithic Python scripts that introduced thread blocking and uncoordinated sensor polling."],
+      },
+      {
+        choice: "YOLOv8 coupled with DeepSORT tracking",
+        why: "Delivered 92% object re-identification accuracy to continuously track moving obstacles and pedestrians across sequential frames.",
+        rejected: ["Single-frame object detection without tracking, which caused audio alert jitter on temporary occlusions."],
+      },
+    ],
+    sections: [
+      {
+        heading: "Approach",
+        body: "Integrated an RPLIDAR unit and wide-angle camera with an ESP32 micro-controller and Raspberry Pi 4 running ROS2. Deployed lightweight YOLOv8 models for object detection and DeepSORT for multi-object tracking, fusing spatial depth coordinates with classified labels to generate intuitive spatial audio cues under 200 ms.",
+        points: [
+          "360-degree LiDAR-camera fusion cutting collision risk by 70%",
+          "YOLOv8 and DeepSORT achieving 92% re-identification accuracy",
+          "Deterministic ROS2 edge communication between Raspberry Pi 4 and ESP32",
+          "Spatial audio feedback delivered in under 200 ms",
+        ],
+      },
+    ],
+    stack: ["YOLOv8", "DeepSORT", "ROS2", "Sensor Fusion", "RPLIDAR", "ESP32", "Raspberry Pi 4", "Python", "C++"],
+    ownership: "Lead developer on computer vision tracking, LiDAR-camera sensor fusion, and ROS2 messaging nodes.",
+    results: [
+      { metric: "92%", label: "Re-identification accuracy with DeepSORT" },
+      { metric: "70%", label: "Collision risk reduction via 360° LiDAR-camera fusion" },
+      { metric: "<200ms", label: "End-to-end audio feedback latency" },
+      { metric: "60%", label: "Improvement in independent user mobility" },
+    ],
+    tags: ["Robotics", "Computer Vision", "ROS2", "LiDAR", "Sensor Fusion", "Edge AI"],
+    aliases: ["assistive-navigation", "ai-assistive-navigation", "lidar-navigation", "robotics-navigation", "vision-navigation"],
+  },
+  {
+    slug: "daftar",
     kind: "system",
     theme: "agents",
     featured: true,
-    title: "Example System B",
-    employer: "Example Organization",
+    title: "Daftar: Workplace Simulation",
+    employer: "AICON'26 Build With AI",
     period: "2026",
-    oneLiner: "A generic placeholder case study demonstrating modular agent tool integration and task execution.",
-    summary: "This is a generic placeholder case study demonstrating agent architecture, tool routing, parameter validation, and auditable action traces.",
-    problem: "Illustrating systematic tool invocation and structured state transitions in automated task systems with verifiable execution boundaries.",
+    oneLiner: "Multi-agent workplace simulation where fresh graduates complete a 'first shift' with an AI team grading six workplace skills.",
+    summary: "Built at AICON'26 Build With AI by team nexora. Immerses fresh graduates in a simulated 'first shift' with an AI-generated team (CEO, manager, senior, peer, client) with private knowledge contexts. Features hidden browser tests, an automated QA bot filing bug reports, and an AI evaluator that scores six workplace competencies quoting the graduate's own messages.",
+    problem: "Fresh engineering graduates face steep workplace culture and communication shocks without realistic environments to practice conflict resolution, task prioritization, and cross-functional team interactions.",
     constraints: [
-      "Tool calls must strictly validate parameter types before execution to prevent runtime failures.",
-      "Execution state must remain auditable with full execution traces and deterministic logs.",
-      "Must handle provider timeouts gracefully without causing hung threads or unhandled exceptions.",
+      "Persona agents must maintain strict private knowledge boundaries without leaking hidden scenario facts.",
+      "Interactive responses must stream quickly within conversational turn limits on Vercel serverless functions.",
+      "Evaluation grading must be objective, reproducible, and directly grounded in exact quotes from user messages.",
     ],
-    diagram: "generic",
-    diagramCaption: "Workflow diagram illustrating tool resolution, execution, and state persistence.",
+    diagram: null,
     decisions: [
       {
-        choice: "Explicit tool schema validation",
-        why: "Ensures agents do not execute corrupted or malformed commands by rejecting invalid inputs upfront.",
-        rejected: ["Unchecked arbitrary execution based solely on model output strings."],
+        choice: "Multi-agent persona architecture with private knowledge",
+        why: "Gave each persona (CEO, manager, senior engineer, peer, client) distinct goals and isolated knowledge, creating realistic team dynamics.",
+        rejected: ["Single monolithic system prompt acting as all team members, which suffered from persona blending and context leaks."],
       },
       {
-        choice: "Stateless tool runner with central trace store",
-        why: "Provides isolated tool evaluation without shared memory side effects or hidden dependencies.",
-        rejected: ["Stateful monolithic execution runners with shared in-memory context."],
+        choice: "Browser-executed hidden tests and QA bug bot",
+        why: "Injected unexpected real-time workplace events (such as QA filing bugs during client calls) to test realistic prioritization under pressure.",
+        rejected: ["Static multiple-choice questionnaires and scripted decision trees."],
       },
       {
-        choice: "Deterministic execution boundaries",
-        why: "Restricts autonomous agents to allow-listed operations with explicit parameter checks.",
-        rejected: ["Unrestricted environment access without verification gates."],
+        choice: "Quotation-grounded rubric evaluation",
+        why: "Ensured the final assessment of six core workplace skills referenced specific verbatim statements by the user for constructive feedback.",
+        rejected: ["Subjective numerical scores without verifiable textual evidence."],
       },
     ],
     sections: [
       {
-        heading: "Agent Execution Loop",
-        body: "The orchestrator evaluates incoming tasks, determines required tools, validates arguments, and executes actions with timeout protection and structured logging.",
-        points: ["Schema-based tool calling", "Audit trails", "Graceful fallback mechanisms"],
+        heading: "Approach",
+        body: "Architected a multi-agent simulation using Google Gemini and Next.js deployed on Vercel. Engineered separate persona prompts with scoped memory, built an asynchronous task engine that runs hidden browser checks, and implemented an evaluation pipeline that generates granular scores across six competencies with supporting evidence.",
+        points: [
+          "5 distinct AI personas (CEO, Manager, Senior, Peer, Client) with private knowledge",
+          "Hidden tests running in the browser with automated QA bug filing",
+          "Automated evaluation across 6 core workplace skills citing user messages",
+          "Real-time streaming multi-turn chat built with Next.js and Gemini on Vercel",
+        ],
       },
     ],
-    stack: ["TypeScript", "Python", "FastAPI", "PostgreSQL", "Docker"],
-    ownership: "Responsible for tool execution harness, schema validation layer, and integration testing suites.",
+    stack: ["Gemini", "Next.js", "TypeScript", "Vercel", "Tailwind CSS"],
+    ownership: "Contributor on team nexora.",
     results: [
-      { metric: "100%", label: "Schema compliance for dispatched calls" },
-      { metric: "Zero", label: "Unvalidated executions permitted by runtime" },
-      { metric: "<200ms", label: "Dispatch overhead for local tool runners" },
+      { metric: "6", label: "Core workplace skills evaluated and scored" },
+      { metric: "5", label: "Distinct AI personas with private knowledge" },
+      { metric: "100%", label: "Evaluation backed by verifiable message quotation" },
     ],
-    tags: ["Agents", "Tooling", "Automation", "AI"],
-    aliases: ["example-system-b", "system-b", "agent-demo", "system b", "agent architecture"],
+    tags: ["Multi-Agent", "Gemini", "Next.js", "AI Simulation", "LLM Evaluation"],
+    aliases: ["daftar", "trydaftar", "workplace-simulation", "nexora", "team-nexora"],
   },
   {
-    slug: "example-system-c",
-    kind: "system",
-    theme: "retrieval",
-    featured: true,
-    title: "Example System C",
-    employer: "Example Organization",
-    period: "2025",
-    oneLiner: "A generic placeholder case study illustrating indexed data retrieval and contextual grounding.",
-    summary: "This is a generic placeholder case study illustrating indexing workflows, vector retrieval, semantic chunking, and context ranking pipelines.",
-    problem: "Providing relevant and accurate context grounding across indexed documentation and data sources under tight response budgets.",
-    constraints: [
-      "Must maintain low retrieval latency under high query concurrency across multiple document collections.",
-      "Index updates must reflect upstream changes incrementally without full table rebuilding.",
-      "Retrieval results must include origin attribution and provenance data for verification.",
-    ],
-    diagram: "generic",
-    diagramCaption: "Indexing and retrieval pipeline diagram from source documents to scored contexts.",
-    decisions: [
-      {
-        choice: "Hybrid dense and sparse indexing",
-        why: "Balances semantic similarity matches with exact keyword searches across diverse queries.",
-        rejected: ["Relying exclusively on keyword matching without semantic understanding."],
-      },
-      {
-        choice: "Deterministic chunking boundaries",
-        why: "Maintains semantic coherence within retrieved passage windows rather than arbitrary splits.",
-        rejected: ["Arbitrary fixed character splitting that breaks sentence integrity."],
-      },
-      {
-        choice: "Context provenance tagging",
-        why: "Enables tracing generated responses directly back to source documents for factual grounding.",
-        rejected: ["Opaque context injection without source document tracking."],
-      },
-    ],
-    sections: [
-      {
-        heading: "Retrieval Architecture",
-        body: "Documents are parsed, chunked with semantic boundaries, indexed into vector storage, and queried using hybrid retrieval scoring algorithms.",
-        points: ["Semantic chunking", "Hybrid scoring", "Context provenance tracking"],
-      },
-    ],
-    stack: ["Python", "TypeScript", "PostgreSQL", "Docker"],
-    ownership: "Designed ingestion pipeline, chunking heuristics, and retrieval benchmarking harness implementations.",
-    results: [
-      { metric: "<50ms", label: "P95 query retrieval across all indices" },
-      { metric: "High", label: "Context relevance benchmarked on golden test set" },
-      { metric: "100%", label: "Document attribution coverage on responses" },
-    ],
-    tags: ["Retrieval", "Search", "Data", "RAG", "AI"],
-    aliases: ["example-system-c", "system-c", "retrieval-demo", "system c", "retrieval architecture"],
-  },
-  {
-    slug: "example-system-d",
+    slug: "capital-play",
     kind: "product",
     theme: "products",
     featured: false,
-    title: "Example System D",
-    employer: "Example Organization",
+    title: "Capital Play",
+    employer: "Personal Project",
     period: "2025",
-    oneLiner: "A generic placeholder case study illustrating a full-stack user application and product workflow.",
-    summary: "This is a generic placeholder case study demonstrating full-stack web application architecture, UI design, client caching, and data synchronization.",
-    problem: "Creating an intuitive interface for exploring complex datasets with responsive visualization and reliable state management.",
+    oneLiner: "Sports ground booking platform with multi-role dashboards, automated slot engines, dynamic promotions, and live messaging.",
+    summary: "Full-stack sports venue booking platform built with React, Node.js, Express, MySQL, and Socket.io. Features 3 dedicated role dashboards (Player, Owner, Admin), real-time slot reservation, in-app messaging, a background 'Ghost Engine' that generates and releases slots, and a recursive promotion engine.",
+    problem: "Sports ground owners and players in urban areas struggle with manual venue coordination, frequent booking conflicts, delayed reservations, and low sports facility utilization.",
     constraints: [
-      "Must provide responsive UI interactions across desktop, tablet, and mobile viewports.",
-      "Application state must remain synchronized across client views without visual flickering.",
-      "Accessible navigation and high-contrast readable design meeting WCAG standards.",
+      "Slot availability must synchronize in real time across concurrent users to eliminate double-booking.",
+      "System must automatically manage unconfirmed reservation timeouts without manual owner intervention.",
+      "Architecture must support 3 distinct permission tiers (Player, Owner, Admin) with role-based access control.",
     ],
-    diagram: "generic",
-    diagramCaption: "User interface workflow and backend API synchronization diagram.",
+    diagram: null,
     decisions: [
       {
-        choice: "Component-driven design system",
-        why: "Enables consistent UI components and accessibility compliance across application views.",
-        rejected: ["Ad-hoc styling across individual views leading to visual inconsistencies."],
+        choice: "Background Ghost Engine for slot lifecycle management",
+        why: "Automated recurring slot generation and time-bounded holds, releasing unconfirmed slots back to the public pool automatically.",
+        rejected: ["Manual venue owner approval flows that caused delayed confirmations and idle ground slots."],
       },
       {
-        choice: "Optimistic client updates with rollback",
-        why: "Improves perceived UI responsiveness during user interactions while ensuring consistency.",
-        rejected: ["Blocking user interactions on network round-trips for every state update."],
+        choice: "Socket.io for real-time slot state and messaging",
+        why: "Delivered instantaneous UI updates when slots are selected, preventing reservation race conditions between concurrent players.",
+        rejected: ["Periodic HTTP polling which introduced latency windows where duplicate bookings could occur."],
       },
       {
-        choice: "Accessible semantic HTML foundation",
-        why: "Guarantees screen reader navigation and keyboard accessibility across interactive elements.",
-        rejected: ["Div-soup interactive controls without ARIA labels or keyboard listeners."],
+        choice: "Recursive promotion engine",
+        why: "Allowed owners to define cascading discounts and dynamic pricing structures to drive utilization during off-peak hours.",
+        rejected: ["Static fixed-rate pricing models that failed to improve low utilization."],
       },
     ],
     sections: [
       {
-        heading: "Application Design",
-        body: "The application features a modern responsive interface, client-side caching, and secure backend integration for data exploration workflows.",
-        points: ["Responsive layouts", "Accessible controls", "Real-time state synchronization"],
+        heading: "Approach",
+        body: "Engineered a scalable full-stack web application with React and Node.js/Express backed by MySQL. Implemented Socket.io for bi-directional live communication, built 3 role-tailored dashboards, implemented JWT authentication with RBAC, and created background automated workers for slot scheduling and dynamic promotions.",
+        points: [
+          "3 role-tailored dashboards for Players, Owners, and Administrators",
+          "Background Ghost Engine managing automated slot availability and timeouts",
+          "Real-time concurrent slot locking and in-app messaging via Socket.io",
+          "Recursive promotion engine providing dynamic venue pricing",
+        ],
       },
     ],
-    stack: ["TypeScript", "Python", "PostgreSQL", "Next.js"],
-    ownership: "Built frontend user interface, API endpoints, database models, and accessibility audits.",
+    stack: ["React", "Express", "Node.js", "MySQL", "Socket.io", "Tailwind CSS"],
+    ownership: "Full-stack developer responsible for architecture, real-time socket communications, database design, and promotion engines.",
     results: [
-      { metric: "100%", label: "Accessibility compliance across all audit passes" },
-      { metric: "<1.2s", label: "Initial page load time on standard mobile devices" },
-      { metric: "Zero", label: "State synchronization errors in integration suite" },
+      { metric: "50%", label: "More efficient booking management for owners" },
+      { metric: "3x", label: "Increase in sports ground utilization" },
+      { metric: "5x", label: "Faster booking turnaround for players" },
     ],
-    tags: ["Product", "UI/UX", "Full-Stack", "AI"],
-    aliases: ["example-system-d", "system-d", "product-demo", "system d", "product application"],
+    tags: ["Full-Stack", "React", "Node.js", "MySQL", "Socket.io", "Real-Time"],
+    aliases: ["capital-play", "sports-booking", "ghost-engine", "venue-booking", "ground-booking"],
   },
 ];
 
 export const CASE_STUDY_THEMES: { id: CaseStudyTheme; label: string; blurb: string }[] = [
   {
+    id: "pipelines",
+    label: "ML Pipelines",
+    blurb: "High-throughput predictive feature engineering and model scoring pipelines.",
+  },
+  {
+    id: "robotics",
+    label: "Computer Vision & Robotics",
+    blurb: "Real-time edge tracking, sensor fusion, and assistive robotics architectures.",
+  },
+  {
     id: "agents",
-    label: "Agent systems",
-    blurb: "Agents with modular tools, verified context, and automated evaluation.",
-  },
-  {
-    id: "retrieval",
-    label: "Retrieval & context",
-    blurb: "Grounding responses in structured knowledge that is scoped and reliable.",
-  },
-  {
-    id: "platform",
-    label: "Platform & reliability",
-    blurb: "The infrastructure services run on, and the architectures ensuring high uptime.",
+    label: "Agent Systems",
+    blurb: "Multi-agent persona simulations with automated evaluation and browser testing.",
   },
   {
     id: "products",
-    label: "AI products",
-    blurb: "End-to-end applications where machine intelligence delivers human-centered value.",
+    label: "Full-Stack Products",
+    blurb: "Production full-stack platforms with real-time state synchronization and automated engines.",
   },
 ];
 

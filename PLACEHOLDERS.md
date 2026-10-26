@@ -4,66 +4,43 @@ This document tracks all placeholder assets, data files, configuration values, a
 
 ---
 
-## 1. Global Site Configuration
+## 1. Project Screenshots (Pending Abdul's real screenshots)
+The following projects currently use neutral placeholder images located in `public/images/projects/`:
+- **Daftar**:
+  - `public/images/projects/daftar/placeholder.png` (Multi-agent workplace simulation interface / browser testing)
+- **Capital Play**:
+  - `public/images/projects/capital-play/placeholder.png` (Sports ground booking dashboards, slot engine, real-time messaging)
+- **RideFlow**:
+  - `public/images/projects/rideflow/placeholder.png` (Ride-hailing platform, Google Maps routing, wallet transactions)
+
+*Note: Abdul will provide real application screenshots for Daftar, Capital Play, and RideFlow in a subsequent phase.*
+
+---
+
+## 2. Global Site Configuration
 - **File**: `src/lib/site-config.ts`
   - `SITE_URL`: Update `NEXT_PUBLIC_SITE_URL` default to your custom domain (e.g., `https://abdulsamad.dev`).
   - `RESUME_PATH`: Keep `/resume.pdf` or point to a hosted URL if preferred.
 
 ---
 
-## 2. Profile & Experience Data
-- **File**: `src/data/portfolio.ts`
-  - `personalInfo`:
-    - `location`: Currently placeholder `"Islamabad, Pakistan"`.
-    - `tagline` & `focus`: AI student / engineer profile focus.
-    - Social links and contact details.
-  - `stats`: Key hero stats (deployments count, requests served, pipelines evaluated).
-  - `about`: Summary paragraph and detailed highlights.
-  - `experiences`:
-    - Work experiences currently use placeholder `"Example Organization"` and generic metrics.
-    - Education fact: `"BS Artificial Intelligence student at FAST NUCES Islamabad (Batch 2024)"`.
-  - `projects`: Featured and non-featured project entries, slugs, summaries, tech stacks, and repo/live links.
-  - `skillCategories`: Categorized technical competencies and tooling.
+## 3. Resume PDF
+- **File**: `public/resume.pdf`
+  - Ensure the uploaded PDF contains public-safe contact information (phone number omitted per privacy rules).
 
 ---
 
-## 3. Engineering Case Studies
-- **File**: `src/data/case-studies.ts`
-  - Slugs, titles, employers, one-liners, and architectural summaries.
-  - Technical constraints and tradeoffs.
-  - `decisions`: Architectural decisions, rationales, and "considered and rejected" alternatives.
-  - `ownership`: Explicit responsibility and boundaries for each system.
-  - `results`: Empirical, verified metrics and outcomes.
+## 4. Branding & Visual Assets
+- `src/assets/logo.png`: Personal monogram or logo mark.
+- `src/assets/card.png`: Hero 3D visual card asset.
+- `public/favicon.ico`, `public/favicon-32x32.png`, `public/apple-touch-icon.png`: Site favicons.
+- `public/og-image.png`: 1200x630 social card banner.
 
 ---
 
-## 4. AI Twin Configuration & Tools
-- **File**: `src/lib/ai-config.ts`
-  - System prompt guardrails, voice, and subject domain expertise.
-  - Default suggestion chips for initial chat affordances.
-- **File**: `src/lib/ai-tools.ts`
-  - Metric lookup entries and context sources in `METRIC_CONTEXTS`.
-  - Project navigation destinations.
-
----
-
-## 5. Visual Assets & Media
-- **Resume**:
-  - `public/resume.pdf`: Replace 1-page placeholder PDF with your real resume.
-- **Project Screenshots**:
-  - `public/images/projects/example-project-one/`: Application screenshots (light & dark).
-  - `public/images/projects/example-project-two/`: Dashboard, API docs, providers views.
-- **Branding & Social Previews**:
-  - `src/assets/logo.png`: Primary personal monogram or mark.
-  - `src/assets/card.png`: Hero portrait or abstract visual card.
-  - `public/favicon.ico`, `public/favicon-32x32.png`, `public/apple-touch-icon.png`: Favicons.
-  - `public/og-image.png`: 1200x630 social card banner.
-
----
-
-## 6. Environment Variables
+## 5. Environment Variables
 - **File**: `.env` (derived from `.env.example`)
-  - `LLM_API_KEY`: Groq API key for llama-3.3-70b-versatile.
+  - `LLM_API_KEY`: Groq API key for llama-3.3-70b-versatile / qwen/qwen3.8-27b.
   - `LLM_BASE_URL`: `https://api.groq.com/openai/v1/chat/completions`.
   - `RESEND_API_KEY`: API key from resend.com.
   - `CONTACT_EMAIL_FROM`: `onboarding@resend.dev` (or verified custom domain).

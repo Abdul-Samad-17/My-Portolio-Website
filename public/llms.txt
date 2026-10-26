@@ -1,28 +1,30 @@
-# Abdul Samad — Applied AI Engineer
+# Abdul Samad — AI/ML Engineer
 
-> Applied AI Engineer specializing in robust AI agent architectures, high-throughput backend platforms, and reliable production systems.
+> BS Artificial Intelligence student at FAST NUCES Islamabad, building ML pipelines, computer-vision robotics and full-stack AI products.
 
 ## Overview
 - Name: Abdul Samad
-- Role: Applied AI Engineer
-- Education: BS Artificial Intelligence student at FAST NUCES Islamabad (Batch 2024)
-- Focus: Generative AI, end-to-end AI pipelines, and agent architectures
+- Role: AI/ML Engineer
+- Education: B.S. Artificial Intelligence, FAST NUCES Islamabad (Aug 2024 – 2028)
+- Focus: ML pipelines, computer-vision robotics, multi-agent systems, and full-stack AI products
 - Location: Islamabad, Pakistan
 - Email: abdulsammadsardar17@gmail.com
 - GitHub: https://github.com/Abdul-Samad-17
-- LinkedIn: https://www.linkedin.com/in/abdul-samad1706/
+- LinkedIn: https://www.linkedin.com/in/abdul-samad1706
 - Website: https://abdul-samad-portfolio.example.com
 - Resume: https://abdul-samad-portfolio.example.com/resume.pdf
 
 ## Selected Engineering Case Studies
-- [Example System A](https://abdul-samad-portfolio.example.com/work/example-system-a): A generic placeholder case study illustrating automated platform reliability and data processing.
-- [Example System B](https://abdul-samad-portfolio.example.com/work/example-system-b): A generic placeholder case study demonstrating modular agent tool integration and task execution.
-- [Example System C](https://abdul-samad-portfolio.example.com/work/example-system-c): A generic placeholder case study illustrating indexed data retrieval and contextual grounding.
-- [Example System D](https://abdul-samad-portfolio.example.com/work/example-system-d): A generic placeholder case study illustrating a full-stack user application and product workflow.
+- [Content-Refresh Scoring Pipeline (FlyRank)](https://abdul-samad-portfolio.example.com/work/content-refresh-pipeline): Predictive ML scoring pipeline ranking content pages by decline risk using DuckDB and Random Forest (0.74 precision@50, 3x gain over baseline).
+- [AI Assistive Navigation System](https://abdul-samad-portfolio.example.com/work/assistive-navigation): Real-time assistive robotics system for visually impaired users using YOLOv8, DeepSORT, and 360-degree LiDAR-camera fusion on ROS2/Raspberry Pi 4 (<200ms latency, 70% collision risk cut).
+- [Daftar](https://abdul-samad-portfolio.example.com/work/daftar): Multi-agent workplace simulation built at AICON'26 by team nexora with Gemini and Next.js, running hidden browser tests and evaluating 6 workplace skills.
+- [Capital Play](https://abdul-samad-portfolio.example.com/work/capital-play): Full-stack sports venue booking platform featuring 3 role dashboards, automated background Ghost Engine for slot lifecycles, and real-time Socket.io concurrency.
 
-## Selected Personal Projects
-- [Example Project One](https://abdul-samad-portfolio.example.com/#project-example-project-one): Full-stack AI application demonstrating interactive user workflows and sandboxed previews.
-- [Example Project Two](https://abdul-samad-portfolio.example.com/#project-example-project-two): Unified gateway providing multi-provider routing and observability.
-- [Example Project Three](https://github.com/Abdul-Samad-17): Reusable CLI developer utilities and SDK libraries.
-- [Example Project Four](https://github.com/Abdul-Samad-17): Data ingestion and ETL pipeline service.
-- [Example Project Five](https://github.com/Abdul-Samad-17): Agent experimentation runner with execution timeout protection.
+## Selected Personal & Open-Source Projects
+- [Daftar](https://trydaftar.vercel.app): Multi-agent workplace simulation where a fresh graduate works a first shift with AI personas.
+- [Capital Play](https://capital--play.vercel.app): Sports ground booking platform with multi-role dashboards, automated slot engine, and live messaging.
+- [RideFlow](https://ride--flow.vercel.app): Full-stack ride hailing platform with MySQL stored procedures, triggers, views, atomic wallet payments, and Google Maps tracking.
+- [AI-ML-Automation-Tools](https://github.com/Abdul-Samad-17/AI-ML-Automation-Tools): Modular suite of 5 AI tools (FAQ chatbot, email classifier, document QA, RAG chatbot, and FastAPI workflow automation).
+- [CineGraphX](https://github.com/Abdul-Samad-17/CineGraphX): Zero-STL C++ graph and tree database over 5,000 IMDb movies with custom AVL trees, achieving 5x faster search.
+- [FlyRank-Internship](https://abdul-samad-17.github.io/FlyRank-Internship/): Content-refresh scoring pipeline repository and documentation.
+- [GridLock Rush](https://github.com/Abdul-Samad-17/GridLock-Rush): Bare-metal 2D arcade traffic game written in pure x86 Assembly.

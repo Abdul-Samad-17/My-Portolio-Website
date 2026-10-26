@@ -29,6 +29,11 @@ const DENYLIST = [
   "Nikunj",
   "Khitha",
   "Codenex",
+  "PUBG",
+  "PMPL",
+  "esports",
+  "SCAR",
+  "FAKeless",
 ];
 
 function getFiles(dir: string): string[] {

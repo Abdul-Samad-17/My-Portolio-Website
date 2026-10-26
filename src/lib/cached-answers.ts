@@ -7,162 +7,174 @@ export interface CachedAnswer {
 }
 
 export const CACHED_ANSWERS: Record<string, CachedAnswer> = {
+  built: {
+    question: "What has he built?",
+    answer:
+      "Abdul Samad has built machine learning pipelines, edge computer-vision robotics, multi-agent systems, and production full-stack platforms:\n\n" +
+      "### Production Systems & Case Studies\n" +
+      "- **[Content-Refresh Scoring Pipeline (FlyRank)](/work/content-refresh-pipeline)**: Predictive ML pipeline ranking content pages by decline risk. Designed feature engineering, leakage audit, and client-holdout validation using DuckDB and Random Forest, achieving **0.74 precision@50 (3x improvement over baseline)**.\n" +
+      "- **[AI Assistive Navigation System](/work/assistive-navigation)**: Assistive edge robotics architecture for visually impaired individuals using YOLOv8, DeepSORT, ROS2, and 360-degree LiDAR-camera sensor fusion on Raspberry Pi 4 (<200ms audio feedback latency, 70% collision risk reduction).\n" +
+      "- **[Daftar](/work/daftar)**: Multi-agent workplace simulation built at AICON'26 with team nexora. Simulates a graduate's 'first shift' with AI colleagues (Gemini + Next.js), running hidden browser tests and grading 6 workplace skills quoting user transcripts ([trydaftar.vercel.app](https://trydaftar.vercel.app)).\n" +
+      "- **[Capital Play](/work/capital-play)**: Sports venue booking platform with React, Node.js, MySQL, and Socket.io. Features 3 role dashboards, real-time slot locking, a background 'Ghost Engine' for slot lifecycles, and recursive pricing ([capital--play.vercel.app](https://capital--play.vercel.app)).\n\n" +
+      "### Web Platforms & Systems\n" +
+      "- **[RideFlow](#work)**: Full-stack ride-hailing platform with MySQL stored procedures, triggers, views, ACID wallet transactions, and Google Maps routing ([ride--flow.vercel.app](https://ride--flow.vercel.app)).\n" +
+      "- **[AI-ML-Automation-Tools](https://github.com/Abdul-Samad-17/AI-ML-Automation-Tools)**: Suite of 5 AI utilities (FAQ chatbot, email classifier, document QA, RAG chatbot, and FastAPI workflow automation).\n" +
+      "- **[CineGraphX](https://github.com/Abdul-Samad-17/CineGraphX)**: Zero-STL C++ graph and tree database over 5,000 IMDb movies with custom AVL trees, achieving 5x faster search than linear scans.\n" +
+      "- **[GridLock Rush](https://github.com/Abdul-Samad-17/GridLock-Rush)**: Bare-metal 2D arcade traffic game written in pure x86 Assembly.\n\n" +
+      "Explore all projects in the [Work section](#work) or read the [Case Studies](/work).",
+    suggestions: [
+      "Tell me about the FlyRank content-refresh pipeline",
+      "How does the AI Assistive Navigation System work?",
+      "What is Abdul's background in AI/ML?",
+      "What technologies does Abdul work with most?",
+    ],
+  },
   background: {
-    question: "What is Abdul's background in Applied AI?",
+    question: "What is Abdul's background in AI/ML?",
     answer:
-      "Abdul Samad is an **Applied AI Engineer** currently pursuing a **BS in Artificial Intelligence** at **FAST NUCES, Islamabad** (Batch 2024).\n\n" +
-      "His technical focus centers on:\n" +
-      "- **Autonomous Agent Workflows**: Designing agent tool harnesses and structured execution pipelines.\n" +
-      "- **Model Evaluation Harnesses**: Building automated evaluation suites, synthetic test datasets, and scoring frameworks.\n" +
-      "- **Full-Stack AI Engineering**: Productionizing AI systems with Next.js, FastAPI, relational databases, and low-latency inference providers.\n\n" +
-      "You can [browse his work](#work), [view the case studies](/work), or [download his resume](/resume.pdf).",
+      "Abdul Samad is an **AI/ML Engineer** pursuing a **B.S. in Artificial Intelligence** at **FAST NUCES, Islamabad** (Aug 2024 – 2028).\n\n" +
+      "His technical work spans:\n" +
+      "- **ML Pipelines & Predictive Scoring**: Feature engineering, data leakage audits, warehouse analytics on DuckDB, and holdout-validated models at FlyRank (0.74 precision@50).\n" +
+      "- **Computer Vision & Robotics**: Real-time object detection (YOLOv8), multi-object tracking (DeepSORT), and LiDAR sensor fusion on ROS2 for assistive navigation.\n" +
+      "- **Agent Systems & LLMs**: Multi-agent persona simulations with private knowledge states and browser-based evaluation (Daftar).\n" +
+      "- **Full-Stack AI Products**: Real-time web platforms with Socket.io, React, Node.js, and relational databases.\n\n" +
+      "He also organized the **NASCON'25 AI Hackathon** at FAST NUCES (leading 25+ participants with 2+ partner companies) and holds **5 Anthropic Academy certifications**.\n\n" +
+      "You can [browse his work](#work), [read the case studies](/work), or [download his resume](/resume.pdf).",
     suggestions: [
-      "How does Abdul approach system evaluation?",
+      "What has he built?",
+      "Tell me about the FlyRank content-refresh pipeline",
+      "How does the AI Assistive Navigation System work?",
       "What technologies does Abdul work with most?",
-      "Which project should I open first?",
-      "Tell me about Example System B and agent tools",
     ],
   },
-  evaluation: {
-    question: "How does Abdul approach system evaluation?",
+  flyrank: {
+    question: "Tell me about the FlyRank content-refresh pipeline",
     answer:
-      "Abdul approaches AI system evaluation through **empirical, deterministic measurement** rather than subjective impressions.\n\n" +
-      "Key methodologies include:\n" +
-      "- **Tiered Evaluation Ladders**: Starting with fast deterministic schema checks before running statistical heuristics.\n" +
-      "- **Golden Datasets & Regression Suites**: Running regression tests across model version upgrades to catch subtle reasoning regressions.\n" +
-      "- **Multi-Dimensional Metrics**: Measuring semantic accuracy, latency percentiles (p50/p95), and token economics side-by-side.\n\n" +
-      "You can read the full [Example System A case study](/work/example-system-a) for architectural details.",
+      "At **FlyRank** (remote, Jul 2026 – Aug 2026), Abdul built and validated a machine learning pipeline to rank warehouse content pages by decline risk:\n\n" +
+      "- **Warehouse Analytics**: Executed high-throughput analytical queries over large-scale warehouse datasets using **DuckDB** and pandas.\n" +
+      "- **Feature Leakage Prevention**: Independently audited the feature pipeline, identifying and eliminating a label-derived leakage feature before model training.\n" +
+      "- **Model Performance**: Evaluated Random Forest models using strict client-holdout verification, achieving **0.74 precision@50 — a 3x gain over baseline**.\n\n" +
+      "Read the complete breakdown in the [Content-Refresh Pipeline Case Study](/work/content-refresh-pipeline) or view the [GitHub repository](https://github.com/Abdul-Samad-17/FlyRank-Internship).",
     suggestions: [
-      "Tell me about Example System B and agent tools",
-      "Walk me through an architectural challenge Abdul solved",
+      "How does the AI Assistive Navigation System work?",
+      "What has he built?",
       "What technologies does Abdul work with most?",
-      "Which project should I open first?",
+      "Where can I find your resume?",
     ],
   },
-  agent_tools: {
-    question: "Tell me about Example System B and agent tools",
+  navigation: {
+    question: "How does the AI Assistive Navigation System work?",
     answer:
-      "Abdul built **Example System B** to provide standardized, safe tool execution for autonomous AI agents.\n\n" +
-      "Key features:\n" +
-      "- **Runtime Schema Validation**: Enforces JSON Schema parameters with runtime validation before executing tools.\n" +
-      "- **Execution Tracing & Rate Limiting**: Token-bucket rate limiting per agent session to prevent upstream throttling.\n" +
-      "- **Sandboxed Action Runners**: Isolates external API interactions and logs structured request traces for observability.\n\n" +
-      "Explore the full breakdown in the [Example System B case study](/work/example-system-b).",
+      "The **AI Assistive Navigation System** is a real-time computer vision and edge robotics architecture built for visually impaired individuals:\n\n" +
+      "- **Perception & Tracking**: Runs **YOLOv8** for real-time obstacle detection and **DeepSORT** for multi-object tracking, achieving 92% re-identification accuracy.\n" +
+      "- **Sensor Fusion**: Fuses 360-degree **RPLIDAR** spatial scans with camera feeds to eliminate blind spots and reduce collision risk by 70%.\n" +
+      "- **Edge Processing**: Integrates an **ESP32** microcontroller with a **Raspberry Pi 4** running **ROS2** to deliver low-latency (<200ms) directional audio feedback.\n\n" +
+      "Check out the detailed technical breakdown in the [Assistive Navigation Case Study](/work/assistive-navigation).",
     suggestions: [
-      "How does Abdul approach system evaluation?",
-      "Walk me through an architectural challenge Abdul solved",
-      "What is Abdul's background in Applied AI?",
-      "Which project should I open first?",
-    ],
-  },
-  architecture: {
-    question: "Walk me through an architectural challenge Abdul solved",
-    answer:
-      "A core architectural challenge Abdul solved was building a **Unified Gateway & Data Processing Pipeline** to handle upstream provider downtime and rate limits.\n\n" +
-      "Architectural highlights:\n" +
-      "- **Failover & Circuit Breaking**: Automatically reroutes degraded upstream model calls to backup providers with zero client downtime.\n" +
-      "- **Deterministic Caching**: Caches equivalent queries to reduce repetitive inference costs and cut response latencies.\n" +
-      "- **Normalized Stream Handling**: Normalizes token-by-token streaming events across heterogeneous provider interfaces.\n\n" +
-      "Review the architectural decisions in the [Example System A case study](/work/example-system-a) or view [all case studies](/work).",
-    suggestions: [
-      "How does Abdul approach system evaluation?",
-      "Tell me about Example System B and agent tools",
+      "Tell me about the FlyRank content-refresh pipeline",
+      "What has he built?",
+      "What is Abdul's background in AI/ML?",
       "What technologies does Abdul work with most?",
-      "Which project should I open first?",
     ],
   },
   technologies: {
     question: "What technologies does Abdul work with most?",
     answer:
-      "Abdul's primary technical stack spans modern AI engineering and full-stack development:\n\n" +
-      "- **AI & ML**: Python, PyTorch, LangChain, Hugging Face, Groq, OpenAI API, Anthropic API.\n" +
-      "- **Databases & Vector Search**: PostgreSQL, pgvector, Redis, MongoDB.\n" +
-      "- **Full-Stack & Frontend**: Next.js (App Router), React 19, TypeScript, Tailwind CSS.\n" +
-      "- **Infrastructure & DevOps**: Docker, Linux, GitHub Actions, Prometheus, Structured Tracing.\n\n" +
-      "You can inspect his competencies in the [Skills section](#skills) or browse [featured projects](#work).",
+      "Abdul's technical stack is organized across four core competencies:\n\n" +
+      "- **AI / ML**: Python, PyTorch, scikit-learn, YOLOv8, OpenCV, NumPy, Pandas, Seaborn, CLIP.\n" +
+      "- **Web Development**: React, Node.js, Express, MongoDB, REST APIs, Socket.io, Tailwind CSS, Next.js.\n" +
+      "- **Robotics & Computer Vision**: ROS2, sensor fusion, DeepSORT, Gazebo, RPLIDAR, C++, Assembly.\n" +
+      "- **Tools & Databases**: Git, GitHub, Postman, Vercel, MySQL, PostgreSQL, DuckDB.\n\n" +
+      "Inspect full details in the [Skills section](#skills) or explore his [open-source repositories](https://github.com/Abdul-Samad-17).",
     suggestions: [
-      "What is Abdul's background in Applied AI?",
-      "Which project should I open first?",
-      "Could you share your LinkedIn?",
+      "What has he built?",
+      "Tell me about the FlyRank content-refresh pipeline",
+      "What is Abdul's background in AI/ML?",
       "How can I contact Abdul Samad?",
     ],
   },
   projects: {
     question: "Which project should I open first?",
     answer:
-      "Featured personal projects showcasing Abdul's engineering breadth:\n\n" +
-      "1. **[Example Project One](#project-example-project-one)**: A full-stack AI web application with live preview sandboxes and streaming responses.\n" +
-      "2. **[Example Project Two](#project-example-project-two)**: A high-performance proxy gateway for unified multi-provider routing and telemetry.\n" +
-      "3. **[Example Project Three](#project-example-project-three)**: Reusable developer CLI utilities and SDK connectors.\n\n" +
-      "Explore the live previews and GitHub repositories in the [Work section](#work).",
+      "Recommended projects showcasing Abdul's engineering versatility:\n\n" +
+      "1. **[Daftar](/work/daftar)**: Multi-agent workplace simulation with hidden browser tests and AI transcript evaluations ([Live Demo](https://trydaftar.vercel.app)).\n" +
+      "2. **[Capital Play](/work/capital-play)**: Sports venue booking platform with an automated background 'Ghost Engine' and real-time Socket.io concurrency ([Live Demo](https://capital--play.vercel.app)).\n" +
+      "3. **[RideFlow](#work)**: Ride-hailing system with atomic MySQL transactions, triggers, and live Google Maps tracking ([Live Demo](https://ride--flow.vercel.app)).\n" +
+      "4. **[FlyRank Scoring Pipeline](/work/content-refresh-pipeline)**: Predictive ranking pipeline achieving 0.74 precision@50 on DuckDB.\n\n" +
+      "Explore all projects in the [Work section](#work) or on [GitHub](https://github.com/Abdul-Samad-17).",
     suggestions: [
+      "What has he built?",
       "What technologies does Abdul work with most?",
-      "Tell me about Example System B and agent tools",
-      "How can I contact Abdul Samad?",
+      "Tell me about the FlyRank content-refresh pipeline",
       "Where can I find your resume?",
     ],
   },
   education: {
     question: "What is your educational background?",
     answer:
-      "Abdul Samad is pursuing a **BS in Artificial Intelligence** at **FAST NUCES, Islamabad** (Batch 2024), where he has been enrolled since 2024.\n\n" +
-      "His academic studies emphasize core machine learning, deep neural architectures, probabilistic systems, and mathematical foundations for AI engineering.",
+      "Abdul Samad is pursuing a **B.S. in Artificial Intelligence** at **FAST NUCES, Islamabad** (Aug 2024 – 2028).\n\n" +
+      "Relevant coursework includes:\n" +
+      "- Data Structures & Algorithms, Analysis of Algorithms\n" +
+      "- Artificial Intelligence, Machine Learning\n" +
+      "- Operating Systems, SQL & Database Systems\n" +
+      "- Linear Algebra, Probability & Statistics\n\n" +
+      "Additionally, he completed 5 certifications with the Anthropic Academy (AI Fluency, Claude Platform, Claude Code, Model Context Protocol, and Claude Cowork).",
     suggestions: [
-      "What is Abdul's background in Applied AI?",
+      "What is Abdul's background in AI/ML?",
+      "What has he built?",
       "What technologies does Abdul work with most?",
-      "Which project should I open first?",
       "Where can I find your resume?",
     ],
   },
   contact: {
     question: "How can I contact Abdul Samad?",
     answer:
-      "You can contact Abdul Samad directly via:\n\n" +
+      "You can reach Abdul Samad directly via:\n\n" +
       "- **Email**: [abdulsammadsardar17@gmail.com](mailto:abdulsammadsardar17@gmail.com)\n" +
-      "- **LinkedIn**: [linkedin.com/in/abdul-samad1706](https://www.linkedin.com/in/abdul-samad1706/)\n" +
+      "- **LinkedIn**: [linkedin.com/in/abdul-samad1706](https://www.linkedin.com/in/abdul-samad1706)\n" +
       "- **GitHub**: [github.com/Abdul-Samad-17](https://github.com/Abdul-Samad-17)\n" +
-      "- **Contact Form**: You can also send a direct inquiry through the [Contact section](#contact).",
+      "- **Contact Form**: Send a direct message through the [Contact section](#contact).",
     suggestions: [
       "Could you share your LinkedIn?",
       "Can I see your GitHub?",
       "Where can I find your resume?",
-      "What is Abdul's background in Applied AI?",
+      "What has he built?",
     ],
   },
   linkedin: {
     question: "Could you share your LinkedIn?",
     answer:
-      "Abdul's LinkedIn profile is [linkedin.com/in/abdul-samad1706](https://www.linkedin.com/in/abdul-samad1706/).\n\n" +
-      "Feel free to connect or reach out regarding Applied AI engineering roles and collaborations.",
+      "Abdul's LinkedIn profile is [linkedin.com/in/abdul-samad1706](https://www.linkedin.com/in/abdul-samad1706).\n\n" +
+      "Feel free to connect regarding AI/ML engineering opportunities and technical collaborations.",
     suggestions: [
       "Can I see your GitHub?",
       "How can I contact Abdul Samad?",
       "Where can I find your resume?",
-      "What is Abdul's background in Applied AI?",
+      "What has he built?",
     ],
   },
   github: {
     question: "Can I see your GitHub?",
     answer:
-      "Abdul's open-source projects and code repositories are hosted at [github.com/Abdul-Samad-17](https://github.com/Abdul-Samad-17).\n\n" +
-      "You can explore his project repositories, system architectures, and implementations there.",
+      "Abdul's open-source projects and code repositories are available at [github.com/Abdul-Samad-17](https://github.com/Abdul-Samad-17).\n\n" +
+      "You can explore his ML pipelines, robotics code, full-stack applications, and systems repositories there.",
     suggestions: [
+      "What has he built?",
       "Which project should I open first?",
-      "Could you share your LinkedIn?",
       "What technologies does Abdul work with most?",
-      "How can I contact Abdul Samad?",
+      "Where can I find your resume?",
     ],
   },
   resume: {
     question: "Where can I find your resume?",
     answer:
       "You can view and download Abdul Samad's resume directly at [/resume.pdf](/resume.pdf).\n\n" +
-      "It provides a detailed breakdown of his education at FAST NUCES, engineering internships, and technical competencies.",
+      "It covers his education at FAST NUCES, machine learning internship experience, engineering projects, and certifications.",
     suggestions: [
-      "What is Abdul's background in Applied AI?",
+      "What is Abdul's background in AI/ML?",
+      "What has he built?",
       "How can I contact Abdul Samad?",
       "Could you share your LinkedIn?",
-      "Which project should I open first?",
     ],
   },
 };
@@ -175,8 +187,18 @@ export function getCachedChipAnswer(message: string): CachedAnswer | null {
   const normalized = normalizeText(message);
 
   if (
+    normalized.includes("what has he built") ||
+    normalized.includes("what have you built") ||
+    normalized.includes("what did he build") ||
+    normalized.includes("built and shipped")
+  ) {
+    return CACHED_ANSWERS.built;
+  }
+
+  if (
+    normalized.includes("background in ai ml") ||
     normalized.includes("background in applied ai") ||
-    normalized.includes("applied ai background") ||
+    normalized.includes("ai ml background") ||
     normalized.includes("tell me about abdul") ||
     normalized.includes("who is abdul")
   ) {
@@ -184,28 +206,20 @@ export function getCachedChipAnswer(message: string): CachedAnswer | null {
   }
 
   if (
-    normalized.includes("approach system evaluation") ||
-    normalized.includes("how do you evaluate") ||
-    normalized.includes("evaluation methodology")
+    normalized.includes("flyrank") ||
+    normalized.includes("content refresh") ||
+    normalized.includes("scoring pipeline")
   ) {
-    return CACHED_ANSWERS.evaluation;
+    return CACHED_ANSWERS.flyrank;
   }
 
   if (
-    normalized.includes("example system b") ||
-    normalized.includes("agent tools") ||
-    normalized.includes("agent tool") ||
-    normalized.includes("agent system architecture")
+    normalized.includes("assistive navigation") ||
+    normalized.includes("navigation system") ||
+    normalized.includes("robotics") ||
+    normalized.includes("visually impaired")
   ) {
-    return CACHED_ANSWERS.agent_tools;
-  }
-
-  if (
-    normalized.includes("architectural challenge") ||
-    normalized.includes("complex architectural") ||
-    normalized.includes("complex architecture")
-  ) {
-    return CACHED_ANSWERS.architecture;
+    return CACHED_ANSWERS.navigation;
   }
 
   if (

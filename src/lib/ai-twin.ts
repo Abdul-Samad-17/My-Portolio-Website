@@ -1,5 +1,5 @@
 import { caseStudies, getCaseStudyPath } from "@/data/case-studies";
-import { about, experiences, highlightSentences, personalInfo, projects, recognition, skillCategories, stats } from "@/data/portfolio";
+import { about, bulletText, experiences, highlightSentences, personalInfo, projects, recognition, skillCategories, stats } from "@/data/portfolio";
 
 export const CHAT_MEMORY_WINDOW = 10;
 export const CHAT_STORAGE_KEY = "abdul-samad-ai-twin-chat";
@@ -122,7 +122,7 @@ const experienceContext = experiences
   .map(
     (experience) =>
       `- ${experience.company} | ${experience.role} | ${experience.period}\n${experience.bullets
-        .map((bullet) => `  - ${bullet}`)
+        .map((bullet) => `  - ${bulletText(bullet)}`)
         .join("\n")}`
   )
   .join("\n");
