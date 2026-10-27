@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { AI_MODEL, AI_REASONING_EFFORT, SYSTEM_PROMPT, SUGGESTION_SYSTEM_PROMPT } from "@/lib/ai-config";
+import { AI_REASONING_EFFORT, SYSTEM_PROMPT, SUGGESTION_SYSTEM_PROMPT, getAiModel } from "@/lib/ai-config";
 import {
   CHAT_FINAL_ANSWER_RESERVE_MS,
   CHAT_MAX_TOOL_ROUNDS,
@@ -779,7 +779,7 @@ export async function POST(request: Request) {
           elapsedMs: Date.now() - requestStartedAt,
           sources: Array.from(new Set(sources)).slice(0, 6),
           refusals,
-          model: AI_MODEL,
+          model: getAiModel(),
         };
         send({ type: "trace", trace });
       };
@@ -830,7 +830,7 @@ export async function POST(request: Request) {
               invokeUrl,
               headers,
               {
-                model: AI_MODEL,
+                model: getAiModel(),
                 messages: roundMessages,
                 top_p: 0.95,
                 temperature: 0.6,
@@ -1107,7 +1107,7 @@ Rules:
       invokeUrl,
       headers,
       {
-        model: AI_MODEL,
+        model: getAiModel(),
         messages: suggestionMessages,
         temperature: 0.7,
         top_p: 0.9,

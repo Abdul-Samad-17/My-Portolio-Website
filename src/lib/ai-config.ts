@@ -9,6 +9,15 @@ import { PORTFOLIO_CONTEXT_BRIEF } from "@/lib/ai-twin";
 export const AI_MODEL = process.env.AI_MODEL || "qwen/qwen3.8-27b";
 
 /**
+ * Returns the currently active AI model name from environment or default.
+ * Read dynamically per-request so model overrides in Vercel settings apply
+ * without requiring code changes.
+ */
+export function getAiModel(): string {
+  return process.env.AI_MODEL?.trim() || AI_MODEL;
+}
+
+/**
  * Reasoning effort for models that support it.
  * qwen/qwen3.8-27b always reasons; setting to "none" stops it from burning
  * tokens on reasoning passes during conversational turns.

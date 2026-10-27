@@ -14,10 +14,10 @@ export const CACHED_ANSWERS: Record<string, CachedAnswer> = {
       "### Production Systems & Case Studies\n" +
       "- **[Content-Refresh Scoring Pipeline (FlyRank)](/work/content-refresh-pipeline)**: Predictive ML pipeline ranking content pages by decline risk. Designed feature engineering, leakage audit, and client-holdout validation using DuckDB and Random Forest, achieving **0.74 precision@50 (3x improvement over baseline)**.\n" +
       "- **[AI Assistive Navigation System](/work/assistive-navigation)**: Assistive edge robotics architecture for visually impaired individuals using YOLOv8, DeepSORT, ROS2, and 360-degree LiDAR-camera sensor fusion on Raspberry Pi 4 (<200ms audio feedback latency, 70% collision risk reduction).\n" +
-      "- **[Daftar](/work/daftar)**: Multi-agent workplace simulation built at AICON'26 with team nexora. Simulates a graduate's 'first shift' with AI colleagues (Gemini + Next.js), running hidden browser tests and grading 6 workplace skills quoting user transcripts ([trydaftar.vercel.app](https://trydaftar.vercel.app)).\n" +
-      "- **[Capital Play](/work/capital-play)**: Sports venue booking platform with React, Node.js, MySQL, and Socket.io. Features 3 role dashboards, real-time slot locking, a background 'Ghost Engine' for slot lifecycles, and recursive pricing ([capital--play.vercel.app](https://capital--play.vercel.app)).\n\n" +
+      "- **[Daftar](/work/daftar)**: Multi-agent workplace simulation built by Abdul Samad at AICON'26 with team nexora. Simulates a graduate's 'first shift' with AI colleagues (Gemini + Next.js), running hidden browser tests and grading 6 workplace skills quoting user transcripts ([trydaftar.vercel.app](https://trydaftar.vercel.app)).\n" +
+      "- **[Capital Play](/work/capital-play)**: Sports venue booking platform with React, Node.js, MySQL, and Socket.io. Features 3 role dashboards, real-time slot locking, a background 'Ghost Engine' for slot lifecycles, and recursive pricing ([Source](https://github.com/Abdul-Samad-17/Capital_Play)).\n\n" +
       "### Web Platforms & Systems\n" +
-      "- **[RideFlow](#work)**: Full-stack ride-hailing platform with MySQL stored procedures, triggers, views, ACID wallet transactions, and Google Maps routing ([ride--flow.vercel.app](https://ride--flow.vercel.app)).\n" +
+      "- **[RideFlow](#work)**: Full-stack ride-hailing platform with MySQL stored procedures, triggers, views, ACID wallet transactions, and Google Maps routing ([Source](https://github.com/Abdul-Samad-17/Ride-Flow)).\n" +
       "- **[AI-ML-Automation-Tools](https://github.com/Abdul-Samad-17/AI-ML-Automation-Tools)**: Suite of 5 AI utilities (FAQ chatbot, email classifier, document QA, RAG chatbot, and FastAPI workflow automation).\n" +
       "- **[CineGraphX](https://github.com/Abdul-Samad-17/CineGraphX)**: Zero-STL C++ graph and tree database over 5,000 IMDb movies with custom AVL trees, achieving 5x faster search than linear scans.\n" +
       "- **[GridLock Rush](https://github.com/Abdul-Samad-17/GridLock-Rush)**: Bare-metal 2D arcade traffic game written in pure x86 Assembly.\n\n" +
@@ -97,9 +97,9 @@ export const CACHED_ANSWERS: Record<string, CachedAnswer> = {
     question: "Which project should I open first?",
     answer:
       "Recommended projects showcasing Abdul's engineering versatility:\n\n" +
-      "1. **[Daftar](/work/daftar)**: Multi-agent workplace simulation with hidden browser tests and AI transcript evaluations ([Live Demo](https://trydaftar.vercel.app)).\n" +
-      "2. **[Capital Play](/work/capital-play)**: Sports venue booking platform with an automated background 'Ghost Engine' and real-time Socket.io concurrency ([Live Demo](https://capital--play.vercel.app)).\n" +
-      "3. **[RideFlow](#work)**: Ride-hailing system with atomic MySQL transactions, triggers, and live Google Maps tracking ([Live Demo](https://ride--flow.vercel.app)).\n" +
+      "1. **[Daftar](/work/daftar)**: Multi-agent workplace simulation built by Abdul Samad with hidden browser tests and AI transcript evaluations ([Live Demo](https://trydaftar.vercel.app)).\n" +
+      "2. **[Capital Play](/work/capital-play)**: Sports venue booking platform with an automated background 'Ghost Engine' and real-time Socket.io concurrency ([Source](https://github.com/Abdul-Samad-17/Capital_Play)).\n" +
+      "3. **[RideFlow](#work)**: Ride-hailing system with atomic MySQL transactions, triggers, and live Google Maps tracking ([Source](https://github.com/Abdul-Samad-17/Ride-Flow)).\n" +
       "4. **[FlyRank Scoring Pipeline](/work/content-refresh-pipeline)**: Predictive ranking pipeline achieving 0.74 precision@50 on DuckDB.\n\n" +
       "Explore all projects in the [Work section](#work) or on [GitHub](https://github.com/Abdul-Samad-17).",
     suggestions: [
@@ -112,7 +112,7 @@ export const CACHED_ANSWERS: Record<string, CachedAnswer> = {
   education: {
     question: "What is your educational background?",
     answer:
-      "Abdul Samad is pursuing a **B.S. in Artificial Intelligence** at **FAST NUCES, Islamabad** (Aug 2024 – 2028).\n\n" +
+      "Abdul Samad is pursuing a **B.S. in Artificial Intelligence** at **FAST NUCES, Islamabad** (Aug 2024 – 2028, CGPA: 3.12).\n\n" +
       "Relevant coursework includes:\n" +
       "- Data Structures & Algorithms, Analysis of Algorithms\n" +
       "- Artificial Intelligence, Machine Learning\n" +

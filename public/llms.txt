@@ -5,7 +5,7 @@
 ## Overview
 - Name: Abdul Samad
 - Role: AI/ML Engineer
-- Education: B.S. Artificial Intelligence, FAST NUCES Islamabad (Aug 2024 – 2028)
+- Education: B.S. Artificial Intelligence, FAST NUCES Islamabad (Aug 2024 – 2028, CGPA: 3.12)
 - Focus: ML pipelines, computer-vision robotics, multi-agent systems, and full-stack AI products
 - Location: Islamabad, Pakistan
 - Email: abdulsammadsardar17@gmail.com
@@ -17,13 +17,13 @@
 ## Selected Engineering Case Studies
 - [Content-Refresh Scoring Pipeline (FlyRank)](https://abdul-samad-portfolio.example.com/work/content-refresh-pipeline): Predictive ML scoring pipeline ranking content pages by decline risk using DuckDB and Random Forest (0.74 precision@50, 3x gain over baseline).
 - [AI Assistive Navigation System](https://abdul-samad-portfolio.example.com/work/assistive-navigation): Real-time assistive robotics system for visually impaired users using YOLOv8, DeepSORT, and 360-degree LiDAR-camera fusion on ROS2/Raspberry Pi 4 (<200ms latency, 70% collision risk cut).
-- [Daftar](https://abdul-samad-portfolio.example.com/work/daftar): Multi-agent workplace simulation built at AICON'26 by team nexora with Gemini and Next.js, running hidden browser tests and evaluating 6 workplace skills.
+- [Daftar](https://abdul-samad-portfolio.example.com/work/daftar): Multi-agent workplace simulation built by Abdul Samad with team nexora at AICON'26 with Gemini and Next.js, running hidden browser tests and evaluating 6 workplace skills.
 - [Capital Play](https://abdul-samad-portfolio.example.com/work/capital-play): Full-stack sports venue booking platform featuring 3 role dashboards, automated background Ghost Engine for slot lifecycles, and real-time Socket.io concurrency.
 
 ## Selected Personal & Open-Source Projects
-- [Daftar](https://trydaftar.vercel.app): Multi-agent workplace simulation where a fresh graduate works a first shift with AI personas.
-- [Capital Play](https://capital--play.vercel.app): Sports ground booking platform with multi-role dashboards, automated slot engine, and live messaging.
-- [RideFlow](https://ride--flow.vercel.app): Full-stack ride hailing platform with MySQL stored procedures, triggers, views, atomic wallet payments, and Google Maps tracking.
+- [Daftar](https://trydaftar.vercel.app): Multi-agent workplace simulation built by Abdul Samad where a fresh graduate works a first shift with AI personas.
+- [Capital Play](https://github.com/Abdul-Samad-17/Capital_Play): Sports ground booking platform with multi-role dashboards, automated slot engine, and live messaging (Source only; live demo temporarily offline for database migration).
+- [RideFlow](https://github.com/Abdul-Samad-17/Ride-Flow): Full-stack ride hailing platform with MySQL stored procedures, triggers, views, atomic wallet payments, and Google Maps tracking (Source only).
 - [AI-ML-Automation-Tools](https://github.com/Abdul-Samad-17/AI-ML-Automation-Tools): Modular suite of 5 AI tools (FAQ chatbot, email classifier, document QA, RAG chatbot, and FastAPI workflow automation).
 - [CineGraphX](https://github.com/Abdul-Samad-17/CineGraphX): Zero-STL C++ graph and tree database over 5,000 IMDb movies with custom AVL trees, achieving 5x faster search.
 - [FlyRank-Internship](https://abdul-samad-17.github.io/FlyRank-Internship/): Content-refresh scoring pipeline repository and documentation.

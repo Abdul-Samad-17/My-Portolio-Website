@@ -223,7 +223,7 @@ export const caseStudies: CaseStudy[] = [
       },
     ],
     stack: ["Gemini", "Next.js", "TypeScript", "Vercel", "Tailwind CSS"],
-    ownership: "Contributor on team nexora.",
+    ownership: "Built by Abdul Samad with team nexora.",
     results: [
       { metric: "6", label: "Core workplace skills evaluated and scored" },
       { metric: "5", label: "Distinct AI personas with private knowledge" },
