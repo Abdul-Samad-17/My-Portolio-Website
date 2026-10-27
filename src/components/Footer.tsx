@@ -7,6 +7,7 @@ import logo from "@/assets/logo.png";
 import { Mail, Linkedin, Github } from "lucide-react";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { scrollToHash, scrollToTop } from "@/lib/scroll";
+import { openEmailAction } from "@/lib/email-action";
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
@@ -85,7 +86,7 @@ const Footer = () => {
             </p>
             <a
               href={personalInfo.resumeUrl}
-              download
+              download={personalInfo.resumeFilename}
               className="inline-flex items-center justify-center gap-2 self-center sm:self-auto rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
             >
               Download Resume
@@ -103,6 +104,11 @@ const Footer = () => {
                 <a
                   key={label}
                   href={href}
+                  onClick={(e) => {
+                    if (href.startsWith("mailto:")) {
+                      openEmailAction(personalInfo.email, e);
+                    }
+                  }}
                   target={href.startsWith("mailto") ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   aria-label={label}

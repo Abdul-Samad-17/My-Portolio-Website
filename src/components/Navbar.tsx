@@ -247,7 +247,7 @@ const Navbar = () => {
             <ThemeToggle />
             <a
               href={personalInfo.resumeUrl}
-              download
+              download={personalInfo.resumeFilename}
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 active:scale-[0.97] ml-2"
             >
               <Download className="w-3.5 h-3.5" />
@@ -314,7 +314,7 @@ const Navbar = () => {
                 <ThemeToggle />
                 <a
                   href={personalInfo.resumeUrl}
-                  download
+                  download={personalInfo.resumeFilename}
                   onClick={() => closeMenu(false)}
                   className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-primary text-primary-foreground active:scale-[0.97]"
                 >

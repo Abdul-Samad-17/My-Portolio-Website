@@ -1,7 +1,7 @@
 // Portfolio data for Abdul Samad
 
 import type { CaseStudySlug } from "@/data/case-studies";
-import { RESUME_PATH } from "@/lib/site-config";
+import { RESUME_PATH, RESUME_FILENAME } from "@/lib/site-config";
 
 export const personalInfo = {
   name: "Abdul Samad",
@@ -14,6 +14,7 @@ export const personalInfo = {
   linkedin: "https://www.linkedin.com/in/abdul-samad1706",
   github: "https://github.com/Abdul-Samad-17",
   resumeUrl: RESUME_PATH,
+  resumeFilename: RESUME_FILENAME,
 };
 
 /** `href` points each number at the surface that actually proves it. */

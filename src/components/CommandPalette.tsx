@@ -24,6 +24,7 @@ import { getProjectAnchor } from "@/lib/ai-twin";
 import { useLenisLock } from "@/hooks/useLenisLock";
 import { scrollToHash } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
+import { openEmailAction } from "@/lib/email-action";
 
 /** `terms` widens matching so "cv", "stack" or "hire" land somewhere sensible. */
 const SECTIONS = [
@@ -237,7 +238,16 @@ const CommandPalette = () => {
               >
                 <Command.Item
                   value="resume download cv curriculum vitae pdf"
-                  onSelect={() => run(() => window.open(personalInfo.resumeUrl, "_blank", "noopener,noreferrer"))}
+                  onSelect={() =>
+                    run(() => {
+                      const a = document.createElement("a");
+                      a.href = personalInfo.resumeUrl;
+                      a.download = personalInfo.resumeFilename;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    })
+                  }
                   className={itemClass}
                 >
                   <Download className="h-4 w-4 shrink-0 opacity-50" />
@@ -245,7 +255,7 @@ const CommandPalette = () => {
                 </Command.Item>
                 <Command.Item
                   value="email contact mail reach out hire"
-                  onSelect={() => run(() => { window.location.href = `mailto:${personalInfo.email}`; })}
+                  onSelect={() => run(() => openEmailAction(personalInfo.email))}
                   className={itemClass}
                 >
                   <Mail className="h-4 w-4 shrink-0 opacity-50" />

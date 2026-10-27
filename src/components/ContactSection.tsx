@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, Linkedin, Github, Send, Download, ArrowUpRight, Briefcase, Users, GitPullRequest, MessageSquare } from "lucide-react";
 import { personalInfo } from "@/data/portfolio";
 import { toast } from "@/components/ui/sonner";
+import { openEmailAction } from "@/lib/email-action";
 import {
   CONTACT_CLIENT_TIMEOUT_MS,
   CONTACT_HONEYPOT_FIELD,
@@ -189,6 +190,11 @@ const ContactSection = () => {
                     <a
                       key={label}
                       href={href}
+                      onClick={(e) => {
+                        if (href.startsWith("mailto:")) {
+                          openEmailAction(personalInfo.email, e);
+                        }
+                      }}
                       target={href.startsWith("mailto") ? undefined : "_blank"}
                       rel="noopener noreferrer"
                       className="group flex items-center gap-4 px-5 py-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 border border-black/5 dark:border-white/5 hover:border-primary/20 dark:hover:border-primary/20 transition-all duration-300"
@@ -210,7 +216,7 @@ const ContactSection = () => {
               <div className="mt-auto flex min-h-[122px] flex-col justify-between gap-4">
                 <a
                   href={personalInfo.resumeUrl}
-                  download
+                  download={personalInfo.resumeFilename}
                   className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-sm tracking-wide glow-accent-sm hover:glow-accent-md transition-all duration-300 active:scale-[0.98]"
                 >
                   <Download className="w-4 h-4" />

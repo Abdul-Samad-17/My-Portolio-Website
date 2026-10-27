@@ -85,7 +85,7 @@ const AboutSection = () => {
                     </p>
                     <a
                       href={personalInfo.resumeUrl}
-                      download
+                      download={personalInfo.resumeFilename}
                       className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition-transform active:scale-95"
                     >
                       <Download className="h-3.5 w-3.5" />

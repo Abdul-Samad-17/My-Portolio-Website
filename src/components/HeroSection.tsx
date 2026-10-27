@@ -167,7 +167,7 @@ const HeroSection = () => {
               </a>
               <a
                 href={personalInfo.resumeUrl}
-                download
+                download={personalInfo.resumeFilename}
                 className="btn-cta-secondary w-full sm:w-auto"
               >
                 <Download className="w-4 h-4 mr-1 text-primary" />

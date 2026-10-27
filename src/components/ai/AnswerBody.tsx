@@ -4,6 +4,8 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { scrollToHash } from "@/lib/scroll";
+import { RESUME_FILENAME } from "@/lib/site-config";
+import { openEmailAction } from "@/lib/email-action";
 
 /**
  * The markdown renderer shared by the AI Twin panel and every inline answer
@@ -25,11 +27,16 @@ export function buildAnswerComponents(navigateToSection: (href: string) => void)
         <a
           {...props}
           href={href}
-          download={isResumeLink && isInternalPath ? true : undefined}
+          download={isResumeLink && isInternalPath ? RESUME_FILENAME : undefined}
           target={isExternalLink ? "_blank" : undefined}
           rel={isExternalLink ? "noopener noreferrer" : undefined}
           onClick={(event) => {
             props.onClick?.(event);
+            if (href.startsWith("mailto:")) {
+              const email = href.replace(/^mailto:/i, "");
+              openEmailAction(email, event);
+              return;
+            }
             if (event.defaultPrevented || !isHashLink) return;
             event.preventDefault();
             navigateToSection(href);
