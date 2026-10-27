@@ -1,0 +1,23 @@
+{
+  "name": "Abdul Samad — AI/ML Engineer",
+  "short_name": "Abdul Samad",
+  "description": "Portfolio of Abdul Samad, AI/ML Engineer building ML pipelines, robotics, and full-stack AI products.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090e1a",
+  "theme_color": "#090e1a",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

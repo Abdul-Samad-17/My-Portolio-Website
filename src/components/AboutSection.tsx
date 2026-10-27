@@ -101,13 +101,12 @@ const AboutSection = () => {
           <div className="flex w-full min-w-0 flex-col gap-6 lg:w-2/3">
             <Reveal>
               <div className="flex items-start gap-5">
-                <div className="relative hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 sm:flex">
-                  <div aria-hidden="true" className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl" />
+                <div className="hidden shrink-0 sm:flex items-center justify-center">
                   <Image
                     src={logo}
                     alt=""
                     aria-hidden="true"
-                    className="pointer-events-none relative z-10 h-10 w-10 opacity-90"
+                    className="pointer-events-none h-14 w-14 object-contain"
                     draggable={false}
                   />
                 </div>
